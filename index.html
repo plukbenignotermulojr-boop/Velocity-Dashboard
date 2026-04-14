@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FUND DESK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#080d14;--surface:#0d1420;--surface2:#111927;--surface3:#161f2e;
+  --border:#1e2d42;--text:#e8eaf0;--muted:#5a7090;
+  --accent:#00d4aa;--accent2:#f0a500;--blue:#3b82f6;
+  --green:#00d4aa;--red:#ff4d6a;--purple:#8b5cf6;
+  --font-mono:'Space Mono',monospace;
+  --font-head:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-mono);font-size:12px;}
+body::before{content:'';position:fixed;inset:0;background:
+  linear-gradient(rgba(0,212,170,.012) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,212,170,.012) 1px,transparent 1px);
+  background-size:32px 32px;pointer-events:none;z-index:0;}
+
+/* ── HEADER ── */
+#hdr{position:sticky;top:0;z-index:100;background:rgba(8,13,20,.95);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;padding:0 18px;height:44px;}
+#logo{font-family:var(--font-head);font-weight:800;font-size:14px;
+  color:var(--accent);letter-spacing:2px;margin-right:8px;}
+#logo span{color:var(--text);opacity:.4;}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--red);display:inline-block;}
+.sdot.ok{background:var(--green);}
+.sdot.spin{background:var(--accent2);animation:pulse 1s infinite;}
+#stxt{font-size:10px;color:var(--muted);}
+#hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.hbadge{font-size:10px;color:var(--muted);padding:3px 8px;border:1px solid var(--border);
+  border-radius:3px;cursor:pointer;font-family:var(--font-mono);}
+.hbadge:hover{border-color:var(--accent);color:var(--text);}
+.hbadge b{color:var(--accent2);}
+
+/* ── TABS ── */
+nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 18px;overflow-x:auto;scrollbar-width:none;}
+nav::-webkit-scrollbar{display:none;}
+.tab{padding:10px 14px;cursor:pointer;color:var(--muted);font-size:11px;font-weight:700;
+  letter-spacing:.8px;text-transform:uppercase;border-bottom:2px solid transparent;
+  transition:all .15s;white-space:nowrap;font-family:var(--font-mono);}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* ── MAIN CONTENT ── */
+.content{position:relative;z-index:1;}
+.panel{display:none;padding:0 18px 32px;}
+.panel.active{display:block;}
+
+/* ── SECTION HEADER ── */
+.sh{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0 10px;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--border);margin-bottom:14px;}
+.st{font-family:var(--font-head);font-weight:800;font-size:12px;
+  color:var(--accent);letter-spacing:2px;text-transform:uppercase;}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:12px;}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.ct{font-family:var(--font-head);font-weight:700;font-size:11px;
+  color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+
+/* ── TILES ── */
+.ag{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px;}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:6px;
+  padding:14px;position:relative;overflow:hidden;}
+.tile::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.tile.g::after{background:var(--green);}
+.tile.r::after{background:var(--red);}
+.tile.y::after{background:var(--accent2);}
+.tile.b::after{background:var(--blue);}
+.tlbl{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.tval{font-family:var(--font-head);font-size:22px;font-weight:800;line-height:1;}
+.tsub{font-size:9px;color:var(--muted);margin-top:4px;}
+.pos{color:var(--green);}
+.neg{color:var(--red);}
+
+/* ── TABLES ── */
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:9px;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;
+  padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap;text-align:left;}
+td{padding:6px 8px;border-bottom:1px solid rgba(30,45,66,.5);vertical-align:middle;}
+tr:hover td{background:rgba(255,255,255,.015);}
+.r{text-align:right;}
+.empty{color:var(--muted);font-size:11px;padding:20px;text-align:center;}
+
+/* ── BUTTONS ── */
+.btn{padding:5px 12px;border-radius:4px;font-family:var(--font-mono);font-size:10px;
+  font-weight:700;cursor:pointer;letter-spacing:.5px;border:none;transition:all .15s;}
+.btn.prim{background:var(--accent);color:#080d14;}
+.btn.prim:hover{background:#00f0c0;}
+.btn.sec{background:var(--surface3);border:1px solid var(--border);color:var(--text);}
+.btn.sec:hover{border-color:var(--accent);color:var(--accent);}
+.btn.sm{padding:3px 9px;font-size:9px;}
+.btn.danger{background:rgba(255,77,106,.12);border:1px solid rgba(255,77,106,.3);color:var(--red);}
+
+/* ── INPUTS ── */
+.finp{background:var(--surface2);border:1px solid var(--border);border-radius:4px;
+  color:var(--text);font-family:var(--font-mono);font-size:11px;padding:5px 9px;outline:none;}
+.finp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,212,170,.08);}
+select.finp{cursor:pointer;}
+
+/* ── BADGES ── */
+.sb{font-size:9px;background:rgba(59,130,246,.12);color:var(--blue);
+  padding:2px 6px;border-radius:3px;font-weight:700;letter-spacing:.5px;}
+.pk{font-size:9px;padding:2px 7px;border-radius:3px;font-weight:700;letter-spacing:.5px;}
+.p-ben{background:rgba(0,212,170,.12);color:var(--green);}
+.p-jeff{background:rgba(240,165,0,.12);color:var(--accent2);}
+.p-monette{background:rgba(139,92,246,.12);color:var(--purple);}
+.p-rome{background:rgba(255,77,106,.12);color:var(--red);}
+.bo{font-size:8px;background:rgba(0,212,170,.1);color:var(--green);
+  padding:1px 5px;border-radius:3px;font-weight:700;}
+.bf{font-size:8px;background:rgba(255,77,106,.1);color:var(--red);
+  padding:1px 5px;border-radius:3px;font-weight:700;}
+
+/* ── GRID LAYOUTS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr;}}
+
+/* ── REAL-TIME INDICATOR ── */
+.rt-badge{font-size:8px;background:rgba(0,212,170,.1);color:var(--green);
+  padding:2px 6px;border-radius:10px;letter-spacing:.5px;animation:none;}
+.rt-badge.pulse{animation:rtpulse .6s ease;}
+
+/* ── PITCH SPECIFIC ── */
+.rank-card{background:var(--surface2);border:1px solid var(--border);border-radius:4px;
+  padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px;
+  transition:border-color .15s;}
+.rank-card:hover{border-color:var(--accent);}
+.rank-num{font-family:var(--font-head);font-weight:800;font-size:18px;
+  color:var(--border);width:24px;flex-shrink:0;}
+.rank-ticker{font-family:var(--font-head);font-weight:800;font-size:14px;color:var(--text);}
+.pass-chip{font-size:8px;padding:2px 7px;border-radius:10px;font-weight:700;letter-spacing:.5px;}
+.pass{background:rgba(0,212,170,.15);color:var(--green);}
+.watch{background:rgba(240,165,0,.15);color:var(--accent2);}
+.skip{background:rgba(255,77,106,.12);color:var(--red);}
+
+/* ── MONITOR R-BARS ── */
+.rbar{width:90px;height:16px;background:var(--surface3);border-radius:2px;
+  position:relative;overflow:hidden;display:inline-block;}
+.rbar-fill{height:100%;border-radius:2px;transition:width .3s;}
+.rbar-lbl{position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;font-size:9px;font-weight:700;color:#000;pointer-events:none;}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);
+  backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:24px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:var(--font-head);font-weight:800;font-size:14px;
+  color:var(--accent);letter-spacing:1px;margin-bottom:16px;}
+.mrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.mlbl{font-size:9px;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px;}
+
+/* ── ANIMATIONS ── */
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes rtpulse{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fade-up{animation:fadeUp .25s ease;}
+
+/* ── PIE CHART ── */
+#portfolio-pie{display:block;margin:0 auto;}
+#pie-legend{margin-top:10px;font-size:10px;display:flex;flex-direction:column;gap:4px;}
+.pie-leg-row{display:flex;justify-content:space-between;align-items:center;}
+.pie-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;}
+
+/* ── PLAN CALCULATOR ── */
+.calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:12px;}
+.calc-item{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:8px 12px;}
+.calc-lbl{font-size:9px;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px;}
+.calc-val{font-family:var(--font-head);font-weight:700;font-size:15px;color:var(--accent2);}
+
+/* ── REALTIME TOAST ── */
+#rt-toast{position:fixed;bottom:20px;right:20px;z-index:300;
+  background:var(--surface2);border:1px solid var(--accent);border-radius:6px;
+  padding:10px 16px;font-size:11px;color:var(--accent);
+  transform:translateY(60px);opacity:0;transition:all .3s;pointer-events:none;}
+#rt-toast.show{transform:translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div id="hdr">
+  <div id="logo">FUND<span>DESK</span></div>
+  <div class="sdot" id="sdot"></div>
+  <span id="stxt">Connecting...</span>
+  <div id="hdr-right">
+    <div class="rt-badge" id="rt-badge">● LIVE</div>
+    <div class="hbadge" onclick="editFund()">FUND: <b id="hbadge-fund">$400K</b></div>
+    <div class="hbadge" onclick="editVar()">VAR: <b id="hbadge-var">$1,200</b></div>
+    <span id="hdate" style="font-size:10px;color:var(--muted)"></span>
+    <button class="btn prim sm" onclick="saveAll()" id="save-all-btn">↑ SAVE ALL</button>
+  </div>
+</div>
+
+<!-- ── TABS ── -->
+<nav id="tabs">
+  <div class="tab active" onclick="switchTab('pitch',this)">📋 Pitch Board</div>
+  <div class="tab" onclick="switchTab('planner',this)">📐 Planner</div>
+  <div class="tab" onclick="switchTab('monitor',this)">📡 Monitor</div>
+  <div class="tab" onclick="switchTab('records',this)">📜 Records</div>
+  <div class="tab" onclick="switchTab('analytics',this)">📊 Analytics</div>
+</nav>
+
+<div class="content">
+
+<!-- ══ PITCH BOARD ══ -->
+<div class="panel active" id="panel-pitch">
+  <div class="sh">
+    <div class="st">Daily Pitch Board</div>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      <span style="font-size:10px;color:var(--muted)">DATE</span>
+      <input type="date" id="pitch-date" class="finp" style="width:140px;font-size:11px;padding:3px 8px" onchange="loadPitchForDate(this.value)">
+      <button class="btn sec sm" onclick="addPitchRow()">+ Add</button>
+      <button class="btn prim sm" onclick="savePitchToSupabase()">↑ Save Picks</button>
+      <button class="btn sec sm" onclick="loadPitchHistory()">📅 History</button>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct">Picks Input</div><div style="font-size:10px;color:var(--muted)">Score 1–5</div></div>
+      <div class="tw"><table class="tbl"><thead><tr>
+        <th>Ticker</th><th>Setup</th><th>Fund.</th><th>Notes</th><th>Picker</th>
+        <th class="r">BEN</th><th class="r">JEFF</th><th class="r">MON</th><th class="r">ROME</th><th class="r">AVG</th><th></th>
+      </tr></thead><tbody id="pitch-body"></tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">Rankings (≥3.0 = PASS)</div></div>
+      <div id="ranked-out"><div class="empty">Add picks → click Save Picks</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PLANNER ══ -->
+<div class="panel" id="panel-planner">
+  <div class="sh">
+    <div class="st">Trade Planner</div>
+    <div style="display:flex;gap:6px">
+      <button class="btn sec sm" onclick="clearPlan()">Clear Day</button>
+      <button class="btn prim sm" onclick="savePlanToSupabase()">↑ Save to DB</button>
+    </div>
+  </div>
+  <!-- Calculator -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="ch"><div class="ct">Calculator</div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:12px">
+      <div><div class="mlbl">Ticker</div><input class="finp" id="pp-t" placeholder="AMD" style="width:100%" oninput="calcPlan()"></div>
+      <div><div class="mlbl">Setup</div>
+        <select class="finp" id="pp-s" style="width:100%" onchange="calcPlan()">
+          <option>Momo-XBO</option><option>Momo-180</option><option>Momo-Daily</option>
+          <option>GNG</option><option>Range</option><option>Reversal</option>
+          <option>Coil</option><option>Reset</option><option>Bluesky</option><option>IMAC</option>
+        </select>
+      </div>
+      <div><div class="mlbl">Pivot</div><input class="finp" id="pp-piv" type="number" step=".01" style="width:100%" oninput="calcPlan()"></div>
+      <div><div class="mlbl">Cut/Stop</div><input class="finp" id="pp-cut" type="number" step=".01" style="width:100%" oninput="calcPlan()"></div>
+      <div><div class="mlbl">VAR $</div><input class="finp" id="pp-var" type="number" style="width:100%" oninput="calcPlan()"></div>
+      <div><div class="mlbl">Picker</div>
+        <select class="finp" id="pp-pk" style="width:100%">
+          <option>Ben</option><option>Jeff</option><option>Monette</option><option>Rome</option>
+        </select>
+      </div>
+    </div>
+    <div class="calc-grid" id="calc-out"></div>
+    <button class="btn prim" onclick="addToPlan()">+ Add to Plan</button>
+  </div>
+  <!-- Plan table -->
+  <div class="card">
+    <div class="ch">
+      <div class="ct">Plan Table</div>
+      <div style="display:flex;gap:4px">
+        <button class="btn sec sm" onclick="setPlanFilter('all')" id="pf-all">ALL</button>
+        <button class="btn sec sm" onclick="setPlanFilter('pending')" id="pf-pending">PENDING</button>
+        <button class="btn sec sm" onclick="setPlanFilter('dropped')" id="pf-dropped">DROPPED</button>
+        <button class="btn sec sm" onclick="setPlanFilter('executed')" id="pf-executed">EXECUTED</button>
+      </div>
+    </div>
+    <div class="tw"><table><thead><tr>
+      <th>Ticker</th><th>Setup</th><th>Picker</th>
+      <th class="r">Pivot</th><th class="r">Cut</th><th class="r">Spread</th>
+      <th class="r">VAR$</th><th class="r">Shares</th><th class="r">Size$</th><th class="r">Size%</th>
+      <th class="r" style="color:#00d4aa">1R</th><th class="r" style="color:#00ffd5">2R</th>
+      <th class="r" style="color:#ffd700">3R</th><th class="r" style="color:#ff9f43">4R</th>
+      <th>Notes</th><th style="color:var(--green)">Execute?</th><th>Status</th><th></th>
+    </tr></thead><tbody id="plan-body"></tbody></table></div>
+    <div id="plan-info" style="font-size:10px;color:var(--muted);margin-top:8px;text-align:right"></div>
+  </div>
+</div>
+
+<!-- ══ MONITOR ══ -->
+<div class="panel" id="panel-monitor">
+  <div class="sh">
+    <div class="st">Position Monitor</div>
+    <div style="display:flex;gap:6px">
+      <button class="btn sec sm" onclick="addMonitorRow()">+ Position</button>
+      <button class="btn sec sm" id="prices-btn" onclick="refreshAllPrices()" style="color:var(--accent2)">↻ Prices</button>
+      <button class="btn prim sm" onclick="saveMonitorToSupabase()">↑ Save to DB</button>
+    </div>
+  </div>
+  <div class="g3" style="margin-bottom:12px">
+    <div class="tile g"><div class="tlbl">Open Risk</div><div class="tval" id="m-or">$0</div><div class="tsub" id="m-or-sub">Active VAR + Gains at Risk</div></div>
+    <div class="tile y"><div class="tlbl">Gains at Risk</div><div class="tval" id="m-gr">$0</div><div class="tsub">Paper gains exposed</div></div>
+    <div class="tile r"><div class="tlbl">Active VAR</div><div class="tval" id="m-vr">$0</div><div class="tsub" id="m-vr-sub">Downside below cost</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:12px;margin-bottom:12px;align-items:start">
+    <div class="card" style="padding:14px">
+      <div class="ch" style="padding:0 0 10px;margin-bottom:10px"><div class="ct">Portfolio Exposure</div></div>
+      <canvas id="portfolio-pie" width="252" height="252"></canvas>
+      <div id="pie-legend"></div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">Exposure Summary</div></div>
+      <div id="pie-summary" style="font-size:11px;display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">Positions</div></div>
+    <div class="tw"><table><thead><tr>
+      <th>Issue</th><th class="r">Shares</th><th class="r">Curr$</th>
+      <th class="r" style="color:var(--red)">Cut/Trail</th><th class="r" style="color:var(--blue)">Purchase</th>
+      <th class="r" style="color:#00d4aa">1R</th><th class="r" style="color:#00ffd5">2R</th>
+      <th class="r" style="color:#ffd700">3R</th><th class="r" style="color:#ff9f43">4R</th>
+      <th class="r" style="color:var(--green)">Locked$</th>
+      <th class="r">Open Risk</th><th class="r">Gain Risk</th><th class="r">Val Risk</th>
+      <th class="r">P&amp;L$</th><th class="r">P&amp;L%</th>
+      <th>SELL</th><th>Status</th><th>Log</th><th></th>
+    </tr></thead><tbody id="mon-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ══ RECORDS ══ -->
+<div class="panel" id="panel-records">
+  <div class="sh">
+    <div class="st">Records</div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <div style="display:flex;gap:2px;background:var(--surface2);border-radius:5px;padding:2px">
+        <button id="rec-tab-trades" onclick="switchRecordsTab('trades')" style="padding:4px 12px;border:none;border-radius:4px;font-family:var(--font-mono);font-size:10px;font-weight:700;cursor:pointer;background:var(--accent);color:#080d14">TRADE LOG</button>
+        <button id="rec-tab-tags" onclick="switchRecordsTab('tags')" style="padding:4px 12px;border:none;border-radius:4px;font-family:var(--font-mono);font-size:10px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted)">TAG BOOK</button>
+      </div>
+      <div id="rec-actions-trades" style="display:flex;gap:6px">
+        <button class="btn sec sm" onclick="addTrade()">+ Log Trade</button>
+      </div>
+      <div id="rec-actions-tags" style="display:none;gap:6px">
+        <button class="btn sec sm" onclick="addTag()">+ Tag</button>
+      </div>
+    </div>
+  </div>
+  <div id="rec-panel-trades">
+    <div class="card">
+      <div class="ch"><div class="ct">Executed Trades</div><div style="font-size:10px;color:var(--muted)">Click row to expand</div></div>
+      <div class="tw"><table><thead><tr>
+        <th>Date</th><th>Ticker</th><th>Setup</th><th>Picker</th>
+        <th class="r">Buy$</th><th class="r">Shares</th><th class="r">Size$</th>
+        <th class="r">Sell$</th><th class="r">Sold</th>
+        <th class="r">Ret$</th><th class="r">Ret%</th><th class="r">R:R</th><th></th>
+      </tr></thead><tbody id="trades-body"></tbody></table></div>
+    </div>
+  </div>
+  <div id="rec-panel-tags" style="display:none">
+    <div class="card">
+      <div class="ch"><div class="ct">Trade Tags</div></div>
+      <div class="tw"><table><thead><tr>
+        <th>Ticker</th><th>Scratch Zone</th><th>Entry Exec</th><th>Mkt Cond</th>
+        <th>RSI</th><th>Day Count</th><th>Macro</th><th>#7</th><th>#8</th><th>#9</th><th>#10</th><th></th>
+      </tr></thead><tbody id="tags-body"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ANALYTICS ══ -->
+<div class="panel" id="panel-analytics">
+  <div class="sh">
+    <div class="st">Analytics</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:9px;color:var(--muted);letter-spacing:.8px;text-transform:uppercase">Range</span>
+      <input type="date" id="a-from" class="finp" style="width:130px;font-size:11px;padding:3px 7px" onchange="renderAnalytics()">
+      <span style="font-size:10px;color:var(--muted)">to</span>
+      <input type="date" id="a-to" class="finp" style="width:130px;font-size:11px;padding:3px 7px" onchange="renderAnalytics()">
+      <button onclick="clearAnalyticsRange()" class="btn sec sm">All</button>
+      <span id="a-range-lbl" style="font-size:9px;color:var(--accent);font-family:var(--font-mono)"></span>
+    </div>
+  </div>
+  <div class="ag" id="a-stats"></div>
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct">By Setup</div></div>
+      <table><thead><tr><th>Setup</th><th class="r">Trades</th><th class="r">Return$</th><th class="r">Hit%</th><th class="r">Edge</th></tr></thead>
+      <tbody id="a-setup"></tbody></table>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">By Picker</div></div>
+      <table><thead><tr><th>Picker</th><th class="r">Trades</th><th class="r">Return$</th><th class="r">Hit%</th><th class="r">R:R</th></tr></thead>
+      <tbody id="a-picker"></tbody></table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">P&amp;L Chart</div></div>
+    <canvas id="pnl-chart" height="100" style="padding:12px;width:100%"></canvas>
+  </div>
+</div>
+
+</div><!-- end content -->
+
+<!-- ── REALTIME TOAST ── -->
+<div id="rt-toast"></div>
+
+<!-- ── EXECUTE MODAL ── -->
+<div id="exec-modal" style="display:none" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title">EXECUTE TRADE</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Confirm actual fill — adjust if price or shares differ from plan</div>
+    <div class="mrow">
+      <div><div class="mlbl">Ticker</div><div id="em-ticker" style="font-weight:800;font-size:15px;color:var(--text)"></div></div>
+      <div><div class="mlbl">Setup</div><div id="em-setup" style="color:var(--accent2);font-size:13px"></div></div>
+      <div><div class="mlbl">Picker</div><div id="em-picker"></div></div>
+      <div><div class="mlbl">Planned Pivot</div><div id="em-pivot" style="color:var(--blue);font-size:13px"></div></div>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--text);letter-spacing:.5px">ACTUAL FILL</div>
+        <label style="font-size:10px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:5px">
+          <input type="checkbox" id="em-split"> SPLIT ORDER
+        </label>
+      </div>
+      <div class="mrow">
+        <div><div class="mlbl">Entry Price</div><input class="finp" id="em-e1" type="number" step=".01" style="width:100%" oninput="calcExecPreview()"></div>
+        <div><div class="mlbl">Shares</div><input class="finp" id="em-s1" type="number" style="width:100%" oninput="calcExecPreview()"></div>
+      </div>
+      <div id="em-fill2" style="display:none" class="mrow">
+        <div><div class="mlbl">Fill 2 Price</div><input class="finp" id="em-e2" type="number" step=".01" style="width:100%" oninput="calcExecPreview()"></div>
+        <div><div class="mlbl">Fill 2 Shares</div><input class="finp" id="em-s2" type="number" style="width:100%" oninput="calcExecPreview()"></div>
+      </div>
+    </div>
+    <div id="em-preview" style="font-size:10px;color:var(--muted);margin-bottom:16px;min-height:18px"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn sec" onclick="closeExecModal()">Cancel</button>
+      <button class="btn prim" id="em-confirm">✓ CONFIRM EXECUTE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SELL MODAL ── -->
+<div id="sell-modal" style="display:none" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title" id="sm-title">PARTIAL SELL</div>
+    <div id="sm-info" style="font-size:11px;color:var(--muted);margin-bottom:14px"></div>
+    <div class="mrow">
+      <div><div class="mlbl">Sell Price</div><input class="finp" id="sm-price" type="number" step=".01" style="width:100%"></div>
+      <div><div class="mlbl">Shares</div><input class="finp" id="sm-shares" type="number" style="width:100%"></div>
+    </div>
+    <div id="sm-preview" style="font-size:10px;color:var(--muted);margin-bottom:14px;min-height:16px"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn sec" onclick="closeSellModal()">Cancel</button>
+      <button class="btn prim" id="sm-confirm">✓ Lock in Sell</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// SUPABASE CLIENT
+// ════════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://vrlhmibdkqclyrvdzphq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_zvgcrSS5jdBOZx69CIfBVw_Qke-RyfX';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════
+let PORT  = parseInt(localStorage.getItem('fd_PORT') || '400000');
+let DVAR  = parseInt(localStorage.getItem('fd_DVAR') || '1200');
+let pitchData   = [];
+let planData    = [];
+let monitorData = [];
+let tradesData  = [];
+let tagData     = [];
+let planFilter  = 'all';
+let activePitchDate = new Date().toISOString().split('T')[0];
+let execPlanIdx = null;
+let sellMonIdx  = null;
+
+const SETUP_OPTIONS = ['Momo-XBO','Momo-180','Momo-Daily','GNG','Range','Reversal','Coil','Reset','Bluesky','IMAC','Others'];
+const FUND_OPTIONS  = ['Earnings','Speculative','Growth Story','Mega Trend','Others'];
+
+// ════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════
+const n  = v => v===''||v==null ? null : parseFloat(v)||null;
+const f$ = v => v==null||isNaN(v) ? '—' : '$'+Number(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fN = (v,d=2) => v==null||isNaN(v) ? '—' : Number(v).toFixed(d);
+const fP = v => v==null||isNaN(v) ? '—' : (v*100).toFixed(2)+'%';
+function pkc(p){return {ben:'p-ben',jeff:'p-jeff',monette:'p-monette',rome:'p-rome'}[(p||'').toLowerCase()]||'';}
+function calcSh(piv,cut,va){if(!piv||!cut||piv<=0)return null;const r=Math.abs(piv-cut);return r>0?Math.floor(va/r):null;}
+function calcTgt(piv,cut){const r=Math.abs(piv-cut);return[piv+r,piv+2*r,piv+3*r,piv+4*r];}
+function editFund(){const v=prompt('Fund size:',PORT);if(v){PORT=parseInt(v.replace(/\D/g,''));localStorage.setItem('fd_PORT',PORT);updateBadges();}}
+function editVar(){const v=prompt('Default VAR $:',DVAR);if(v){DVAR=parseInt(v);localStorage.setItem('fd_DVAR',DVAR);updateBadges();}}
+function updateBadges(){
+  document.getElementById('hbadge-fund').textContent='$'+(PORT>=1e6?(PORT/1e6).toFixed(1)+'M':(PORT/1000).toFixed(0)+'K')+' USD';
+  document.getElementById('hbadge-var').textContent='$'+DVAR.toLocaleString();
+}
+function setSS(state,msg){
+  const d=document.getElementById('sdot'),t=document.getElementById('stxt');
+  d.className='sdot '+(state==='ok'?'ok':state==='spin'?'spin':'');
+  if(msg)t.textContent=msg;
+}
+function showToast(msg){
+  const t=document.getElementById('rt-toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ════════════════════════════════════════════════════════════
+function switchTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-'+id).classList.add('active');
+  if(id==='analytics') renderAnalytics();
+}
+function switchRecordsTab(which){
+  const trP=document.getElementById('rec-panel-trades'),tgP=document.getElementById('rec-panel-tags');
+  const trA=document.getElementById('rec-actions-trades'),tgA=document.getElementById('rec-actions-tags');
+  const trB=document.getElementById('rec-tab-trades'),tgB=document.getElementById('rec-tab-tags');
+  if(which==='trades'){
+    trP.style.display='';tgP.style.display='none';
+    trA.style.display='flex';tgA.style.display='none';
+    trB.style.cssText+=';background:var(--accent);color:#080d14';
+    tgB.style.cssText+=';background:transparent;color:var(--muted)';
+  } else {
+    trP.style.display='none';tgP.style.display='';
+    trA.style.display='none';tgA.style.display='flex';
+    tgB.style.cssText+=';background:var(--accent);color:#080d14';
+    trB.style.cssText+=';background:transparent;color:var(--muted)';
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// SUPABASE LOAD — fetch all data on init
+// ════════════════════════════════════════════════════════════
+async function loadAllData(){
+  setSS('spin','Loading...');
+  try{
+    const today = activePitchDate;
+    const [pr,plr,mr,tr,tgr] = await Promise.all([
+      sb.from('pitch').select('*').eq('date', today).order('created_at'),
+      sb.from('plan').select('*').eq('date', today).order('created_at'),
+      sb.from('monitor').select('*').order('created_at'),
+      sb.from('trades').select('*').order('created_at', {ascending:false}),
+      sb.from('tags').select('*').order('ticker'),
+    ]);
+    if(pr.data)  pitchData   = pr.data;
+    if(plr.data) planData    = plr.data.map(rowToPlan);
+    if(mr.data)  monitorData = mr.data.map(rowToMonitor);
+    if(tr.data)  tradesData  = tr.data;
+    if(tgr.data) tagData     = tgr.data;
+    renderAll();
+    setSS('ok','Live · '+new Date().toLocaleTimeString());
+  }catch(e){setSS('','Error: '+e.message);}
+}
+
+function rowToPlan(r){
+  return {
+    id:r.id, date:r.date, ticker:r.ticker, setup:r.setup, picker:r.picker,
+    pivot:r.pivot, cut:r.cut, 'var$':r.var_usd||DVAR,
+    shares:r.shares, 'size$':r.size_usd, sizePct:r.size_pct,
+    r1:r.r1, r2:r.r2, r3:r.r3, r4:r.r4, notes:r.notes, status:r.status||'pending'
+  };
+}
+function rowToMonitor(r){
+  return {
+    id:r.id, issue:r.issue, shares:r.shares, curr:r.curr, cut:r.cut,
+    purchase:r.purchase, r1:r.r1, r2:r.r2, r3:r.r3, r4:r.r4,
+    setup:r.setup, picker:r.picker, 'var$':r.var_usd||DVAR, notes:r.notes,
+    executedAt:r.executed_at, partialSells:r.partial_sells||[],
+    rStatus:r.r_status||{}, dayHigh:r.day_high, loggedAt:r.logged_at
+  };
+}
+
+// ════════════════════════════════════════════════════════════
+// REAL-TIME SUBSCRIPTIONS
+// ════════════════════════════════════════════════════════════
+function setupRealtime(){
+  // Pitch — when any teammate saves, refresh pitch board
+  sb.channel('pitch-changes')
+    .on('postgres_changes', {event:'*',schema:'public',table:'pitch'}, payload=>{
+      const today = activePitchDate;
+      if(payload.new && payload.new.date === today){
+        // Upsert locally to avoid full reload
+        const idx = pitchData.findIndex(r=>r.id===payload.new.id);
+        if(idx>=0) pitchData[idx] = payload.new;
+        else pitchData.push(payload.new);
+        renderPitch();
+        refreshRankings();
+        showToast('📋 Pitch updated: '+payload.new.ticker);
+        const badge = document.getElementById('rt-badge');
+        badge.classList.add('pulse');
+        setTimeout(()=>badge.classList.remove('pulse'),600);
+      }
+    })
+    .subscribe();
+
+  // Monitor — live position updates
+  sb.channel('monitor-changes')
+    .on('postgres_changes', {event:'*',schema:'public',table:'monitor'}, payload=>{
+      if(payload.eventType==='INSERT'){
+        monitorData.push(rowToMonitor(payload.new));
+      } else if(payload.eventType==='UPDATE'){
+        const idx=monitorData.findIndex(r=>r.id===payload.new.id);
+        if(idx>=0) monitorData[idx]=rowToMonitor(payload.new);
+      } else if(payload.eventType==='DELETE'){
+        monitorData=monitorData.filter(r=>r.id!==payload.old.id);
+      }
+      renderMonitor();
+      showToast('📡 Monitor updated: '+(payload.new&&payload.new.issue||''));
+    })
+    .subscribe();
+
+  // Plan — team plan updates
+  sb.channel('plan-changes')
+    .on('postgres_changes', {event:'*',schema:'public',table:'plan'}, payload=>{
+      const today = activePitchDate;
+      if(payload.new && payload.new.date === today){
+        const idx=planData.findIndex(r=>r.id===payload.new.id);
+        if(idx>=0) planData[idx]=rowToPlan(payload.new);
+        else planData.push(rowToPlan(payload.new));
+        renderPlan();
+        showToast('📐 Plan updated: '+payload.new.ticker);
+      }
+    })
+    .subscribe();
+}
+
+// ════════════════════════════════════════════════════════════
+// PITCH BOARD
+// ════════════════════════════════════════════════════════════
+async function loadPitchForDate(date){
+  activePitchDate = date;
+  setSS('spin','Loading pitch...');
+  const {data} = await sb.from('pitch').select('*').eq('date',date).order('created_at');
+  pitchData = data || [];
+  renderPitch();
+  refreshRankings();
+  setSS('ok','Loaded '+date);
+}
+
+function addPitchRow(){
+  pitchData.push({
+    date:activePitchDate, ticker:'', setup:SETUP_OPTIONS[0],
+    fundamentals:FUND_OPTIONS[0], notes:'', picker:'Ben',
+    ben:null, jeff:null, monette:null, rome:null, _new:true
+  });
+  renderPitch();
+}
+
+async function savePitchToSupabase(){
+  setSS('spin','Saving picks...');
+  const today = activePitchDate;
+  // Upsert each row — conflict on (date, ticker) updates the existing row
+  const rows = pitchData
+    .filter(r=>r.ticker&&r.ticker.trim())
+    .map(r=>({
+      date:today, ticker:r.ticker.trim().toUpperCase(),
+      setup:r.setup, fundamentals:r.fundamentals, notes:r.notes,
+      picker:r.picker, ben:r.ben, jeff:r.jeff, monette:r.monette, rome:r.rome
+    }));
+  if(!rows.length){setSS('ok','Nothing to save');return;}
+  const {error} = await sb.from('pitch').upsert(rows, {onConflict:'date,ticker'});
+  if(error) setSS('','Save error: '+error.message);
+  else setSS('ok','Picks saved for '+today);
+}
+
+function renderPitch(){
+  const tb = document.getElementById('pitch-body');
+  if(!pitchData.length){
+    tb.innerHTML='<tr><td colspan="11" class="empty">No picks yet — click + Add</td></tr>';
+    document.getElementById('ranked-out').innerHTML='<div class="empty">Add picks → save to see rankings</div>';
+    return;
+  }
+  tb.innerHTML = pitchData.map((row,i)=>{
+    const sc=[row.ben,row.jeff,row.monette,row.rome].filter(v=>v!=null);
+    const avg=sc.length?sc.reduce((a,b)=>a+b,0)/sc.length:null;
+    const ac=avg===null?'var(--muted)':avg>=3?'var(--green)':avg>=2?'var(--accent2)':'var(--red)';
+    return`<tr>
+      <td><input style="background:transparent;border:none;color:var(--text);font-family:var(--font-mono);font-size:12px;font-weight:700;width:55px"
+        value="${row.ticker||''}" oninput="pitchData[${i}].ticker=this.value.trim().toUpperCase()"></td>
+      <td><select style="background:var(--surface3);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:10px;border-radius:3px;padding:2px 4px;max-width:110px"
+        onchange="pitchData[${i}].setup=this.value">
+        ${SETUP_OPTIONS.map(o=>`<option ${row.setup===o?'selected':''}>${o}</option>`).join('')}
+      </select></td>
+      <td><select style="background:var(--surface3);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:10px;border-radius:3px;padding:2px 4px;max-width:110px"
+        onchange="pitchData[${i}].fundamentals=this.value">
+        ${FUND_OPTIONS.map(o=>`<option ${row.fundamentals===o?'selected':''}>${o}</option>`).join('')}
+      </select></td>
+      <td><input style="background:transparent;border:none;color:var(--text);font-family:var(--font-mono);font-size:11px;width:110px"
+        placeholder="notes or URL..." value="${row.notes||''}" oninput="pitchData[${i}].notes=this.value"></td>
+      <td><select style="background:var(--surface3);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:10px;border-radius:3px;padding:2px 4px"
+        onchange="pitchData[${i}].picker=this.value">
+        ${['Ben','Jeff','Monette','Rome'].map(p=>`<option ${row.picker===p?'selected':''}>${p}</option>`).join('')}
+      </select></td>
+      ${['ben','jeff','monette','rome'].map(p=>`<td class="r"><input type="number" min="1" max="5"
+        style="background:transparent;border:none;color:var(--text);font-family:var(--font-mono);font-size:12px;width:30px;text-align:right"
+        value="${row[p]||''}" oninput="pitchData[${i}].${p}=this.value?parseFloat(this.value):null;refreshRankings()"></td>`).join('')}
+      <td class="r" style="font-weight:700;color:${ac}">${avg?avg.toFixed(2):'—'}</td>
+      <td><button onclick="pitchData.splice(${i},1);renderPitch();refreshRankings()"
+        style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px">×</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function refreshRankings(){
+  const ranked = pitchData.map(r=>{
+    const sc=[r.ben,r.jeff,r.monette,r.rome].filter(v=>v!=null);
+    return {...r, avg:sc.length?sc.reduce((a,b)=>a+b,0)/sc.length:null};
+  }).filter(r=>r.ticker&&r.avg!=null).sort((a,b)=>b.avg-a.avg);
+  const out = document.getElementById('ranked-out');
+  if(!ranked.length){out.innerHTML='<div class="empty">Score picks to see rankings</div>';return;}
+  out.innerHTML = ranked.map((r,i)=>{
+    const chip = r.avg>=3?'pass':r.avg>=2?'watch':'skip';
+    const label = r.avg>=3?'PASS':r.avg>=2?'WATCH':'SKIP';
+    return`<div class="rank-card fade-up">
+      <div class="rank-num">${i+1}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="rank-ticker">${r.ticker}</div>
+          <span class="sb">${r.setup||'—'}</span>
+          <span class="pass-chip ${chip}">${label}</span>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">
+          <span class="pk ${pkc(r.picker)}">${r.picker||'—'}</span>
+          &nbsp;avg <span style="color:${r.avg>=3?'var(--green)':r.avg>=2?'var(--accent2)':'var(--red)'}">${r.avg.toFixed(2)}</span>
+        </div>
+      </div>
+      <div style="font-size:22px;font-family:var(--font-head);font-weight:800;color:${r.avg>=3?'var(--green)':r.avg>=2?'var(--accent2)':'var(--red)'}">${r.avg.toFixed(1)}</div>
+      <button onclick="sendToPlan('${r.ticker}','${r.setup||''}','${r.picker||''}')"
+        style="background:var(--accent);color:#080d14;border:none;border-radius:3px;padding:4px 9px;font-family:var(--font-mono);font-size:10px;font-weight:800;cursor:pointer">→ PLAN</button>
+    </div>`;
+  }).join('');
+}
+
+async function loadPitchHistory(){
+  const {data} = await sb.from('pitch').select('date').order('date',{ascending:false});
+  if(!data) return;
+  const dates = [...new Set(data.map(r=>r.date))];
+  const html = dates.map(d=>`<div onclick="loadPitchForDate('${d}');document.getElementById('hist-modal').remove()"
+    style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text)"
+    onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text)'">${d}</div>`).join('');
+  const m = document.createElement('div');
+  m.id='hist-modal';m.className='modal-overlay';
+  m.innerHTML=`<div class="modal-box" style="width:300px"><div class="modal-title">PITCH HISTORY</div>
+    <div style="max-height:400px;overflow-y:auto">${html}</div>
+    <button class="btn sec" style="margin-top:12px;width:100%" onclick="document.getElementById('hist-modal').remove()">Close</button>
+  </div>`;
+  document.body.appendChild(m);
+}
+
+// ════════════════════════════════════════════════════════════
+// PLANNER
+// ════════════════════════════════════════════════════════════
+function sendToPlan(ticker,setup,picker){
+  document.getElementById('pp-t').value=ticker;
+  document.getElementById('pp-s').value=setup;
+  document.getElementById('pp-pk').value=picker;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector('[onclick="switchTab(\'planner\',this)"]').classList.add('active');
+  document.getElementById('panel-planner').classList.add('active');
+  calcPlan();
+}
+
+function calcPlan(){
+  const piv=parseFloat(document.getElementById('pp-piv').value);
+  const cut=parseFloat(document.getElementById('pp-cut').value);
+  const va=parseFloat(document.getElementById('pp-var').value)||DVAR;
+  const out=document.getElementById('calc-out');
+  if(!piv||!cut||isNaN(piv)||isNaN(cut)){out.innerHTML='';return;}
+  const r=Math.abs(piv-cut);
+  const sh=r>0?Math.floor(va/r):null;
+  const sz=sh?sh*piv:null;
+  const [r1,r2,r3,r4]=calcTgt(piv,cut);
+  out.innerHTML=[
+    {l:'Shares',v:sh?sh.toLocaleString():'—',c:'var(--text)'},
+    {l:'Size $',v:f$(sz),c:'var(--accent2)'},
+    {l:'Size %',v:sz?fP(sz/PORT):'—',c:'var(--muted)'},
+    {l:'1R',v:fN(r1),c:'#00d4aa'},{l:'2R',v:fN(r2),c:'#00ffd5'},
+    {l:'3R',v:fN(r3),c:'#ffd700'},{l:'4R',v:fN(r4),c:'#ff9f43'},
+  ].map(x=>`<div class="calc-item"><div class="calc-lbl">${x.l}</div><div class="calc-val" style="color:${x.c}">${x.v}</div></div>`).join('');
+}
+
+function addToPlan(){
+  const ticker=document.getElementById('pp-t').value.trim().toUpperCase();
+  if(!ticker){alert('Enter a ticker');return;}
+  const piv=parseFloat(document.getElementById('pp-piv').value);
+  const cut=parseFloat(document.getElementById('pp-cut').value);
+  const va=parseFloat(document.getElementById('pp-var').value)||DVAR;
+  if(!piv||!cut){alert('Enter pivot and cut');return;}
+  const r=Math.abs(piv-cut);
+  const sh=r>0?Math.floor(va/r):null;
+  const sz=sh?sh*piv:null;
+  const [r1,r2,r3,r4]=calcTgt(piv,cut);
+  planData.push({
+    date:activePitchDate, ticker, setup:document.getElementById('pp-s').value,
+    picker:document.getElementById('pp-pk').value,
+    pivot:piv, cut, 'var$':va, shares:sh, 'size$':sz,
+    sizePct:sz?+(sz/PORT*100).toFixed(2):null,
+    r1:+r1.toFixed(2),r2:+r2.toFixed(2),r3:+r3.toFixed(2),r4:+r4.toFixed(2),
+    notes:'', status:'pending', _new:true
+  });
+  renderPlan();
+}
+
+async function savePlanToSupabase(){
+  setSS('spin','Saving plan...');
+  const rows=planData.filter(r=>r.ticker).map(r=>({
+    date:r.date||activePitchDate, ticker:r.ticker, setup:r.setup, picker:r.picker,
+    pivot:r.pivot, cut:r.cut, var_usd:r['var$']||DVAR, shares:r.shares,
+    size_usd:r['size$'], size_pct:r.sizePct, r1:r.r1, r2:r.r2, r3:r.r3, r4:r.r4,
+    notes:r.notes, status:r.status||'pending'
+  }));
+  const {error}=await sb.from('plan').upsert(rows);
+  if(error) setSS('','Error: '+error.message);
+  else setSS('ok','Plan saved');
+}
+
+function setPlanFilter(f){
+  planFilter=f;
+  ['all','pending','dropped','executed'].forEach(x=>{
+    document.getElementById('pf-'+x).style.opacity=x===f?'1':'0.5';
+  });
+  renderPlan();
+}
+
+function clearPlan(){
+  if(confirm('Clear today\'s plan?')){planData=[];renderPlan();}
+}
+
+function renderPlan(){
+  const tb=document.getElementById('plan-body');
+  const filtered=planData.map((r,i)=>({...r,_i:i})).filter(r=>planFilter==='all'||(r.status||'pending')===planFilter);
+  if(!filtered.length){tb.innerHTML=`<tr><td colspan="18" class="empty">No ${planFilter==='all'?'':''+planFilter+' '}trades planned.</td></tr>`;document.getElementById('plan-info').textContent='';return;}
+  tb.innerHTML=filtered.map(row=>{
+    const i=row._i;
+    const va=row['var$']||DVAR;
+    const sh=row.shares||calcSh(row.pivot,row.cut,va);
+    const sz=sh&&row.pivot?sh*row.pivot:row['size$'];
+    const[r1,r2,r3,r4]=calcTgt(row.pivot||0,row.cut||0);
+    const stStyle=row.status==='executed'?'background:rgba(0,212,170,.15);color:var(--green)':row.status==='dropped'?'background:rgba(255,77,106,.12);color:var(--red)':'background:var(--surface3);color:var(--muted)';
+    return`<tr>
+      <td style="font-weight:700">${row.ticker}</td>
+      <td><span class="sb">${row.setup||'—'}</span></td>
+      <td><span class="pk ${pkc(row.picker)}">${row.picker||'—'}</span></td>
+      <td class="r" style="color:var(--blue)">${fN(row.pivot)}</td>
+      <td class="r" style="color:var(--red)">${fN(row.cut)}</td>
+      <td class="r" style="color:var(--text)">${row.pivot&&row.cut?fN(+(row.pivot-row.cut).toFixed(2)):'—'}</td>
+      <td class="r">${f$(va)}</td>
+      <td class="r">${sh?sh.toLocaleString():'—'}</td>
+      <td class="r">${f$(sz)}</td>
+      <td class="r">${sz?fP(sz/PORT):'—'}</td>
+      <td class="r" style="color:#00d4aa">${fN(row.r1||r1)}</td>
+      <td class="r" style="color:#00ffd5">${fN(row.r2||r2)}</td>
+      <td class="r" style="color:#ffd700">${fN(row.r3||r3)}</td>
+      <td class="r" style="color:#ff9f43">${fN(row.r4||r4)}</td>
+      <td style="font-size:10px;color:var(--muted);max-width:100px;overflow:hidden;text-overflow:ellipsis">${row.notes||''}</td>
+      <td style="text-align:center">
+        <button onclick="openExecModal(${i})" style="background:var(--green);color:#080d14;border:none;border-radius:3px;padding:3px 9px;font-family:var(--font-mono);font-size:10px;font-weight:800;cursor:pointer">Y</button>
+        <button onclick="planData[${i}].status='dropped';renderPlan()" style="background:var(--surface3);border:1px solid var(--border);border-radius:3px;padding:3px 7px;font-family:var(--font-mono);font-size:10px;color:var(--muted);cursor:pointer;margin-left:3px">N</button>
+      </td>
+      <td style="text-align:center"><span style="font-size:9px;padding:2px 6px;border-radius:3px;${stStyle}">${(row.status||'pending').toUpperCase()}</span></td>
+      <td><button onclick="planData.splice(${i},1);renderPlan()" style="background:none;border:none;color:var(--red);cursor:pointer">×</button></td>
+    </tr>`;
+  }).join('');
+  const tot=planData.reduce((acc,r)=>{const s=r.shares||calcSh(r.pivot,r.cut,r['var$']||DVAR);return acc+(s&&r.pivot?s*r.pivot:0);},0);
+  document.getElementById('plan-info').textContent=`${planData.length} trades | Exposure: ${f$(tot)} (${fP(tot/PORT)})`;
+}
+
+// ════════════════════════════════════════════════════════════
+// EXECUTE MODAL
+// ════════════════════════════════════════════════════════════
+function openExecModal(idx){
+  execPlanIdx=idx;
+  const row=planData[idx];
+  document.getElementById('em-ticker').textContent=row.ticker||'—';
+  document.getElementById('em-setup').textContent=row.setup||'—';
+  document.getElementById('em-pivot').textContent='$'+fN(row.pivot);
+  document.getElementById('em-picker').innerHTML=`<span class="pk ${pkc(row.picker)}">${row.picker||'—'}</span>`;
+  document.getElementById('em-e1').value=row.pivot||'';
+  document.getElementById('em-s1').value=row.shares||'';
+  document.getElementById('em-e2').value='';
+  document.getElementById('em-s2').value='';
+  document.getElementById('em-split').checked=false;
+  document.getElementById('em-fill2').style.display='none';
+  document.getElementById('em-split').onchange=function(){document.getElementById('em-fill2').style.display=this.checked?'grid':'none';};
+  document.getElementById('exec-modal').style.display='flex';
+  document.getElementById('em-confirm').onclick=confirmExecute;
+  calcExecPreview();
+}
+
+function closeExecModal(){document.getElementById('exec-modal').style.display='none';}
+
+function calcExecPreview(){
+  const e1=parseFloat(document.getElementById('em-e1').value)||0;
+  const s1=parseFloat(document.getElementById('em-s1').value)||0;
+  const splitOn=document.getElementById('em-split').checked;
+  const e2=splitOn?parseFloat(document.getElementById('em-e2').value)||0:0;
+  const s2=splitOn?parseFloat(document.getElementById('em-s2').value)||0:0;
+  if(!e1||!s1){document.getElementById('em-preview').textContent='';return;}
+  const tot=s1+(s2||0);
+  const avg=s2&&e2?(e1*s1+e2*s2)/tot:e1;
+  const row=execPlanIdx!=null?planData[execPlanIdx]:null;
+  const sz=avg*tot;
+  document.getElementById('em-preview').textContent=
+    `Fill: ${f$(sz)} (${tot} sh) · Avg: $${avg.toFixed(2)} · Size: ${fP(sz/PORT)}${row?' · Cut: '+fN(row.cut):''}`;
+}
+
+async function confirmExecute(){
+  const row=planData[execPlanIdx];
+  const e1=parseFloat(document.getElementById('em-e1').value);
+  const s1=parseFloat(document.getElementById('em-s1').value);
+  if(!e1||!s1){alert('Enter entry price and shares');return;}
+  const splitOn=document.getElementById('em-split').checked;
+  const e2=splitOn?parseFloat(document.getElementById('em-e2').value)||0:0;
+  const s2=splitOn?parseFloat(document.getElementById('em-s2').value)||0:0;
+  const tot=s1+(s2||0);
+  const avg=s2&&e2?(e1*s1+e2*s2)/tot:e1;
+  const entry=+avg.toFixed(4);
+  const tgts=row.cut&&entry?calcTgt(entry,row.cut):[null,null,null,null];
+  const monRow={
+    issue:row.ticker||'', shares:tot, curr:entry, purchase:entry,
+    cut:row.cut||null, setup:row.setup||'', picker:row.picker||'',
+    var_usd:row['var$']||DVAR, notes:row.notes||'',
+    r1:tgts[0]?+tgts[0].toFixed(2):null, r2:tgts[1]?+tgts[1].toFixed(2):null,
+    r3:tgts[2]?+tgts[2].toFixed(2):null, r4:tgts[3]?+tgts[3].toFixed(2):null,
+    partial_sells:[], r_status:{}, executed_at:new Date().toISOString().split('T')[0]
+  };
+  setSS('spin','Executing...');
+  const {data,error}=await sb.from('monitor').insert([monRow]).select();
+  if(error){setSS('','Error: '+error.message);return;}
+  monitorData.push(rowToMonitor(data[0]));
+  planData[execPlanIdx].status='executed';
+  savePlanToSupabase();
+  closeExecModal();
+  renderPlan();
+  renderMonitor();
+  // Switch to monitor
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector('[onclick="switchTab(\'monitor\',this)"]').classList.add('active');
+  document.getElementById('panel-monitor').classList.add('active');
+  setSS('ok','Executed → Monitor');
+}
+
+// ════════════════════════════════════════════════════════════
+// MONITOR
+// ════════════════════════════════════════════════════════════
+function addMonitorRow(){
+  const ticker=prompt('Ticker:');if(!ticker)return;
+  const purchase=parseFloat(prompt('Purchase price:'));if(!purchase)return;
+  const shares=parseFloat(prompt('Shares:'));if(!shares)return;
+  const cut=parseFloat(prompt('Cut/Stop price (optional, press Cancel to skip):'));
+  const tgts=cut&&purchase?calcTgt(purchase,cut):[null,null,null,null];
+  saveMonitorRow({
+    issue:ticker.toUpperCase(), shares, purchase, curr:purchase,
+    cut:cut||null, r1:tgts[0]?+tgts[0].toFixed(2):null,
+    r2:tgts[1]?+tgts[1].toFixed(2):null, r3:tgts[2]?+tgts[2].toFixed(2):null,
+    r4:tgts[3]?+tgts[3].toFixed(2):null,
+    var_usd:DVAR, partial_sells:[], r_status:{},
+    executed_at:new Date().toISOString().split('T')[0]
+  });
+}
+
+async function saveMonitorRow(rowData){
+  setSS('spin','Saving...');
+  const {data,error}=await sb.from('monitor').insert([rowData]).select();
+  if(error){setSS('','Error: '+error.message);return;}
+  monitorData.push(rowToMonitor(data[0]));
+  renderMonitor();
+  setSS('ok','Position added');
+}
+
+async function saveMonitorToSupabase(){
+  setSS('spin','Saving monitor...');
+  for(const row of monitorData){
+    if(!row.id) continue;
+    const {error}=await sb.from('monitor').update({
+      curr:row.curr, cut:row.cut, partial_sells:row.partialSells||[],
+      r_status:row.rStatus||{}, day_high:row.dayHigh, logged_at:row.loggedAt
+    }).eq('id',row.id);
+    if(error) console.warn('Monitor save error:', error);
+  }
+  setSS('ok','Monitor saved');
+}
+
+async function deleteMonitorRow(id,idx){
+  const row=monitorData[idx];
+  if(!confirm(row.loggedAt?'Trade logged. Remove from monitor?':'Not logged yet. Delete anyway?')) return;
+  if(id) await sb.from('monitor').delete().eq('id',id);
+  monitorData.splice(idx,1);
+  renderMonitor();
+}
+
+function renderMonitor(){
+  const tb=document.getElementById('mon-body');
+  let or=0,gr=0,vr=0,atRisk=0,rfCount=0;
+  if(!monitorData.length){
+    tb.innerHTML='<tr><td colspan="19" class="empty">No positions — click + Position</td></tr>';
+    setMonTiles(0,0,0,0,0);renderPortfolioPie();return;
+  }
+  tb.innerHTML=monitorData.map((row,i)=>{
+    const sold=(row.partialSells||[]).reduce((a,s)=>a+s.shares,0);
+    const open=Math.max(0,row.shares-sold);
+    const locked=(row.partialSells||[]).reduce((a,s)=>a+(s.price-row.purchase)*s.shares,0);
+    const pnl=open>0&&row.purchase?(row.curr-row.purchase)*open+locked:locked;
+    const cost=row.purchase*row.shares;
+    const pp=cost>0?pnl/cost:null;
+    const isClosed=open<=0&&row.shares>0;
+    const curr=parseFloat(row.curr)||0;
+    const purch=parseFloat(row.purchase)||0;
+    const cut=parseFloat(row.cut)||0;
+    const trail=cut>=purch&&cut>0;
+    let oR=0,gR=0;
+    if(open>0&&!isClosed){
+      if(trail){oR=0;gR=curr>cut?(curr-cut)*open:0;}
+      else if(cut>0){oR=(purch-cut)*open;gR=curr>purch?(curr-purch)*open:0;}
+      else{oR=row['var$']||DVAR;gR=curr>purch?(curr-purch)*open:0;}
+    }
+    or+=oR;gr+=gR;vr+=oR+gR;
+    if(oR>0)atRisk++;
+    if(trail&&open>0&&!isClosed)rfCount++;
+    const status=isClosed?'<span class="bf">CLOSED</span>':trail?'<span style="font-size:8px;background:rgba(0,212,170,.15);color:var(--green);padding:1px 5px;border-radius:3px;font-weight:700">●FREE</span>':'<span class="bo">●OPEN</span>';
+    return`<tr style="${isClosed?'opacity:0.7':''}">
+      <td style="font-weight:700;white-space:nowrap">${row.issue} ${status}</td>
+      <td class="r">${open}${sold>0?`<span style="font-size:9px;color:var(--muted);margin-left:2px">/${row.shares}</span>`:''}</td>
+      <td class="r" style="white-space:nowrap">
+        <input type="number" step=".01" value="${row.curr||''}" ${isClosed?'disabled':''} 
+          onchange="monitorData[${i}].curr=parseFloat(this.value);renderMonitor()"
+          style="background:transparent;border:none;color:${isClosed?'var(--muted)':'var(--accent2)'};font-family:var(--font-mono);font-size:12px;width:60px;text-align:right;${isClosed?'opacity:.4':''}"
+        ><span onclick="refreshOnePrice(${i})" title="Fetch from Finnhub" style="cursor:pointer;font-size:9px;color:var(--muted);margin-left:2px;opacity:.6"
+          onmouseover="this.style.opacity=1;this.style.color='var(--accent2)'" onmouseout="this.style.opacity=.6;this.style.color='var(--muted)'">↻</span>
+      </td>
+      <td class="r"><input type="number" step=".01" value="${row.cut||''}" placeholder="trail"
+        ${isClosed?'disabled':'title="Move above cost to go risk-free"'}
+        onchange="monitorData[${i}].cut=parseFloat(this.value)||null;renderMonitor()"
+        style="background:transparent;border:none;color:${isClosed?'var(--muted)':trail?'var(--green)':'var(--red)'};font-family:var(--font-mono);font-size:12px;width:65px;text-align:right;font-weight:${trail?'700':'400'};${isClosed?'opacity:.4':''}"></td>
+      <td class="r" style="color:var(--blue)">${row.purchase||'—'}</td>
+      <td style="padding:4px">${buildRBar(row,row.r1,'#00d4aa',i,1)}</td>
+      <td style="padding:4px">${buildRBar(row,row.r2,'#00ffd5',i,2)}</td>
+      <td style="padding:4px">${buildRBar(row,row.r3,'#ffd700',i,3)}</td>
+      <td style="padding:4px">${buildRBar(row,row.r4,'#ff9f43',i,4)}</td>
+      <td class="r" style="color:var(--green);font-weight:700">${locked>0?f$(locked):'—'}</td>
+      <td class="r" style="color:var(--accent2)">${oR>0?f$(oR):trail&&!isClosed?'<span style="font-size:9px;background:rgba(0,212,170,.12);color:var(--green);padding:1px 5px;border-radius:3px;font-weight:700">FREE</span>':'$0'}</td>
+      <td class="r" style="color:var(--green)">${gR>0?f$(gR):'$0'}</td>
+      <td class="r" style="color:var(--red)">${f$(oR+gR)}</td>
+      <td class="r ${pnl>0?'pos':pnl<0?'neg':''}">${f$(pnl)}</td>
+      <td class="r ${pp!=null&&pp>0?'pos':pp!=null&&pp<0?'neg':''}">${pp!=null?fP(pp):'—'}</td>
+      <td style="text-align:center">${isClosed
+        ?'<span style="font-size:9px;color:var(--muted);opacity:.3">SELL</span>'
+        :`<button onclick="openSellModal(${i})" style="background:var(--surface3);border:1px solid var(--accent2);border-radius:3px;padding:2px 9px;font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--accent2);cursor:pointer">SELL</button>`
+      }</td>
+      <td style="text-align:center">${isClosed
+        ?'<span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(255,77,106,.12);color:var(--red);font-weight:700">CLOSED</span>'
+        :'<span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(0,212,170,.08);color:var(--green);font-weight:700">OPEN</span>'
+      }</td>
+      <td style="text-align:center">${row.loggedAt
+        ?'<span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(0,200,100,.12);color:var(--green);font-weight:700">LOGGED</span>'
+        :isClosed?`<button onclick="logTrade(${i})" style="background:var(--surface3);border:1px solid var(--green);border-radius:3px;padding:2px 7px;font-family:var(--font-mono);font-size:9px;font-weight:700;color:var(--green);cursor:pointer">Log Trade</button>`
+        :'<span style="font-size:9px;color:var(--muted);opacity:.35;cursor:not-allowed">Log Trade</span>'
+      }</td>
+      <td><button onclick="deleteMonitorRow('${row.id||''}',${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:14px">×</button></td>
+    </tr>`;
+  }).join('');
+  setMonTiles(or,gr,vr,atRisk,rfCount);
+  renderPortfolioPie();
+}
+
+function buildRBar(row,target,color,idx,rNum){
+  if(!target||!row.purchase) return '<td style="width:90px"></td>';
+  const curr=parseFloat(row.curr)||0;
+  const purch=parseFloat(row.purchase)||0;
+  const st=row.rStatus&&row.rStatus['r'+rNum];
+  const autoHit=curr>=target;
+  const dayH=row.dayHigh||0;
+  const autoReached=!autoHit&&dayH>=target;
+  const status=autoHit?'HIT':autoReached?'REACHED':st||null;
+  const tPrice=parseFloat(target).toFixed(2);
+  if(status==='HIT'){
+    return '<div class="rbar" style="background:'+color+';cursor:pointer" onclick="cycleRStatus('+idx+','+rNum+')" title="'+rNum+'R HIT: $'+tPrice+'"><div class="rbar-lbl">HIT &#10003;</div></div>';
+  }
+  if(status==='REACHED'){
+    return '<div class="rbar" style="background:#f97316;cursor:pointer" onclick="cycleRStatus('+idx+','+rNum+')" title="Reached '+rNum+'R: $'+tPrice+'"><div class="rbar-lbl">REACHED</div></div>';
+  }
+  const pct=purch>0?Math.min(100,Math.max(0,(curr-purch)/(target-purch)*100)):0;
+  const filled=pct>=100;
+  return '<div class="rbar" onclick="cycleRStatus('+idx+','+rNum+')" style="cursor:pointer" title="$'+tPrice+'">'
+    +'<div class="rbar-fill" style="width:'+pct+'%;background:'+color+';opacity:'+(filled?1:.7)+'"></div>'
+    +'<div class="rbar-lbl" style="color:'+(filled?'#000':'var(--text)')+';font-size:8px">$'+tPrice+'</div>'
+    +'</div>';
+}
+
+function cycleRStatus(idx,rNum){
+  const row=monitorData[idx];
+  if(!row)return;
+  if(!row.rStatus)row.rStatus={};
+  const k='r'+rNum;
+  const cur=row.rStatus[k]||null;
+  row.rStatus[k]=!cur?'REACHED':cur==='REACHED'?'HIT':null;
+  renderMonitor();
+}
+
+function setMonTiles(or,gr,vr,atRisk,rfCount){
+  document.getElementById('m-or').textContent=f$(or+gr);
+  document.getElementById('m-gr').textContent=f$(gr);
+  document.getElementById('m-vr').textContent=f$(or);
+  const orSub=document.getElementById('m-or-sub');
+  const vrSub=document.getElementById('m-vr-sub');
+  if(orSub)orSub.textContent=or>0&&gr>0?'Active VAR + Gains at Risk':or>0?'Active VAR only':gr>0?'Gains at Risk only':'$0 exposure';
+  if(vrSub)vrSub.textContent=atRisk>0?atRisk+' at-risk trade'+(atRisk>1?'s':'')+(rfCount>0?' · '+rfCount+' risk-free':''):rfCount>0?rfCount+' protected trade'+(rfCount>1?'s':''):'No open positions';
+}
+
+// ── PRICE FETCHING ──────────────────────────────────────────
+async function fetchPrice(ticker){
+  try{
+    const r=await fetch('https://finnhub.io/api/v1/quote?symbol='+encodeURIComponent(ticker)+'&token=free',{signal:AbortSignal.timeout(5000)});
+    if(r.ok){const d=await r.json();if(d&&d.c&&d.c>0)return parseFloat(d.c.toFixed(2));}
+  }catch(e){}
+  try{
+    const r2=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent('https://query2.finance.yahoo.com/v8/finance/chart/'+ticker+'?interval=1d&range=1d'),{signal:AbortSignal.timeout(8000)});
+    if(r2.ok){const o=await r2.json();const d=JSON.parse(o.contents||'{}');const m=d.chart&&d.chart.result&&d.chart.result[0]&&d.chart.result[0].meta;if(m&&m.regularMarketPrice>0)return parseFloat(m.regularMarketPrice.toFixed(2));}
+  }catch(e){}
+  return null;
+}
+
+async function refreshOnePrice(idx){
+  const row=monitorData[idx];if(!row||!row.issue)return;
+  const price=await fetchPrice(row.issue);
+  if(price){monitorData[idx].curr=price;renderMonitor();}
+}
+
+async function refreshAllPrices(){
+  const btn=document.getElementById('prices-btn');
+  btn.textContent='Fetching...';btn.disabled=true;
+  let updated=0,failed=0;
+  for(let i=0;i<monitorData.length;i++){
+    const row=monitorData[i];
+    if(!row.issue)continue;
+    const sold=(row.partialSells||[]).reduce((a,s)=>a+s.shares,0);
+    if(row.shares-sold<=0)continue;
+    btn.textContent=row.issue+'...';
+    const price=await fetchPrice(row.issue);
+    if(price){monitorData[i].curr=price;updated++;}
+    else failed++;
+    await new Promise(r=>setTimeout(r,300));
+  }
+  btn.innerHTML='↻ Prices';btn.disabled=false;
+  renderMonitor();
+  setSS('ok','Updated '+updated+' price'+(updated!==1?'s':'')+(failed>0?' ('+failed+' failed)':''));
+}
+
+// ── PORTFOLIO PIE ───────────────────────────────────────────
+function renderPortfolioPie(){
+  const c=document.getElementById('portfolio-pie');
+  const ctx=c.getContext('2d');
+  const W=252,H=252,cx=W/2,cy=H/2,outer=110,inner=68;
+  ctx.clearRect(0,0,W,H);
+  const palette=['#00d4aa','#f0a500','#3b82f6','#ff4d6a','#8b5cf6','#f97316','#06b6d4','#84cc16'];
+  const open=monitorData.filter(r=>{const s=(r.partialSells||[]).reduce((a,x)=>a+x.shares,0);return r.shares-s>0;});
+  const invested=open.reduce((a,r)=>{const s=(r.partialSells||[]).reduce((a2,x)=>a2+x.shares,0);return a+(r.purchase*(r.shares-s));},0);
+  const avail=Math.max(0,PORT-invested);
+  const slices=[...open.map((r,i)=>{const s=(r.partialSells||[]).reduce((a,x)=>a+x.shares,0);return{label:r.issue,value:r.purchase*(r.shares-s),color:palette[i%palette.length]};}),{label:'Cash',value:avail,color:'#1e2d42'}];
+  const tot=slices.reduce((a,s)=>a+s.value,0);
+  if(!tot){ctx.fillStyle='var(--surface3)';ctx.beginPath();ctx.arc(cx,cy,outer,0,Math.PI*2);ctx.arc(cx,cy,inner,0,Math.PI*2,true);ctx.fill();return;}
+  let angle=-Math.PI/2;
+  slices.forEach(s=>{
+    const sa=s.value/tot*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,outer,angle,angle+sa);ctx.closePath();
+    ctx.fillStyle=s.color;ctx.fill();
+    angle+=sa;
+  });
+  ctx.beginPath();ctx.arc(cx,cy,inner,0,Math.PI*2);ctx.fillStyle='#080d14';ctx.fill();
+  const pct=PORT>0?(invested/PORT*100):0;
+  ctx.fillStyle=pct>60?'#000':'#e8eaf0';
+  ctx.font='bold 18px Space Grotesk,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(fP(invested/PORT),cx,cy-8);
+  ctx.fillStyle='#e8eaf0';ctx.font='500 10px Space Grotesk,sans-serif';
+  ctx.fillText('INVESTED',cx,cy+10);
+  // Legend
+  const leg=document.getElementById('pie-legend');
+  leg.innerHTML=slices.filter(s=>s.label!=='Cash').map(s=>`<div class="pie-leg-row"><div><span class="pie-dot" style="background:${s.color}"></span>${s.label}</div><div>${f$(s.value)} · ${fP(s.value/PORT)}</div></div>`).join('');
+  // Summary
+  const newSlots=Math.floor(avail/DVAR);
+  document.getElementById('pie-summary').innerHTML=`
+    <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Fund Size</span><span style="color:var(--text)">${f$(PORT)}</span></div>
+    <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Invested</span><span style="color:var(--accent2)">${f$(invested)} (${fP(invested/PORT)})</span></div>
+    <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Available</span><span style="color:var(--green)">${f$(avail)} (${fP(avail/PORT)})</span></div>
+    <hr style="border-color:var(--border);margin:4px 0">
+    <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Open Positions</span><span style="color:var(--text)">${open.length}</span></div>
+    <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">New Slots @ VAR</span><span style="color:var(--accent);font-weight:700">${newSlots} trades</span></div>`;
+}
+
+// ── SELL MODAL ──────────────────────────────────────────────
+function openSellModal(idx){
+  sellMonIdx=idx;
+  const row=monitorData[idx];
+  const sold=(row.partialSells||[]).reduce((a,s)=>a+s.shares,0);
+  const open=row.shares-sold;
+  document.getElementById('sm-title').textContent='SELL — '+row.issue;
+  document.getElementById('sm-info').textContent=`${open} shares open · Entry $${fN(row.purchase)} · Curr $${fN(row.curr)}`;
+  document.getElementById('sm-price').value=row.curr||'';
+  document.getElementById('sm-shares').value=open;
+  document.getElementById('sm-preview').textContent='';
+  document.getElementById('sell-modal').style.display='flex';
+  document.getElementById('sm-confirm').onclick=confirmSell;
+}
+function closeSellModal(){document.getElementById('sell-modal').style.display='none';}
+async function confirmSell(){
+  const row=monitorData[sellMonIdx];
+  const price=parseFloat(document.getElementById('sm-price').value);
+  const shares=parseFloat(document.getElementById('sm-shares').value);
+  if(!price||!shares){alert('Enter price and shares');return;}
+  const sold=(row.partialSells||[]).reduce((a,s)=>a+s.shares,0);
+  const open=row.shares-sold;
+  if(shares>open){alert('Cannot sell more than open shares ('+open+')');return;}
+  if(!row.partialSells)row.partialSells=[];
+  row.partialSells.push({price,shares,date:new Date().toISOString().split('T')[0]});
+  if(row.id){
+    await sb.from('monitor').update({partial_sells:row.partialSells}).eq('id',row.id);
+  }
+  closeSellModal();
+  renderMonitor();
+}
+
+// ── LOG TRADE ───────────────────────────────────────────────
+async function logTrade(idx){
+  const row=monitorData[idx];
+  if(!row)return;
+  const sold=(row.partialSells||[]).reduce((a,s)=>a+s.shares,0);
+  const open=row.shares-sold;
+  let avgSell=null,totalSold=sold;
+  let sellVal=(row.partialSells||[]).reduce((a,s)=>a+s.price*s.shares,0);
+  if(open<=0&&sold>0){avgSell=sellVal/sold;}
+  else if(row.curr){totalSold=row.shares;sellVal+=row.curr*open;avgSell=sellVal/row.shares;}
+  const pnl=avgSell?((avgSell-row.purchase)*totalSold):null;
+  const pp=pnl&&row.purchase&&row.shares?pnl/(row.purchase*row.shares):null;
+  const rr=pnl&&DVAR?+(pnl/DVAR).toFixed(2):null;
+  const entry={
+    date:new Date().toISOString().split('T')[0], ticker:row.issue||'',
+    setup:row.setup||'', picker:row.picker||'', buy_price:row.purchase,
+    shares:row.shares, size_usd:(row.purchase||0)*row.shares,
+    sell_price:avgSell?+avgSell.toFixed(4):null, shares_sold:totalSold,
+    ret_usd:pnl?+pnl.toFixed(2):null, ret_pct:pp?+pp.toFixed(4):null, rr,
+    partial_sells:row.partialSells||[]
+  };
+  const {error}=await sb.from('trades').insert([entry]);
+  if(error){alert('Log error: '+error.message);return;}
+  tradesData.unshift({...entry,id:Date.now()});
+  monitorData[idx].loggedAt=entry.date;
+  if(row.id){await sb.from('monitor').update({logged_at:entry.date}).eq('id',row.id);}
+  renderMonitor();
+  renderTrades();
+  setSS('ok','Trade logged → Records');
+}
+
+// ════════════════════════════════════════════════════════════
+// RECORDS
+// ════════════════════════════════════════════════════════════
+function renderTrades(){
+  const tb=document.getElementById('trades-body');
+  if(!tradesData.length){tb.innerHTML='<tr><td colspan="13" class="empty">No trades logged.</td></tr>';return;}
+  tb.innerHTML=tradesData.map((t,i)=>{
+    const pnl=t.ret_usd||((t.sell_price&&t.shares_sold)?(t.sell_price-t.buy_price)*t.shares_sold:null);
+    const pp=pnl&&t.buy_price&&t.shares?pnl/(t.buy_price*t.shares):null;
+    const rr=pnl?+(pnl/DVAR).toFixed(2):null;
+    return`<tr>
+      <td style="color:var(--muted)">${t.date||'—'}</td>
+      <td style="font-weight:700">${t.ticker}</td>
+      <td><span class="sb">${t.setup||'—'}</span></td>
+      <td><span class="pk ${pkc(t.picker)}">${t.picker||'—'}</span></td>
+      <td class="r" style="color:var(--blue)">${fN(t.buy_price||t.buyPrice)}</td>
+      <td class="r">${(t.shares||0).toLocaleString()}</td>
+      <td class="r">${f$((t.buy_price||t.buyPrice)&&t.shares?(t.buy_price||t.buyPrice)*t.shares:null)}</td>
+      <td class="r" style="color:var(--accent2)">${fN(t.sell_price||t.sellPrice)}</td>
+      <td class="r">${(t.shares_sold||t.sharesSold||0).toLocaleString()}</td>
+      <td class="r ${pnl>0?'pos':pnl<0?'neg':''}">${pnl!=null?f$(pnl):'—'}</td>
+      <td class="r ${pnl>0?'pos':pnl<0?'neg':''}">${pp!=null?fP(pp):'—'}</td>
+      <td class="r ${rr>0?'pos':rr<0?'neg':''}">${rr!=null?rr+'x':'—'}</td>
+      <td><button onclick="deleteTrade(${i})" style="background:none;border:none;color:var(--red);cursor:pointer">×</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function deleteTrade(i){
+  if(!confirm('Delete this trade?'))return;
+  const t=tradesData[i];
+  if(t.id&&typeof t.id==='string') await sb.from('trades').delete().eq('id',t.id);
+  tradesData.splice(i,1);
+  renderTrades();
+}
+
+function addTrade(){
+  const ticker=prompt('Ticker:');if(!ticker)return;
+  const buy=parseFloat(prompt('Buy price:'));if(!buy)return;
+  const shares=parseFloat(prompt('Shares:'));if(!shares)return;
+  const sell=parseFloat(prompt('Avg sell price:'));
+  const sold=sell?shares:0;
+  const entry={
+    date:new Date().toISOString().split('T')[0], ticker:ticker.toUpperCase(),
+    buy_price:buy, shares, sell_price:sell||null, shares_sold:sold,
+    ret_usd:sell?(sell-buy)*sold:null
+  };
+  sb.from('trades').insert([entry]).then(({data})=>{
+    if(data)tradesData.unshift({...entry,...data[0]});
+    else tradesData.unshift(entry);
+    renderTrades();
+  });
+}
+
+function renderTags(){
+  const tb=document.getElementById('tags-body');
+  if(!tagData.length){tb.innerHTML='<tr><td colspan="12" class="empty">No tags yet.</td></tr>';return;}
+  tb.innerHTML=tagData.map((t,i)=>`<tr>
+    <td style="font-weight:700">${t.ticker||'—'}</td>
+    <td>${t.scratch_zone||'—'}</td><td>${t.entry_exec||'—'}</td><td>${t.mkt_cond||'—'}</td>
+    <td>${t.rsi||'—'}</td><td>${t.day_count||'—'}</td><td>${t.macro||'—'}</td>
+    <td>${t.t7||'—'}</td><td>${t.t8||'—'}</td><td>${t.t9||'—'}</td><td>${t.t10||'—'}</td>
+    <td><button onclick="deleteTag(${i})" style="background:none;border:none;color:var(--red);cursor:pointer">×</button></td>
+  </tr>`).join('');
+}
+
+async function addTag(){
+  const ticker=prompt('Ticker:');if(!ticker)return;
+  const {data}=await sb.from('tags').upsert([{ticker:ticker.toUpperCase()}],{onConflict:'ticker'}).select();
+  if(data){tagData.push(data[0]);renderTags();}
+}
+async function deleteTag(i){
+  if(!confirm('Delete tag?'))return;
+  const t=tagData[i];
+  if(t.id)await sb.from('tags').delete().eq('id',t.id);
+  tagData.splice(i,1);renderTags();
+}
+
+// ════════════════════════════════════════════════════════════
+// ANALYTICS
+// ════════════════════════════════════════════════════════════
+function clearAnalyticsRange(){
+  document.getElementById('a-from').value='';
+  document.getElementById('a-to').value='';
+  document.getElementById('a-range-lbl').textContent='';
+  renderAnalytics();
+}
+
+function renderAnalytics(){
+  const from=document.getElementById('a-from').value;
+  const to=document.getElementById('a-to').value;
+  const lbl=document.getElementById('a-range-lbl');
+  let closed=tradesData.filter(t=>(t.sell_price||t.sellPrice)&&(t.shares_sold||t.sharesSold));
+  if(from||to){
+    closed=closed.filter(t=>{
+      if(from&&t.date<from)return false;
+      if(to&&t.date>to)return false;
+      return true;
+    });
+    lbl.textContent=(from||'start')+' — '+(to||'today')+' ('+closed.length+' trades)';
+  } else lbl.textContent='';
+  if(!closed.length){
+    document.getElementById('a-stats').innerHTML='<div style="grid-column:1/-1;color:var(--muted);font-size:11px;padding:16px">'+(from||to?'No trades in range.':'No closed trades yet.')+'</div>';
+    document.getElementById('a-setup').innerHTML='';
+    document.getElementById('a-picker').innerHTML='';
+    return;
+  }
+  const pnls=closed.map(t=>{const sp=t.sell_price||t.sellPrice;const bp=t.buy_price||t.buyPrice;const ss=t.shares_sold||t.sharesSold;return(sp-bp)*ss;});
+  const tot=pnls.reduce((a,b)=>a+b,0);
+  const wins=pnls.filter(p=>p>0),losses=pnls.filter(p=>p<0);
+  const hr=wins.length/closed.length;
+  const ag=wins.length?wins.reduce((a,b)=>a+b,0)/wins.length:0;
+  const al=losses.length?Math.abs(losses.reduce((a,b)=>a+b,0)/losses.length):1;
+  document.getElementById('a-stats').innerHTML=[
+    {l:'Total Return',v:f$(tot),t:tot>=0?'g':'r'},
+    {l:'Trades',v:closed.length,t:'b'},
+    {l:'Hit Rate',v:(hr*100).toFixed(1)+'%',t:hr>=0.4?'g':'r'},
+    {l:'Avg Gain',v:f$(ag),t:'g'},
+    {l:'Avg Loss',v:'-'+f$(al),t:'r'},
+    {l:'Edge Ratio',v:(ag/al).toFixed(2)+'x',t:ag/al>=2?'g':'y'},
+  ].map(s=>`<div class="tile ${s.t}"><div class="tlbl">${s.l}</div><div class="tval ${s.t==='g'?'pos':s.t==='r'?'neg':''}">${s.v}</div></div>`).join('');
+  const setups={},pickers={};
+  closed.forEach((t,idx)=>{
+    const p=pnls[idx];
+    const s=t.setup||'Unknown';
+    if(!setups[s])setups[s]={n:0,w:0,tot:0};
+    setups[s].n++;if(p>0)setups[s].w++;setups[s].tot+=p;
+    const pk=t.picker||'Unknown';
+    if(!pickers[pk])pickers[pk]={n:0,w:0,tot:0};
+    pickers[pk].n++;if(p>0)pickers[pk].w++;pickers[pk].tot+=p;
+  });
+  document.getElementById('a-setup').innerHTML=Object.entries(setups).map(([s,d])=>`<tr><td><span class="sb">${s}</span></td><td class="r">${d.n}</td><td class="r ${d.tot>=0?'pos':'neg'}">${f$(d.tot)}</td><td class="r">${(d.w/d.n*100).toFixed(0)}%</td><td class="r">${(d.tot/d.n/DVAR).toFixed(2)}x</td></tr>`).join('');
+  document.getElementById('a-picker').innerHTML=Object.entries(pickers).map(([p,d])=>`<tr><td><span class="pk ${pkc(p)}">${p}</span></td><td class="r">${d.n}</td><td class="r ${d.tot>=0?'pos':'neg'}">${f$(d.tot)}</td><td class="r">${(d.w/d.n*100).toFixed(0)}%</td><td class="r">${(d.tot/d.n/DVAR).toFixed(2)}x</td></tr>`).join('');
+  // P&L chart
+  const cv=document.getElementById('pnl-chart'),ctx2=cv.getContext('2d');
+  const w=cv.offsetWidth||600,h=100;cv.width=w;cv.height=h;ctx2.clearRect(0,0,w,h);
+  const max=Math.max(...pnls.map(Math.abs),1);
+  const bw=Math.max(3,(w-40)/pnls.length-2);
+  pnls.forEach((p,i)=>{const x=20+i*(bw+2),bh=(Math.abs(p)/max)*(h/2-8);ctx2.fillStyle=p>=0?'#00d4aa':'#ff4d6a';ctx2.globalAlpha=.75;p>=0?ctx2.fillRect(x,h/2-bh,bw,bh):ctx2.fillRect(x,h/2,bw,bh);});
+  ctx2.globalAlpha=1;ctx2.strokeStyle='rgba(255,255,255,.08)';ctx2.beginPath();ctx2.moveTo(20,h/2);ctx2.lineTo(w-20,h/2);ctx2.stroke();
+}
+
+// ════════════════════════════════════════════════════════════
+// SAVE ALL
+// ════════════════════════════════════════════════════════════
+async function saveAll(){
+  const btn=document.getElementById('save-all-btn');
+  btn.textContent='Saving...';btn.disabled=true;
+  await savePitchToSupabase();
+  await savePlanToSupabase();
+  await saveMonitorToSupabase();
+  btn.innerHTML='↑ SAVE ALL';btn.disabled=false;
+  setSS('ok','All saved '+new Date().toLocaleTimeString());
+}
+
+// ════════════════════════════════════════════════════════════
+// RENDER ALL
+// ════════════════════════════════════════════════════════════
+function renderAll(){
+  renderPitch();refreshRankings();
+  renderPlan();
+  renderMonitor();
+  renderTrades();
+  renderTags();
+}
+
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+document.getElementById('hdate').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+updateBadges();
+document.getElementById('pitch-date').value = activePitchDate;
+setPlanFilter('all');
+loadAllData().then(()=>setupRealtime());
+</script>
+</body>
+</html>
