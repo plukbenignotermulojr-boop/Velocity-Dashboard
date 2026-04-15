@@ -697,10 +697,32 @@ function setupRealtime(){
   sb.channel('plan-changes')
     .on('postgres_changes', {event:'*',schema:'public',table:'plan'}, payload=>{
       const today = activePitchDate;
+      if(payload.eventType==='DELETE'){
+        // Someone cleared the plan — remove locally
+        if(payload.old) planData = planData.filter(r=>r.id!==payload.old.id);
+        renderPlan();
+        return;
+      }
       if(payload.new && payload.new.date === today){
         const idx=planData.findIndex(r=>r.id===payload.new.id);
-        if(idx>=0) planData[idx]=rowToPlan(payload.new);
-        else planData.push(rowToPlan(payload.new));
+        if(idx>=0){
+          // Update existing row — don't duplicate
+          planData[idx]=rowToPlan(payload.new);
+        } else {
+          // Only add if we don't already have a local version (avoid echo of own save)
+          var alreadyLocal = planData.some(r=>
+            r.ticker===payload.new.ticker &&
+            r.pivot===payload.new.pivot &&
+            r.picker===payload.new.picker &&
+            !r.id
+          );
+          if(!alreadyLocal) planData.push(rowToPlan(payload.new));
+          else {
+            // Assign the ID to the local copy
+            var localIdx = planData.findIndex(r=>r.ticker===payload.new.ticker&&!r.id);
+            if(localIdx>=0) planData[localIdx].id = payload.new.id;
+          }
+        }
         renderPlan();
         showToast('📐 Plan updated: '+payload.new.ticker);
       }
@@ -718,7 +740,7 @@ async function loadPitchForDate(date){
   pitchData = data || [];
   renderPitch();
   refreshRankings();
-  setSS('ok','Loaded '+date);
+  setSS('ok', data&&data.length ? 'Loaded '+data.length+' picks for '+date : 'No picks for '+date+' yet');
 }
 
 function addPitchRow(){
@@ -733,18 +755,39 @@ function addPitchRow(){
 async function savePitchToSupabase(){
   setSS('spin','Saving picks...');
   const today = activePitchDate;
-  // Upsert each row — conflict on (date, ticker) updates the existing row
-  const rows = pitchData
-    .filter(r=>r.ticker&&r.ticker.trim())
-    .map(r=>({
-      date:today, ticker:r.ticker.trim().toUpperCase(),
-      setup:r.setup, fundamentals:r.fundamentals, notes:r.notes,
-      picker:r.picker, ben:r.ben, jeff:r.jeff, monette:r.monette, rome:r.rome
-    }));
+  const rows = pitchData.filter(r=>r.ticker&&r.ticker.trim());
   if(!rows.length){setSS('ok','Nothing to save');return;}
-  const {error} = await sb.from('pitch').upsert(rows, {onConflict:'date,ticker'});
-  if(error) setSS('','Save error: '+error.message);
-  else setSS('ok','Picks saved for '+today);
+
+  var hasError = false;
+  for(var i=0; i<rows.length; i++){
+    var r = rows[i];
+    var tk = r.ticker.trim().toUpperCase();
+    // Build the base row with non-score fields
+    var baseRow = {
+      date:today, ticker:tk,
+      setup:r.setup, fundamentals:r.fundamentals,
+      notes:r.notes, picker:r.picker
+    };
+    // Only include score fields that are actually set (non-null)
+    // This prevents one person wiping another person's score
+    if(r.ben     != null) baseRow.ben     = r.ben;
+    if(r.jeff    != null) baseRow.jeff    = r.jeff;
+    if(r.monette != null) baseRow.monette = r.monette;
+    if(r.rome    != null) baseRow.rome    = r.rome;
+
+    if(r.id){
+      // Row exists — update it
+      var {error} = await sb.from('pitch').update(baseRow).eq('id', r.id);
+      if(error){setSS('','Save error: '+error.message); hasError=true; break;}
+    } else {
+      // New row — insert with upsert (in case another teammate already saved same ticker)
+      var {data, error} = await sb.from('pitch').upsert([baseRow], {onConflict:'date,ticker'}).select();
+      if(error){setSS('','Save error: '+error.message); hasError=true; break;}
+      // Assign returned ID
+      if(data && data[0]) rows[i].id = data[0].id;
+    }
+  }
+  if(!hasError) setSS('ok','Picks saved for '+today);
 }
 
 function makeNoteLink(notes){
@@ -917,15 +960,35 @@ function addToPlan(){
 
 async function savePlanToSupabase(){
   setSS('spin','Saving plan...');
-  const rows=planData.filter(r=>r.ticker).map(r=>({
-    date:r.date||activePitchDate, ticker:r.ticker, setup:r.setup, picker:r.picker,
+  const today = activePitchDate;
+  // Rows with IDs = update existing; rows without IDs = insert new
+  const toUpdate = planData.filter(r=>r.ticker&&r.id).map(r=>({
+    id:r.id, date:r.date||today, ticker:r.ticker, setup:r.setup, picker:r.picker,
     pivot:r.pivot, cut:r.cut, var_usd:r['var$']||DVAR, shares:r.shares,
     size_usd:r['size$'], size_pct:r.sizePct, r1:r.r1, r2:r.r2, r3:r.r3, r4:r.r4,
     notes:r.notes, status:r.status||'pending'
   }));
-  const {error}=await sb.from('plan').upsert(rows);
-  if(error) setSS('','Error: '+error.message);
-  else setSS('ok','Plan saved');
+  const toInsert = planData.filter(r=>r.ticker&&!r.id).map(r=>({
+    date:r.date||today, ticker:r.ticker, setup:r.setup, picker:r.picker,
+    pivot:r.pivot, cut:r.cut, var_usd:r['var$']||DVAR, shares:r.shares,
+    size_usd:r['size$'], size_pct:r.sizePct, r1:r.r1, r2:r.r2, r3:r.r3, r4:r.r4,
+    notes:r.notes, status:r.status||'pending'
+  }));
+  var hasError = false;
+  if(toUpdate.length){
+    const {error} = await sb.from('plan').upsert(toUpdate, {onConflict:'id'});
+    if(error){setSS('','Save error: '+error.message); hasError=true;}
+  }
+  if(toInsert.length && !hasError){
+    const {data,error} = await sb.from('plan').insert(toInsert).select();
+    if(error){setSS('','Save error: '+error.message); hasError=true;}
+    else if(data){
+      // Assign returned IDs to local rows so future saves update not insert
+      var insertIdx = 0;
+      planData.forEach(r=>{ if(!r.id && data[insertIdx]){ r.id=data[insertIdx].id; insertIdx++; } });
+    }
+  }
+  if(!hasError) setSS('ok','Plan saved');
 }
 
 function setPlanFilter(f){
@@ -936,8 +999,16 @@ function setPlanFilter(f){
   renderPlan();
 }
 
-function clearPlan(){
-  if(confirm('Clear today\'s plan?')){planData=[];renderPlan();}
+async function clearPlan(){
+  if(!confirm('Clear today\'s plan? This removes all plan rows from the database.')) return;
+  setSS('spin','Clearing plan...');
+  const today = activePitchDate;
+  // Delete from Supabase for today's date
+  const {error} = await sb.from('plan').delete().eq('date', today);
+  if(error){ setSS('','Clear error: '+error.message); return; }
+  planData = [];
+  renderPlan();
+  setSS('ok','Plan cleared');
 }
 
 function renderPlan(){
