@@ -298,6 +298,28 @@ select.finp{cursor:pointer;}
     <button class="btn prim" onclick="addToPlan()">+ Add to Plan</button>
   </div>
   <!-- Plan table -->
+  <!-- Plan chart viewer -->
+  <div id="plan-chart-viewer" style="display:none;margin-bottom:12px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden">
+      <div style="background:var(--surface2);padding:7px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+        <span id="plcv-ticker" style="font-family:var(--font-head);font-weight:800;font-size:13px;color:var(--accent);letter-spacing:1px"></span>
+        <div id="plcv-tf" style="display:flex;gap:4px"></div>
+        <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+          <span style="font-size:9px;color:var(--muted);font-family:var(--font-mono)">
+            <span id="plcv-ema0" style="color:#FFD700">●EMA9</span>
+            <span id="plcv-ema1" style="color:#00BFFF">●EMA20</span>
+            <span id="plcv-ema2" style="color:#FF4444">●EMA50</span>
+            <span id="plcv-ema3" style="color:#FF8C00">●EMA100</span>
+            <span id="plcv-ema4" style="color:#7B2FBE">●EMA200</span>
+          </span>
+          <a id="plcv-open" href="#" target="_blank" style="background:var(--surface3);border:1px solid var(--border);border-radius:3px;padding:3px 9px;font-size:10px;color:var(--text);text-decoration:none;font-family:var(--font-mono)">↗ OPEN</a>
+          <button onclick="closePlanChart()" style="background:var(--red);color:#fff;border:none;border-radius:3px;padding:3px 9px;font-size:10px;font-family:var(--font-mono);font-weight:700;cursor:pointer">✕ CLOSE</button>
+        </div>
+      </div>
+      <div id="plcv-wrap" style="height:580px;width:100%"></div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="ch">
       <div class="ct">Plan Table</div>
@@ -727,13 +749,20 @@ async function savePitchToSupabase(){
 
 function makeNoteLink(notes){
   if(!notes) return '';
-  if(notes.trim().startsWith('http://') || notes.trim().startsWith('https://'))
-    return '<a href="'+notes+'" target="_blank" title="Open link" style="font-size:11px;text-decoration:none;margin-left:3px;opacity:.7">&#128279;</a>';
+  var n = notes.trim();
+  if(n.startsWith('http://') || n.startsWith('https://'))
+    return '<a href="'+n+'" target="_blank" title="Open: '+n.slice(0,40)+'" style="font-size:11px;text-decoration:none;margin-left:4px;color:var(--accent2);opacity:.8" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.8">&#128279;</a>';
   return '';
 }
-function makePitchChartBtn(ticker, idx){
-  if(!ticker) return '';
-  return '<button onclick="openPitchChart(\''+ticker+'\',\'D\')" title="Chart '+ticker+'" style="background:none;border:none;cursor:pointer;font-size:10px;padding:0 2px;opacity:.6">&#128200;</button>';
+function makePitchChartBtn(ticker){
+  if(!ticker||!ticker.trim()) return '';
+  var tk = ticker.trim().toUpperCase();
+  return '<button data-pitchchart="'+tk+'" title="Chart '+tk+'" style="background:none;border:none;cursor:pointer;font-size:11px;padding:0 3px;opacity:.55;vertical-align:middle" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.55">&#128200;</button>';
+}
+function makePlanChartBtn(ticker){
+  if(!ticker||!ticker.trim()) return '';
+  var tk = ticker.trim().toUpperCase();
+  return '<button data-planchart="'+tk+'" title="Chart '+tk+'" style="background:none;border:none;cursor:pointer;font-size:11px;padding:0 3px;opacity:.55;vertical-align:middle" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.55">&#128200;</button>';
 }
 function renderPitch(){
   const tb = document.getElementById('pitch-body');
@@ -750,7 +779,7 @@ function renderPitch(){
       <td style="white-space:nowrap">
         <input style="background:transparent;border:none;color:var(--text);font-family:var(--font-mono);font-size:12px;font-weight:700;width:50px"
           value="${row.ticker||''}" oninput="pitchData[${i}].ticker=this.value.trim().toUpperCase()">
-        ${makePitchChartBtn(row.ticker, i)}
+        ${makePitchChartBtn(row.ticker)}
       </td>
       <td><select style="background:var(--surface3);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:10px;border-radius:3px;padding:2px 4px;max-width:110px"
         onchange="pitchData[${i}].setup=this.value">
@@ -777,6 +806,11 @@ function renderPitch(){
         style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px">×</button></td>
     </tr>`;
   }).join('');
+  // Wire chart buttons via event delegation (avoids onclick quote issues in innerHTML)
+  tb.onclick = function(e){
+    var btn = e.target.closest('[data-pitchchart]');
+    if(btn) openPitchChart(btn.dataset.pitchchart, 'D');
+  };
 }
 
 function refreshRankings(){
@@ -918,7 +952,7 @@ function renderPlan(){
     const[r1,r2,r3,r4]=calcTgt(row.pivot||0,row.cut||0);
     const stStyle=row.status==='executed'?'background:rgba(0,212,170,.15);color:var(--green)':row.status==='dropped'?'background:rgba(255,77,106,.12);color:var(--red)':'background:var(--surface3);color:var(--muted)';
     return`<tr>
-      <td style="font-weight:700">${row.ticker}</td>
+      <td style="font-weight:700;white-space:nowrap">${makePlanChartBtn(row.ticker)}${row.ticker}</td>
       <td><span class="sb">${row.setup||'—'}</span></td>
       <td><span class="pk ${pkc(row.picker)}">${row.picker||'—'}</span></td>
       <td class="r" style="color:var(--blue)">${fN(row.pivot)}</td>
@@ -941,6 +975,11 @@ function renderPlan(){
       <td><button onclick="planData.splice(${i},1);renderPlan()" style="background:none;border:none;color:var(--red);cursor:pointer">×</button></td>
     </tr>`;
   }).join('');
+  // Event delegation for plan chart buttons
+  tb.onclick = function(e){
+    var btn = e.target.closest('[data-planchart]');
+    if(btn) openPlanChart(btn.dataset.planchart, 'D');
+  };
   const tot=planData.reduce((acc,r)=>{const s=r.shares||calcSh(r.pivot,r.cut,r['var$']||DVAR);return acc+(s&&r.pivot?s*r.pivot:0);},0);
   document.getElementById('plan-info').textContent=`${planData.length} trades | Exposure: ${f$(tot)} (${fP(tot/PORT)})`;
 }
@@ -1606,6 +1645,31 @@ function openPitchChart(ticker, tf){
   buildTVWidget(containerId, ticker, tf);
 }
 function closePitchChart(){ document.getElementById('pitch-chart-viewer').style.display='none'; document.getElementById('pcv-wrap').innerHTML=''; }
+
+// ── PLAN CHART ──────────────────────────────────────────────
+function openPlanChart(ticker, tf){
+  tf = tf || 'D';
+  var viewer = document.getElementById('plan-chart-viewer');
+  var wrap = document.getElementById('plcv-wrap');
+  var tickerEl = document.getElementById('plcv-ticker');
+  var tfEl = document.getElementById('plcv-tf');
+  var openBtn = document.getElementById('plcv-open');
+  if(!viewer) return;
+  tickerEl.textContent = ticker + ' · ' + (tf==='D'?'Daily':tf==='W'?'Weekly':'Monthly');
+  if(openBtn) openBtn.href = 'https://www.tradingview.com/chart/?symbol='+ticker;
+  viewer.style.display = 'block';
+  viewer.scrollIntoView({behavior:'smooth', block:'nearest'});
+  var containerId = 'plcv-tv-' + Date.now();
+  wrap.innerHTML = '<div id="'+containerId+'" style="height:580px;width:100%"></div>';
+  buildTFButtons(tfEl, ticker, tf, openPlanChart);
+  var emaLens = EMA_BY_TF[tf] || EMA_BY_TF['D'];
+  [0,1,2,3,4].forEach(function(i){
+    var el = document.getElementById('plcv-ema'+i);
+    if(el) el.textContent = '●EMA'+emaLens[i];
+  });
+  buildTVWidget(containerId, ticker, tf);
+}
+function closePlanChart(){ document.getElementById('plan-chart-viewer').style.display='none'; document.getElementById('plcv-wrap').innerHTML=''; }
 
 // ── MONITOR CHART ────────────────────────────────────────────
 function openMonChart(ticker, tf){
