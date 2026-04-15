@@ -227,6 +227,28 @@ select.finp{cursor:pointer;}
       <button class="btn sec sm" onclick="loadPitchHistory()">📅 History</button>
     </div>
   </div>
+  <!-- Pitch chart viewer -->
+  <div id="pitch-chart-viewer" style="display:none;margin-bottom:12px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden">
+      <div style="background:var(--surface2);padding:7px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+        <span id="pcv-ticker" style="font-family:var(--font-head);font-weight:800;font-size:13px;color:var(--accent);letter-spacing:1px"></span>
+        <div id="pcv-tf" style="display:flex;gap:4px"></div>
+        <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+          <span id="pcv-ema-legend" style="font-size:9px;color:var(--muted);font-family:var(--font-mono)">
+            <span id="pcv-ema0" style="color:#FFD700">●EMA9</span>
+            <span id="pcv-ema1" style="color:#00BFFF">●EMA20</span>
+            <span id="pcv-ema2" style="color:#FF4444">●EMA50</span>
+            <span id="pcv-ema3" style="color:#FF8C00">●EMA100</span>
+            <span id="pcv-ema4" style="color:#7B2FBE">●EMA200</span>
+          </span>
+          <a id="pcv-open" href="#" target="_blank" style="background:var(--surface3);border:1px solid var(--border);border-radius:3px;padding:3px 9px;font-size:10px;color:var(--text);text-decoration:none;font-family:var(--font-mono)">↗ OPEN</a>
+          <button onclick="closePitchChart()" style="background:var(--red);color:#fff;border:none;border-radius:3px;padding:3px 9px;font-size:10px;font-family:var(--font-mono);font-weight:700;cursor:pointer">✕ CLOSE</button>
+        </div>
+      </div>
+      <div id="pcv-wrap" style="height:580px;width:100%"></div>
+    </div>
+  </div>
+
   <div class="g2">
     <div class="card">
       <div class="ch"><div class="ct">Picks Input</div><div style="font-size:10px;color:var(--muted)">Score 1–5</div></div>
@@ -324,6 +346,27 @@ select.finp{cursor:pointer;}
       <div id="pie-summary" style="font-size:11px;display:flex;flex-direction:column;gap:8px"></div>
     </div>
   </div>
+  <!-- TradingView chart viewer for Monitor -->
+  <div id="mon-chart-viewer" style="display:none;margin-bottom:12px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden">
+      <div style="background:var(--surface2);padding:7px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+        <span id="mcv-ticker" style="font-family:var(--font-head);font-weight:800;font-size:13px;color:var(--accent);letter-spacing:1px"></span>
+        <div id="mcv-tf" style="display:flex;gap:4px"></div>
+        <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+          <span style="font-size:9px;color:var(--muted);font-family:var(--font-mono)">
+            <span id="mon-ema-n0" style="color:#FFD700">●EMA9</span>
+            <span id="mon-ema-n1" style="color:#00BFFF">●EMA20</span>
+            <span id="mon-ema-n2" style="color:#FF4444">●EMA50</span>
+            <span id="mon-ema-n3" style="color:#FF8C00">●EMA100</span>
+            <span id="mon-ema-n4" style="color:#7B2FBE">●EMA200</span>
+          </span>
+          <button onclick="closeMonChart()" style="background:var(--red);color:#fff;border:none;border-radius:3px;padding:3px 9px;font-size:10px;font-family:var(--font-mono);font-weight:700;cursor:pointer">✕ CLOSE</button>
+        </div>
+      </div>
+      <div id="mcv-wrap" style="height:580px;width:100%"></div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="ch"><div class="ct">Positions</div></div>
     <div class="tw"><table><thead><tr>
@@ -682,6 +725,16 @@ async function savePitchToSupabase(){
   else setSS('ok','Picks saved for '+today);
 }
 
+function makeNoteLink(notes){
+  if(!notes) return '';
+  if(notes.trim().startsWith('http://') || notes.trim().startsWith('https://'))
+    return '<a href="'+notes+'" target="_blank" title="Open link" style="font-size:11px;text-decoration:none;margin-left:3px;opacity:.7">&#128279;</a>';
+  return '';
+}
+function makePitchChartBtn(ticker, idx){
+  if(!ticker) return '';
+  return '<button onclick="openPitchChart(\''+ticker+'\',\'D\')" title="Chart '+ticker+'" style="background:none;border:none;cursor:pointer;font-size:10px;padding:0 2px;opacity:.6">&#128200;</button>';
+}
 function renderPitch(){
   const tb = document.getElementById('pitch-body');
   if(!pitchData.length){
@@ -694,8 +747,11 @@ function renderPitch(){
     const avg=sc.length?sc.reduce((a,b)=>a+b,0)/sc.length:null;
     const ac=avg===null?'var(--muted)':avg>=3?'var(--green)':avg>=2?'var(--accent2)':'var(--red)';
     return`<tr>
-      <td><input style="background:transparent;border:none;color:var(--text);font-family:var(--font-mono);font-size:12px;font-weight:700;width:55px"
-        value="${row.ticker||''}" oninput="pitchData[${i}].ticker=this.value.trim().toUpperCase()"></td>
+      <td style="white-space:nowrap">
+        <input style="background:transparent;border:none;color:var(--text);font-family:var(--font-mono);font-size:12px;font-weight:700;width:50px"
+          value="${row.ticker||''}" oninput="pitchData[${i}].ticker=this.value.trim().toUpperCase()">
+        ${makePitchChartBtn(row.ticker, i)}
+      </td>
       <td><select style="background:var(--surface3);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:10px;border-radius:3px;padding:2px 4px;max-width:110px"
         onchange="pitchData[${i}].setup=this.value">
         ${SETUP_OPTIONS.map(o=>`<option ${row.setup===o?'selected':''}>${o}</option>`).join('')}
@@ -704,8 +760,11 @@ function renderPitch(){
         onchange="pitchData[${i}].fundamentals=this.value">
         ${FUND_OPTIONS.map(o=>`<option ${row.fundamentals===o?'selected':''}>${o}</option>`).join('')}
       </select></td>
-      <td><input style="background:transparent;border:none;color:var(--text);font-family:var(--font-mono);font-size:11px;width:110px"
-        placeholder="notes or URL..." value="${row.notes||''}" oninput="pitchData[${i}].notes=this.value"></td>
+      <td style="white-space:nowrap">
+        <input style="background:transparent;border:none;color:var(--text);font-family:var(--font-mono);font-size:11px;width:90px"
+          placeholder="notes or URL..." value="${row.notes||''}" oninput="pitchData[${i}].notes=this.value">
+        ${makeNoteLink(row.notes)}
+      </td>
       <td><select style="background:var(--surface3);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:10px;border-radius:3px;padding:2px 4px"
         onchange="pitchData[${i}].picker=this.value">
         ${['Ben','Jeff','Monette','Rome'].map(p=>`<option ${row.picker===p?'selected':''}>${p}</option>`).join('')}
@@ -744,6 +803,7 @@ function refreshRankings(){
         </div>
       </div>
       <div style="font-size:22px;font-family:var(--font-head);font-weight:800;color:${r.avg>=3?'var(--green)':r.avg>=2?'var(--accent2)':'var(--red)'}">${r.avg.toFixed(1)}</div>
+      <button onclick="openRankChart('${r.ticker}')" style="background:var(--surface3);border:1px solid var(--border);color:var(--text);border-radius:3px;padding:4px 7px;font-family:var(--font-mono);font-size:10px;cursor:pointer;margin-right:4px">📈</button>
       <button onclick="sendToPlan('${r.ticker}','${r.setup||''}','${r.picker||''}')"
         style="background:var(--accent);color:#080d14;border:none;border-radius:3px;padding:4px 9px;font-family:var(--font-mono);font-size:10px;font-weight:800;cursor:pointer">→ PLAN</button>
     </div>`;
@@ -1040,7 +1100,9 @@ function renderMonitor(){
     if(trail&&open>0&&!isClosed)rfCount++;
     const status=isClosed?'<span class="bf">CLOSED</span>':trail?'<span style="font-size:8px;background:rgba(0,212,170,.15);color:var(--green);padding:1px 5px;border-radius:3px;font-weight:700">●FREE</span>':'<span class="bo">●OPEN</span>';
     return`<tr style="${isClosed?'opacity:0.7':''}">
-      <td style="font-weight:700;white-space:nowrap">${row.issue} ${status}</td>
+      <td style="font-weight:700;white-space:nowrap">
+        <button onclick="openMonChart('${row.issue}','D')" title="Open TradingView chart" style="background:none;border:none;cursor:pointer;font-size:11px;padding:0 3px 0 0;opacity:.6" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.6">📈</button>${row.issue} ${status}
+      </td>
       <td class="r">${open}${sold>0?`<span style="font-size:9px;color:var(--muted);margin-left:2px">/${row.shares}</span>`:''}</td>
       <td class="r" style="white-space:nowrap">
         <input type="number" step=".01" value="${row.curr||''}" ${isClosed?'disabled':''} 
@@ -1130,21 +1192,40 @@ function setMonTiles(or,gr,vr,atRisk,rfCount){
 
 // ── PRICE FETCHING ──────────────────────────────────────────
 async function fetchPrice(ticker){
+  // Web-based: call Finnhub directly — no proxy needed, fast and reliable
   try{
     const r=await fetch('https://finnhub.io/api/v1/quote?symbol='+encodeURIComponent(ticker)+'&token=free',{signal:AbortSignal.timeout(5000)});
-    if(r.ok){const d=await r.json();if(d&&d.c&&d.c>0)return parseFloat(d.c.toFixed(2));}
-  }catch(e){}
+    if(r.ok){
+      const d=await r.json();
+      if(d&&d.c&&d.c>0){
+        console.log('Finnhub price for '+ticker+':', d.c, '| High:', d.h, '| Low:', d.l);
+        return {price: parseFloat(d.c.toFixed(2)), high: d.h, low: d.l, open: d.o, prevClose: d.pc};
+      }
+    }
+  }catch(e){ console.warn('Finnhub failed for '+ticker+':', e.message); }
+  // Fallback: Yahoo Finance direct
   try{
-    const r2=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent('https://query2.finance.yahoo.com/v8/finance/chart/'+ticker+'?interval=1d&range=1d'),{signal:AbortSignal.timeout(8000)});
-    if(r2.ok){const o=await r2.json();const d=JSON.parse(o.contents||'{}');const m=d.chart&&d.chart.result&&d.chart.result[0]&&d.chart.result[0].meta;if(m&&m.regularMarketPrice>0)return parseFloat(m.regularMarketPrice.toFixed(2));}
-  }catch(e){}
+    const r2=await fetch('https://query2.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(ticker)+'?interval=1d&range=1d',{signal:AbortSignal.timeout(6000)});
+    if(r2.ok){
+      const d2=await r2.json();
+      const meta=d2.chart&&d2.chart.result&&d2.chart.result[0]&&d2.chart.result[0].meta;
+      if(meta&&meta.regularMarketPrice>0) return {price: parseFloat(meta.regularMarketPrice.toFixed(2)), high: meta.regularMarketDayHigh, low: meta.regularMarketDayLow};
+    }
+  }catch(e){ console.warn('Yahoo failed for '+ticker+':', e.message); }
   return null;
 }
 
 async function refreshOnePrice(idx){
   const row=monitorData[idx];if(!row||!row.issue)return;
-  const price=await fetchPrice(row.issue);
-  if(price){monitorData[idx].curr=price;renderMonitor();}
+  const result=await fetchPrice(row.issue);
+  if(result&&result.price){
+    monitorData[idx].curr=result.price;
+    // Auto-update day high if fetched value is higher
+    if(result.high&&(!monitorData[idx].dayHigh||result.high>monitorData[idx].dayHigh)){
+      monitorData[idx].dayHigh=result.high;
+    }
+    renderMonitor();
+  }
 }
 
 async function refreshAllPrices(){
@@ -1157,9 +1238,12 @@ async function refreshAllPrices(){
     const sold=(row.partialSells||[]).reduce((a,s)=>a+s.shares,0);
     if(row.shares-sold<=0)continue;
     btn.textContent=row.issue+'...';
-    const price=await fetchPrice(row.issue);
-    if(price){monitorData[i].curr=price;updated++;}
-    else failed++;
+    const result=await fetchPrice(row.issue);
+    if(result&&result.price){
+      monitorData[i].curr=result.price;
+      if(result.high&&(!monitorData[i].dayHigh||result.high>monitorData[i].dayHigh)) monitorData[i].dayHigh=result.high;
+      updated++;
+    } else failed++;
     await new Promise(r=>setTimeout(r,300));
   }
   btn.innerHTML='↻ Prices';btn.disabled=false;
@@ -1425,6 +1509,130 @@ async function saveAll(){
   btn.innerHTML='↑ SAVE ALL';btn.disabled=false;
   setSS('ok','All saved '+new Date().toLocaleTimeString());
 }
+
+// ════════════════════════════════════════════════════════════
+// UTILITY
+// ════════════════════════════════════════════════════════════
+function isUrl(str){ return str && (str.trim().startsWith('http://') || str.trim().startsWith('https://')); }
+
+// ════════════════════════════════════════════════════════════
+// TRADINGVIEW CHART VIEWERS
+// ════════════════════════════════════════════════════════════
+const EMA_BY_TF = {'D':[9,20,50,100,200],'W':[10,30,40,50,200],'M':[6,12,24,48,200]};
+const EMA_COLORS = ['#FFD700','#00BFFF','#FF4444','#FF8C00','#7B2FBE'];
+
+function buildTVWidget(containerId, ticker, tf){
+  var emaLens = EMA_BY_TF[tf] || EMA_BY_TF['D'];
+  var soMap = {};
+  emaLens.forEach(function(len,i){
+    soMap['moving average exp '+i+'.length'] = len;
+    soMap['moving average exp '+i+'.plot.color'] = EMA_COLORS[i];
+  });
+  function load(){
+    try{
+      new TradingView.widget({
+        container_id: containerId,
+        autosize: true,
+        symbol: ticker,
+        interval: tf,
+        timezone: 'exchange',
+        theme: 'dark',
+        style: '1',
+        locale: 'en',
+        toolbar_bg: '#0d1420',
+        enable_publishing: false,
+        allow_symbol_change: true,
+        save_image: true,
+        withdateranges: true,
+        show_popup_button: true,
+        popup_width: '1200',
+        popup_height: '700',
+        hide_top_toolbar: false,
+        width: '100%',
+        height: 580,
+        studies: [
+          'RSI@tv-basicstudies','MACD@tv-basicstudies',
+          'MAExp@tv-basicstudies','MAExp@tv-basicstudies','MAExp@tv-basicstudies',
+          'MAExp@tv-basicstudies','MAExp@tv-basicstudies',
+        ],
+        studies_overrides: soMap,
+      });
+    }catch(e){ console.warn('TV widget error:', e); }
+  }
+  if(typeof TradingView !== 'undefined'){
+    load();
+  } else {
+    var s = document.createElement('script');
+    s.src = 'https://s3.tradingview.com/tv.js';
+    s.async = true;
+    s.onload = load;
+    document.head.appendChild(s);
+  }
+}
+
+function buildTFButtons(containerEl, ticker, activeTf, openFn){
+  containerEl.innerHTML = '';
+  ['D','W','M'].forEach(function(tf){
+    var btn = document.createElement('button');
+    btn.textContent = tf;
+    btn.style.cssText = 'background:'+(tf===activeTf?'var(--accent)':'var(--surface3)')+';color:'+(tf===activeTf?'#080d14':'var(--muted)')+';border:none;border-radius:3px;padding:2px 8px;font-family:var(--font-mono);font-size:10px;font-weight:700;cursor:pointer';
+    btn.onclick = (function(t){ return function(){ openFn(ticker, t); }; })(tf);
+    containerEl.appendChild(btn);
+  });
+}
+
+// ── PITCH CHART ──────────────────────────────────────────────
+function openPitchChart(ticker, tf){
+  tf = tf || 'D';
+  var viewer = document.getElementById('pitch-chart-viewer');
+  var wrap = document.getElementById('pcv-wrap');
+  var tickerEl = document.getElementById('pcv-ticker');
+  var tfEl = document.getElementById('pcv-tf');
+  var openBtn = document.getElementById('pcv-open');
+  if(!viewer) return;
+  tickerEl.textContent = ticker + ' · ' + (tf==='D'?'Daily':tf==='W'?'Weekly':'Monthly');
+  openBtn.href = 'https://www.tradingview.com/chart/?symbol='+ticker;
+  viewer.style.display = 'block';
+  viewer.scrollIntoView({behavior:'smooth', block:'nearest'});
+  var containerId = 'pcv-tv-' + Date.now();
+  wrap.innerHTML = '<div id="'+containerId+'" style="height:580px;width:100%"></div>';
+  buildTFButtons(tfEl, ticker, tf, openPitchChart);
+  // Update EMA legend
+  var emaLens = EMA_BY_TF[tf] || EMA_BY_TF['D'];
+  [0,1,2,3,4].forEach(function(i){
+    var el = document.getElementById('pcv-ema'+i);
+    if(el) el.textContent = '●EMA'+emaLens[i];
+  });
+  buildTVWidget(containerId, ticker, tf);
+}
+function closePitchChart(){ document.getElementById('pitch-chart-viewer').style.display='none'; document.getElementById('pcv-wrap').innerHTML=''; }
+
+// ── MONITOR CHART ────────────────────────────────────────────
+function openMonChart(ticker, tf){
+  tf = tf || 'D';
+  var viewer = document.getElementById('mon-chart-viewer');
+  var wrap = document.getElementById('mcv-wrap');
+  var tickerEl = document.getElementById('mcv-ticker');
+  var tfEl = document.getElementById('mcv-tf');
+  if(!viewer) return;
+  tickerEl.textContent = ticker + ' · ' + (tf==='D'?'Daily':tf==='W'?'Weekly':'Monthly');
+  viewer.style.display = 'block';
+  viewer.scrollIntoView({behavior:'smooth', block:'nearest'});
+  var containerId = 'mcv-tv-' + Date.now();
+  wrap.innerHTML = '<div id="'+containerId+'" style="height:580px;width:100%"></div>';
+  buildTFButtons(tfEl, ticker, tf, openMonChart);
+  // Update EMA legend
+  var emaLens = EMA_BY_TF[tf] || EMA_BY_TF['D'];
+  [0,1,2,3,4].forEach(function(i){
+    var el = document.getElementById('mon-ema-n'+i);
+    if(el) el.textContent = '●EMA'+emaLens[i];
+  });
+  buildTVWidget(containerId, ticker, tf);
+}
+function closeMonChart(){ document.getElementById('mon-chart-viewer').style.display='none'; document.getElementById('mcv-wrap').innerHTML=''; }
+
+// ── RANKINGS chart button ────────────────────────────────────
+function openRankChart(ticker){ openPitchChart(ticker, 'D'); }
 
 // ════════════════════════════════════════════════════════════
 // RENDER ALL
