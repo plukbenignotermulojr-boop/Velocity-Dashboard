@@ -421,6 +421,18 @@ body.light #theme-btn {
   color: #080f1e;
 }
 body.light #theme-btn:hover { border-color: #008f70; color: #008f70; background: #dde4f0; }
+
+/* ── THEME BUTTON LIGHT MODE FIX ── */
+body.light #theme-btn {
+  background: #1e2d45 !important;
+  border-color: #1e2d45 !important;
+  color: #ffffff !important;
+}
+body.light #theme-btn:hover {
+  background: #0d1b2e !important;
+  border-color: #0d1b2e !important;
+}
+
 </style>
 </head>
 <body>
@@ -502,9 +514,9 @@ body.light #theme-btn:hover { border-color: #008f70; color: #008f70; background:
       <div class="tb-badge" onclick="editFund()">FUND: <b id="tb-fund">$400K</b></div>
       <div class="tb-badge" onclick="editVar()">VAR: <b id="tb-var">$1,200</b></div>
       <div id="tb-date" style="font-size:10px;color:var(--text2)"></div>
-      <div id="notif-bell" onclick="toggleNotifPanel()" style="position:relative;cursor:pointer;padding:5px 8px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;gap:5px;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-    <span style="font-size:14px">🔔</span>
-    <span id="notif-count" style="display:none;position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:inherit">0</span>
+      <div id="notif-bell" onclick="toggleNotifPanel()" style="position:relative;cursor:pointer;padding:5px 10px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;gap:5px;transition:all .15s;z-index:60;user-select:none" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+    <span style="font-size:15px;pointer-events:none">🔔</span>
+    <span id="notif-count" style="position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;border-radius:50%;min-width:17px;height:17px;font-size:9px;font-weight:800;display:none;align-items:center;justify-content:center;font-family:inherit;padding:0 3px;pointer-events:none">0</span>
   </div>
   <button id="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
       <button class="btn-sm btn-accent" onclick="saveAll()" id="save-all-btn">↑ SAVE ALL</button>
@@ -888,7 +900,10 @@ body.light #theme-btn:hover { border-color: #008f70; color: #008f70; background:
 
       <!-- This week's roles -->
       <div class="card">
-        <div class="ch"><div class="ct">THIS WEEK</div></div>
+        <div class="ch">
+          <div class="ct">THIS WEEK</div>
+          <button onclick="openSwapModal()" style="font-size:9px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:4px;padding:2px 8px;cursor:pointer;font-weight:700;letter-spacing:.3px;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">⇄ Swap</button>
+        </div>
         <div id="this-week-roles" style="font-size:12px"></div>
       </div>
 
@@ -2195,21 +2210,37 @@ const TICKER_SYMBOLS = [
 ];
 
 async function fetchTickerPrice(sym){
+  // Try Finnhub first (free, CORS-friendly)
+  try{
+    const r = await fetch(
+      'https://finnhub.io/api/v1/quote?symbol='+encodeURIComponent(sym)+'&token=free',
+      {signal:AbortSignal.timeout(6000)}
+    );
+    if(r.ok){
+      const d = await r.json();
+      if(d && d.c && d.c > 0){
+        const price = d.c, prev = d.pc || d.c;
+        return { price, chg: price-prev, pct: prev?(price-prev)/prev*100:0 };
+      }
+    }
+  }catch(e){}
+  // Try Yahoo Finance as fallback
   try{
     const r = await fetch(
       'https://query2.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?interval=1d&range=1d',
       {signal:AbortSignal.timeout(5000)}
     );
-    if(!r.ok) return null;
-    const d = await r.json();
-    const meta = d.chart?.result?.[0]?.meta;
-    if(!meta) return null;
-    const price = meta.regularMarketPrice;
-    const prev  = meta.previousClose || meta.chartPreviousClose || price;
-    const chg   = price - prev;
-    const pct   = prev ? (chg/prev*100) : 0;
-    return { price, chg, pct };
-  }catch(e){ return null; }
+    if(r.ok){
+      const d = await r.json();
+      const meta = d.chart?.result?.[0]?.meta;
+      if(meta?.regularMarketPrice > 0){
+        const price = meta.regularMarketPrice;
+        const prev = meta.previousClose || meta.chartPreviousClose || price;
+        return { price, chg: price-prev, pct: prev?(price-prev)/prev*100:0 };
+      }
+    }
+  }catch(e){}
+  return null;
 }
 
 async function buildTickerTape(){
@@ -2993,5 +3024,154 @@ window.initApp = function(){
   }
 };
 
+
+
+// ════════════════════════════════════════════════════
+// SCHEDULER ROLE SWAP
+// ════════════════════════════════════════════════════
+var roleSwaps = JSON.parse(localStorage.getItem('vel_role_swaps') || '{}');
+
+function saveRoleSwaps(){ localStorage.setItem('vel_role_swaps', JSON.stringify(roleSwaps)); }
+
+function getMondayStr(dateStr){
+  var d = new Date(dateStr + 'T00:00:00');
+  var dow = d.getDay();
+  var monday = new Date(d);
+  monday.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
+  return monday.toISOString().split('T')[0];
+}
+
+function getSwappedRole(mondayStr, role){
+  var swap = roleSwaps[mondayStr];
+  if(!swap) return null;
+  return role === 'facilitator' ? (swap.fac || null) : (swap.pilot || null);
+}
+
+function openSwapModal(){
+  // Default to current week's Monday
+  var today = new Date();
+  var dow = today.getDay();
+  var monday = new Date(today);
+  monday.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1));
+  var mondayStr = monday.toISOString().split('T')[0];
+  document.getElementById('swap-date').value = mondayStr;
+  document.getElementById('swap-fac').value = '';
+  document.getElementById('swap-pilot').value = '';
+  document.getElementById('swap-reason').value = '';
+  updateSwapPreview();
+  var m = document.getElementById('swap-modal');
+  m.style.display = 'flex';
+  m.style.alignItems = 'center';
+  m.style.justifyContent = 'center';
+}
+
+function closeSwapModal(){
+  document.getElementById('swap-modal').style.display = 'none';
+}
+
+function updateSwapPreview(){
+  var dateVal = document.getElementById('swap-date').value;
+  if(!dateVal) return;
+  var mondayStr = getMondayStr(dateVal);
+  var prev = document.getElementById('swap-current');
+  // Find scheduled roles
+  if(typeof TEAM_SCHEDULE === 'undefined'){ prev.innerHTML = ''; return; }
+  var fac   = TEAM_SCHEDULE.find(function(e){ return e.date === mondayStr && e.role === 'facilitator'; });
+  var pilot = TEAM_SCHEDULE.find(function(e){ return e.date === mondayStr && e.role === 'pilot'; });
+  var existing = roleSwaps[mondayStr];
+  var html = '<div style="margin-bottom:4px;font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.8px">SCHEDULED FOR WEEK OF ' + mondayStr + '</div>';
+  html += '<div style="display:flex;gap:16px">';
+  if(fac)   html += '<span><span style="color:#f0a500;font-weight:700">FAC</span> ' + (existing?.fac ? '<span style="text-decoration:line-through;opacity:.5">' + fac.person + '</span> → <span style="color:#f0a500;font-weight:700">' + existing.fac + '</span>' : fac.person) + '</span>';
+  if(pilot) html += '<span><span style="color:#00d4aa;font-weight:700">PILOT</span> ' + (existing?.pilot ? '<span style="text-decoration:line-through;opacity:.5">' + pilot.person + '</span> → <span style="color:#00d4aa;font-weight:700">' + existing.pilot + '</span>' : pilot.person) + '</span>';
+  if(!fac && !pilot) html += '<span style="color:var(--muted)">No scheduled roles for this week</span>';
+  html += '</div>';
+  if(existing?.reason) html += '<div style="margin-top:4px;font-size:10px;color:var(--muted)">Reason: ' + existing.reason + '</div>';
+  prev.innerHTML = html;
+  // Pre-fill existing swap values
+  if(existing){
+    if(existing.fac)   document.getElementById('swap-fac').value   = existing.fac;
+    if(existing.pilot) document.getElementById('swap-pilot').value = existing.pilot;
+    if(existing.reason) document.getElementById('swap-reason').value = existing.reason;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var swapDate = document.getElementById('swap-date');
+  if(swapDate) swapDate.addEventListener('change', updateSwapPreview);
+});
+
+function saveSwap(){
+  var dateVal = document.getElementById('swap-date').value;
+  if(!dateVal){ showToast('Select a week'); return; }
+  var mondayStr = getMondayStr(dateVal);
+  var fac   = document.getElementById('swap-fac').value;
+  var pilot = document.getElementById('swap-pilot').value;
+  var reason = document.getElementById('swap-reason').value.trim();
+  if(!fac && !pilot){ showToast('Select at least one override'); return; }
+  roleSwaps[mondayStr] = { fac: fac||null, pilot: pilot||null, reason: reason, savedAt: new Date().toISOString() };
+  saveRoleSwaps();
+  closeSwapModal();
+  renderCalendar();
+  addNotif('role', 'Role swap saved for week of ' + mondayStr, (fac?'FAC → '+fac:'') + (fac&&pilot?' · ':'') + (pilot?'PILOT → '+pilot:'') + (reason?' ('+reason+')':''));
+  showToast('⇄ Role swap saved');
+}
+
+function clearSwapForDate(){
+  var dateVal = document.getElementById('swap-date').value;
+  if(!dateVal) return;
+  var mondayStr = getMondayStr(dateVal);
+  delete roleSwaps[mondayStr];
+  saveRoleSwaps();
+  closeSwapModal();
+  renderCalendar();
+  showToast('Swap removed — back to original schedule');
+}
+
+// Override getScheduleEventsForDate to apply swaps
+var _origGetSched = window.getScheduleEventsForDate;
+
+// Override renderThisWeek to show swap indicators
+function renderThisWeek(){
+  var el = document.getElementById('this-week-roles');
+  if(!el) return;
+  var today = new Date().toISOString().split('T')[0];
+  var d = new Date(today + 'T00:00:00');
+  var dow = d.getDay();
+  var monday = new Date(d);
+  monday.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
+  var mondayStr = monday.toISOString().split('T')[0];
+  if(typeof TEAM_SCHEDULE === 'undefined'){ el.innerHTML = '<div style="color:var(--muted)">No schedule data</div>'; return; }
+  var fac   = TEAM_SCHEDULE.find(function(e){ return e.date === mondayStr && e.role === 'facilitator'; });
+  var pilot = TEAM_SCHEDULE.find(function(e){ return e.date === mondayStr && e.role === 'pilot'; });
+  var swap = roleSwaps[mondayStr];
+  var facName   = (swap && swap.fac)   ? swap.fac   : (fac   ? fac.person   : '—');
+  var pilotName = (swap && swap.pilot) ? swap.pilot : (pilot ? pilot.person : '—');
+  var facSwapped   = swap && swap.fac;
+  var pilotSwapped = swap && swap.pilot;
+  el.innerHTML = [
+    '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">'+
+      '<span style="color:var(--text2)">Facilitator</span>'+
+      '<span>'+
+        (facSwapped ? '<span style="font-size:9px;background:var(--gold-dim,rgba(240,165,0,.15));color:var(--accent2,#f0a500);border-radius:3px;padding:1px 5px;margin-right:5px;font-weight:700">SWAPPED</span>' : '')+
+        '<span style="font-weight:700;color:#f0a500">'+facName+'</span>'+
+      '</span>'+
+    '</div>',
+    '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">'+
+      '<span style="color:var(--text2)">Pilot</span>'+
+      '<span>'+
+        (pilotSwapped ? '<span style="font-size:9px;background:rgba(0,212,170,.1);color:var(--accent);border-radius:3px;padding:1px 5px;margin-right:5px;font-weight:700">SWAPPED</span>' : '')+
+        '<span style="font-weight:700;color:#00d4aa">'+pilotName+'</span>'+
+      '</span>'+
+    '</div>',
+    swap ? '<div style="font-size:9px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">⇄ Override active'+(swap.reason?' — '+swap.reason:'')+'  <button onclick="clearSwapForDate2(''+mondayStr+'')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:9px;font-weight:700">Remove</button></div>' : ''
+  ].join('');
+}
+
+function clearSwapForDate2(mondayStr){
+  delete roleSwaps[mondayStr];
+  saveRoleSwaps();
+  renderCalendar();
+  showToast('Swap removed');
+}
 
 </script>
