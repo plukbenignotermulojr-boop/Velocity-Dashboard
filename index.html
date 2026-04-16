@@ -3163,7 +3163,7 @@ function renderThisWeek(){
         '<span style="font-weight:700;color:#00d4aa">'+pilotName+'</span>'+
       '</span>'+
     '</div>',
-    swap ? '<div style="font-size:9px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">⇄ Override active'+(swap.reason?' — '+swap.reason:'')+'  <button onclick="clearSwapForDate2(''+mondayStr+'')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:9px;font-weight:700">Remove</button></div>' : ''
+    swap ? '<div style="font-size:9px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">⇄ Override active'+(swap.reason?' — '+swap.reason:'')+'&nbsp;&nbsp;<button onclick="clearSwapForDate2(this.dataset.m)" data-m="'+mondayStr+'" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:9px;font-weight:700">Remove</button></div>' : ''
   ].join('');
 }
 
