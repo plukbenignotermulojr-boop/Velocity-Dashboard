@@ -270,7 +270,7 @@ body.light {
   --accent2:  #c07a00;
 }
 /* Topbar */
-body.light .topbar{background:rgba(232,236,244,.97);border-bottom:1px solid #bec9dc;}
+body.light .topbar{background:rgba(232,236,244,.97);border-bottom:1px solid #bec9dc;;z-index:50;}
 /* Sidebar */
 body.light .sidebar{background:#f8fafd;border-right:1px solid #bec9dc;}
 body.light .nav-item{color:#1e2d45;}
@@ -432,6 +432,14 @@ body.light #theme-btn:hover {
   background: #0d1b2e !important;
   border-color: #0d1b2e !important;
 }
+
+
+/* ── PITCH BOARD LIGHT MODE ── */
+body.light #fdp-pitch th { color: #080f1e !important; background: #dde4f0 !important; }
+body.light #fdp-pitch td { color: #080f1e !important; }
+body.light #fdp-pitch td input { color: #080f1e !important; }
+body.light #fdp-pitch .rank-card { background: #f2f5fb; border-color: #bec9dc; }
+body.light #fdp-pitch .rank-card * { color: #080f1e; }
 
 </style>
 </head>
@@ -1495,7 +1503,16 @@ function renderPitch(){
         ${makeNoteLink(row.notes)}
       </td>
       <td><select style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:10px;border-radius:3px;padding:2px 3px" onchange="pitchData[${i}].picker=this.value">${['Ben','Jeff','Monette','Rome'].map(p=>`<option ${row.picker===p?'selected':''}>${p}</option>`).join('')}</select></td>
-      ${['ben','jeff','monette','rome'].map(p=>`<td class="r"><input type="number" min="1" max="5" style="background:transparent;border:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;width:28px;text-align:right" value="${row[p]||''}" oninput="pitchData[${i}].${p}=this.value?parseFloat(this.value):null;refreshRankings()"></td>`).join('')}
+      ${['ben','jeff','monette','rome'].map(p=>{
+        const isMe=currentUser&&currentUser.name.toLowerCase().startsWith(p);
+        const val=row[p];
+        if(isMe){
+          return `<td class="r"><input type="number" min="1" max="5" style="background:transparent;border:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;width:28px;text-align:right" value="${val||''}" oninput="pitchData[${i}].${p}=this.value?parseFloat(this.value):null;refreshRankings()"></td>`;
+        } else {
+          const vc=val!=null?(val>=3?'var(--green)':val>=2?'var(--accent2)':'var(--red)'):'var(--text3)';
+          return `<td class="r" style="color:${vc};font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700">${val!=null?'●':'·'}</td>`;
+        }
+      }).join('')}
       <td class="r" style="font-weight:700;color:${ac}">${avg?avg.toFixed(2):'—'}</td>
       <td><button onclick="pitchData.splice(${i},1);renderPitch();refreshRankings()" style="background:none;border:none;color:var(--red);cursor:pointer">×</button></td>
     </tr>`;
