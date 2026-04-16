@@ -3274,5 +3274,24 @@ function switchFinvizNews(section, btn){
     </div>
   </div>
 </div>
+
+<!-- ══ NOTIFICATION PANEL ══ -->
+<div id="notif-panel" style="display:none;position:fixed;top:54px;right:12px;width:340px;max-height:480px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;z-index:400;box-shadow:0 8px 32px rgba(0,0,0,.4);overflow:hidden;flex-direction:column">
+  <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+    <div style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:12px;letter-spacing:1.5px;color:var(--text)">NOTIFICATIONS</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button onclick="openNotifSettings()" style="font-size:9px;background:none;border:none;color:var(--text2);cursor:pointer;font-weight:700;letter-spacing:.5px">&#9881; SETTINGS</button>
+      <button onclick="markAllRead()" style="font-size:9px;background:none;border:none;color:var(--accent);cursor:pointer;font-weight:700;letter-spacing:.5px">MARK ALL READ</button>
+      <button onclick="clearAllNotifs()" style="font-size:9px;background:none;border:none;color:var(--muted);cursor:pointer;font-weight:700;letter-spacing:.5px">CLEAR</button>
+      <button onclick="closeNotifPanel()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:16px;line-height:1">&#215;</button>
+    </div>
+  </div>
+  <div id="notif-list" style="overflow-y:auto;max-height:400px;scrollbar-width:thin"></div>
+  <div id="notif-empty" style="padding:24px;text-align:center;color:var(--muted);font-size:12px">
+    <div style="font-size:28px;margin-bottom:8px">&#128276;</div>
+    <div>No notifications yet</div>
+  </div>
+</div>
+<div id="notif-overlay" onclick="closeNotifPanel()" style="display:none;position:fixed;inset:0;z-index:399"></div>
 </body>
 </html>
