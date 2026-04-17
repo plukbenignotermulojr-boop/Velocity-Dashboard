@@ -593,24 +593,22 @@ body.light #fdp-pitch .rank-card * { color: #080f1e; }
   </div>
 
   <!-- NEWS FEED -->
-  <div class="card" style="margin-bottom:14px;padding:0;overflow:hidden">
-  <div class="ch" style="padding:12px 16px">
-    <div class="ct">📰 MARKET NEWS</div>
-    <div style="display:flex;gap:6px;align-items:center">
-      <button class="news-filter-btn active" id="nf-general" onclick="switchFinvizNews('news',this)">General</button>
-      <button class="news-filter-btn" id="nf-stock" onclick="switchFinvizNews('news_all',this)">Full Feed</button>
-      <a href="https://finviz.com/news.ashx" target="_blank" style="font-size:9px;color:var(--accent);text-decoration:none;font-weight:700;margin-left:4px">↗ Finviz</a>
+    <!-- NEWS FEED — Finnhub API -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="ch">
+      <div class="ct">📰 MARKET NEWS</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="news-filter-btn active" id="nf-general" onclick="setNewsFilter('general',this)">General</button>
+        <button class="news-filter-btn" id="nf-crypto" onclick="setNewsFilter('crypto',this)">Crypto</button>
+        <button class="news-filter-btn" id="nf-forex" onclick="setNewsFilter('forex',this)">Forex</button>
+        <button class="news-filter-btn" id="nf-merger" onclick="setNewsFilter('merger',this)">M&amp;A</button>
+        <button onclick="loadNews(currentNewsCategory)" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:14px;margin-left:4px" title="Refresh">&#8635;</button>
+      </div>
+    </div>
+    <div id="news-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:10px">
+      <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted);font-size:12px">Loading news...</div>
     </div>
   </div>
-  <div style="position:relative;height:480px;overflow:hidden">
-    <iframe id="finviz-news-frame"
-      src="https://finviz.com/news.ashx"
-      style="width:100%;height:600px;border:none;margin-top:-52px;pointer-events:auto"
-      scrolling="yes"
-      sandbox="allow-scripts allow-same-origin allow-popups allow-forms">
-    </iframe>
-  </div>
-</div>
 </div>
 
 <!-- ══ FUND DESK ══ -->
@@ -1354,7 +1352,7 @@ function showPage(id, navEl){
   const t = PAGE_TITLES[id]||id.toUpperCase();
   document.getElementById('page-title').innerHTML = id==='funddesk'?'FUND <span style="color:var(--accent)">DESK</span>':t;
   if(id==='kpi') renderKPI();
-  if(id==='home') renderHome();
+  if(id==='home'){ renderHome(); setTimeout(function(){ loadNews(currentNewsCategory); }, 300); }
   if(id==='scheduler') renderCalendar();
 }
 
@@ -1912,7 +1910,7 @@ async function logTrade(idx){
 
 // ── PRICE FETCH ───────────────────────────────────
 async function fetchPrice(ticker){
-  try{const r=await fetch('https://finnhub.io/api/v1/quote?symbol='+encodeURIComponent(ticker)+'&token=free',{signal:AbortSignal.timeout(5000)});if(r.ok){const d=await r.json();if(d&&d.c&&d.c>0)return{price:parseFloat(d.c.toFixed(2)),high:d.h,low:d.l};}
+  try{const r=await fetch('https://finnhub.io/api/v1/quote?symbol='+encodeURIComponent(ticker)+'&token=d7gova1r01qmqj466vu0d7gova1r01qmqj466vug',{signal:AbortSignal.timeout(5000)});if(r.ok){const d=await r.json();if(d&&d.c&&d.c>0)return{price:parseFloat(d.c.toFixed(2)),high:d.h,low:d.l};}
   }catch(e){}
   try{const r2=await fetch('https://query2.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(ticker)+'?interval=1d&range=1d',{signal:AbortSignal.timeout(6000)});if(r2.ok){const d2=await r2.json();const meta=d2.chart&&d2.chart.result&&d2.chart.result[0]&&d2.chart.result[0].meta;if(meta&&meta.regularMarketPrice>0)return{price:parseFloat(meta.regularMarketPrice.toFixed(2)),high:meta.regularMarketDayHigh};}
   }catch(e){}
@@ -2253,7 +2251,7 @@ async function fetchTickerPrice(sym){
   // Try Finnhub first (free, CORS-friendly)
   try{
     const r = await fetch(
-      'https://finnhub.io/api/v1/quote?symbol='+encodeURIComponent(sym)+'&token=free',
+      'https://finnhub.io/api/v1/quote?symbol='+encodeURIComponent(sym)+'&token=d7gova1r01qmqj466vu0d7gova1r01qmqj466vug',
       {signal:AbortSignal.timeout(6000)}
     );
     if(r.ok){
@@ -2335,49 +2333,35 @@ function setNewsFilter(cat, btn){
 async function loadNews(cat){
   const grid = document.getElementById('news-grid');
   if(!grid) return;
-  grid.innerHTML = '<div class="news-loading">Loading news...</div>';
-  // Map category to Finnhub category
-  const catMap = {general:'general',crypto:'crypto',forex:'forex',merger:'merger'};
-  const finnCat = catMap[cat] || 'general';
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted);font-size:12px">Loading news...</div>';
   try{
-    const r = await fetch('https://finnhub.io/api/v1/news?category='+finnCat+'&minId=0&token=d0fo5v9r01qoqbm2dlugd0fo5v9r01qoqbm2dlv0', {signal:AbortSignal.timeout(8000)});
+    const r = await fetch('https://finnhub.io/api/v1/news?category='+(cat||'general')+'&token=d7gova1r01qmqj466vu0d7gova1r01qmqj466vug', {signal:AbortSignal.timeout(8000)});
     if(!r.ok) throw new Error('HTTP '+r.status);
     const articles = await r.json();
     if(!Array.isArray(articles)||!articles.length) throw new Error('empty');
     grid.innerHTML = articles.slice(0,9).map(a=>{
       const ago = getTimeAgo(a.datetime*1000);
+      const img = a.image ? `<img src="${a.image}" style="width:100%;height:100px;object-fit:cover;border-radius:4px;margin-bottom:6px" onerror="this.style.display='none'">` : '';
       return `<a class="news-card" href="${a.url||'#'}" target="_blank" rel="noopener">
+        ${img}
         <div class="news-headline">${a.headline||'No headline'}</div>
         <div class="news-meta">
           <span class="news-source">${a.source||'—'}</span>
           <span>${ago}</span>
-          ${a.related?`<span style="color:var(--accent)">${a.related}</span>`:''}
+          ${a.related?`<span style="color:var(--accent);font-weight:700">${a.related}</span>`:''}
         </div>
       </a>`;
     }).join('');
   } catch(e){
-    // Fallback to Marketaux free tier
-    try{
-      const r2 = await fetch('https://api.marketaux.com/v1/news/all?language=en&limit=9&api_token=demo', {signal:AbortSignal.timeout(8000)});
-      if(r2.ok){
-        const d2 = await r2.json();
-        if(d2.data&&d2.data.length){
-          grid.innerHTML = d2.data.map(a=>`<a class="news-card" href="${a.url||'#'}" target="_blank" rel="noopener">
-            <div class="news-headline">${a.title||'No headline'}</div>
-            <div class="news-meta"><span class="news-source">${a.source||'—'}</span><span>${getTimeAgo(new Date(a.published_at))}</span></div>
-          </a>`).join('');
-          return;
-        }
-      }
-    } catch(e2){}
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);font-size:12px">
       <div style="font-size:28px;margin-bottom:8px">📰</div>
-      <div style="margin-bottom:6px">News feed blocked by browser security (CORS).</div>
-      <div style="font-size:10px">Try: <a href="https://finviz.com/news.ashx" target="_blank" style="color:var(--accent)">Finviz News</a> &nbsp;·&nbsp; <a href="https://finance.yahoo.com" target="_blank" style="color:var(--accent)">Yahoo Finance</a></div>
+      <div>Unable to load news — ${e.message}</div>
+      <a href="https://finviz.com/news.ashx" target="_blank" style="color:var(--accent);font-size:10px;margin-top:6px;display:block">Open Finviz News ↗</a>
     </div>`;
   }
 }
 
+// placeholder to avoid duplicate — original below replaced:
 function getTimeAgo(ts){
   const diff = Date.now() - ts;
   const m = Math.floor(diff/60000);
