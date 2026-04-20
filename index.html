@@ -441,6 +441,32 @@ body.light #fdp-pitch td input { color: #080f1e !important; }
 body.light #fdp-pitch .rank-card { background: #f2f5fb; border-color: #bec9dc; }
 body.light #fdp-pitch .rank-card * { color: #080f1e; }
 
+
+/* ── CUSTOM TICKER ROW ── */
+#custom-ticker { 
+  background: var(--surface2); border-bottom: 1px solid var(--border); 
+  height: 28px; overflow: hidden; display: flex; align-items: center;
+  font-size: 10px; font-family: 'JetBrains Mono', monospace;
+}
+#custom-ticker-inner {
+  display: inline-flex; gap: 0; white-space: nowrap;
+  animation: custom-ticker-scroll 40s linear infinite;
+}
+@keyframes custom-ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ct-item {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0 14px; height: 28px; border-right: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.ct-sym { color: var(--accent); font-weight: 700; font-size: 9px; letter-spacing: .3px; }
+.ct-price { color: var(--text); font-weight: 600; }
+.ct-tag { font-size: 7px; padding: 0 4px; border-radius: 3px; font-weight: 700; letter-spacing: .5px; }
+.ct-tag-pos { background: rgba(34,197,94,.15); color: var(--green); }
+.ct-tag-pick { background: rgba(59,130,246,.15); color: var(--accent2); }
+
 </style>
 </head>
 <body>
@@ -536,7 +562,7 @@ body.light #fdp-pitch .rank-card * { color: #080f1e; }
 <!-- ══ HOME ══ -->
 <div class="page active" id="page-home">
   <!-- TICKER TAPE -->
-  <div id="ticker-tape" style="height:46px;overflow:hidden;border-bottom:1px solid var(--border)">
+  <div id="ticker-tape" style="height:50px;overflow:hidden;border-bottom:1px solid var(--border);min-height:50px">
   <div class="tradingview-widget-container" style="height:46px;width:100%">
     <div class="tradingview-widget-container__widget"></div>
     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
@@ -550,7 +576,7 @@ body.light #fdp-pitch .rank-card * { color: #080f1e; }
         {"description":"Silver","proName":"OANDA:XAGUSD"},
         {"description":"Bitcoin","proName":"BINANCE:BTCUSDT"},
         {"description":"Ethereum","proName":"BINANCE:ETHUSDT"},
-        {"description":"VIX","proName":"CBOE:VIX"},
+        {"description":"VIX","proName":"TVC:VIX"},
         {"description":"DXY","proName":"TVC:DXY"}
       ],
       "showSymbolLogo":false,
@@ -560,6 +586,11 @@ body.light #fdp-pitch .rank-card * { color: #080f1e; }
       "locale":"en"
     }
     </script>
+  </div>
+  <!-- CUSTOM TICKER: Positions + Picks -->
+  <div id="custom-ticker">
+    <div style="background:var(--green);color:#080d14;font-size:8px;font-weight:800;letter-spacing:1px;padding:0 10px;height:100%;display:flex;align-items:center;flex-shrink:0">PORTFOLIO</div>
+    <div id="custom-ticker-inner"></div>
   </div>
 </div>
 
@@ -576,37 +607,38 @@ body.light #fdp-pitch .rank-card * { color: #080f1e; }
   </div>
 
   <div class="g3" id="home-stats">
-    <div class="stat-tile b"><div class="stat-lbl">Open Positions</div><div class="stat-val" id="h-pos">0</div><div class="stat-sub">Active in monitor</div></div>
-    <div class="stat-tile a"><div class="stat-lbl">Today's Picks</div><div class="stat-val" id="h-picks">0</div><div class="stat-sub">On pitch board</div></div>
-    <div class="stat-tile g"><div class="stat-lbl">Planned Trades</div><div class="stat-val" id="h-plans">0</div><div class="stat-sub">Pending execution</div></div>
+    <div class="stat-tile b" onclick="showPage('funddesk',null);showFdTab('monitor')" style="cursor:pointer" title="Go to Monitor">
+      <div class="stat-lbl">Open Positions</div><div class="stat-val" id="h-pos">0</div><div class="stat-sub">Active in monitor ↗</div></div>
+    <div class="stat-tile a" onclick="showPage('funddesk',null);showFdTab('pitch')" style="cursor:pointer" title="Go to Pitch Board">
+      <div class="stat-lbl">Today's Picks</div><div class="stat-val" id="h-picks">0</div><div class="stat-sub">On pitch board ↗</div></div>
+    <div class="stat-tile g" onclick="showPage('funddesk',null);showFdTab('planner')" style="cursor:pointer" title="Go to Planner">
+      <div class="stat-lbl">Planned Trades</div><div class="stat-val" id="h-plans">0</div><div class="stat-sub">Pending execution ↗</div></div>
   </div>
 
   <div class="g2" style="margin-bottom:14px">
     <div class="card">
-      <div class="ch"><div class="ct">Recent Trades</div></div>
+      <div class="ch"><div class="ct">Recent Trades</div><button class="btn-sm btn-sec" style="font-size:9px" onclick="showPage('funddesk',null);showFdTab('records')">View All</button></div>
       <div id="home-trades" class="empty">No recent trades</div>
     </div>
     <div class="card">
-      <div class="ch"><div class="ct">Top KPI This Month</div></div>
+      <div class="ch"><div class="ct">Top KPI This Month</div><button class="btn-sm btn-sec" style="font-size:9px" onclick="showPage('kpi',null)">View All</button></div>
       <div id="home-kpi" class="empty">Loading KPI data...</div>
     </div>
   </div>
 
   <!-- NEWS FEED -->
     <!-- NEWS FEED — Finnhub API -->
-  <div class="card" style="margin-bottom:14px">
+  <div class="card" style="margin-bottom:14px;border-top:2px solid var(--purple)">
     <div class="ch">
-      <div class="ct">📰 MARKET NEWS</div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <button class="news-filter-btn active" id="nf-general" onclick="setNewsFilter('general',this)">General</button>
-        <button class="news-filter-btn" id="nf-crypto" onclick="setNewsFilter('crypto',this)">Crypto</button>
-        <button class="news-filter-btn" id="nf-forex" onclick="setNewsFilter('forex',this)">Forex</button>
-        <button class="news-filter-btn" id="nf-merger" onclick="setNewsFilter('merger',this)">M&amp;A</button>
-        <button onclick="loadNews(currentNewsCategory)" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:14px;margin-left:4px" title="Refresh">&#8635;</button>
-      </div>
+      <div class="ct">🔍 RESEARCH HUB</div>
+      <span style="font-size:9px;background:var(--surface3);color:var(--muted);padding:2px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px">COMING SOON</span>
     </div>
-    <div id="news-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:10px">
-      <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted);font-size:12px">Loading news...</div>
+    <div id="research-preview" style="padding:20px 0;text-align:center">
+      <div style="font-size:36px;margin-bottom:10px;opacity:.3">🔍</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Research Hub</div>
+      <div style="font-size:11px;color:var(--muted);max-width:340px;margin:0 auto;line-height:1.6">
+        Upload and share research files, analysis, and reports with your team. Filter by ticker, author, or date. Coming in the next update.
+      </div>
     </div>
   </div>
 </div>
@@ -1322,6 +1354,8 @@ function startApp(){
   loadAllData().then(setupRealtime);
   renderCalendar();
   renderLinks();
+   setTimeout(function(){ if(typeof loadNews==='function') loadNews('general'); }, 1200);
+   setTimeout(function(){ if(typeof renderNotifBell==='function') renderNotifBell(); }, 500);
   // Set lk-by default to current user
   const lkBy = document.getElementById('lk-by');
   if(lkBy) Array.from(lkBy.options).forEach(o=>{ if(o.value===u.name) o.selected=true; });
@@ -1353,7 +1387,7 @@ function showPage(id, navEl){
   document.getElementById('page-title').innerHTML = id==='funddesk'?'FUND <span style="color:var(--accent)">DESK</span>':t;
   if(id==='kpi') renderKPI();
   if(id==='home'){ renderHome(); setTimeout(function(){ loadNews(currentNewsCategory); }, 300); }
-  if(id==='scheduler') renderCalendar();
+  if(id==='scheduler'){ renderCalendar(); setTimeout(renderThisWeek, 100); }
 }
 
 function showFdTab(id, btnEl){
@@ -2402,25 +2436,62 @@ function getWeekOf(dateStr){
 }
 
 function renderThisWeek(){
-  const today = new Date().toISOString().split('T')[0];
-  const week = getWeekOf(today);
-  const el = document.getElementById('this-week-roles');
+  var el = document.getElementById('this-week-roles');
   if(!el) return;
-  if(!week.length){
-    el.innerHTML = '<div style="color:var(--muted)">No schedule this week</div>';
+  var today = new Date().toISOString().split('T')[0];
+  var d = new Date(today + 'T00:00:00');
+  var dow = d.getDay();
+  var monday = new Date(d);
+  monday.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
+  var mondayStr = monday.getFullYear() + '-' +
+    String(monday.getMonth()+1).padStart(2,'0') + '-' +
+    String(monday.getDate()).padStart(2,'0');
+
+  if(typeof TEAM_SCHEDULE === 'undefined'){
+    el.innerHTML = '<div style="color:var(--muted);font-size:11px">Schedule not loaded</div>';
     return;
   }
-  const fac = week.find(e=>e.role==='facilitator');
-  const pilot = week.find(e=>e.role==='pilot');
-  el.innerHTML = [
-    fac   ? `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">
-               <span style="color:var(--text2)">Facilitator</span>
-               <span style="font-weight:700;color:#f0a500">${fac.person}</span></div>` : '',
-    pilot ? `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0">
-               <span style="color:var(--text2)">Pilot</span>
-               <span style="font-weight:700;color:#00d4aa">${pilot.person}</span></div>` : '',
-  ].join('');
+
+  var fac   = TEAM_SCHEDULE.find(function(e){ return e.date === mondayStr && e.role === 'facilitator'; });
+  var pilot = TEAM_SCHEDULE.find(function(e){ return e.date === mondayStr && e.role === 'pilot'; });
+  var swap  = (typeof roleSwaps !== 'undefined') ? roleSwaps[mondayStr] : null;
+
+  var facName   = (swap && swap.fac)   ? swap.fac   : (fac   ? fac.person   : '—');
+  var pilotName = (swap && swap.pilot) ? swap.pilot : (pilot ? pilot.person : '—');
+  var facSwapped   = swap && swap.fac;
+  var pilotSwapped = swap && swap.pilot;
+
+  var html = '';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">'
+    + '<span style="color:var(--text2);font-size:12px">Facilitator</span>'
+    + '<span>'
+    + (facSwapped ? '<span style="font-size:9px;background:rgba(240,165,0,.15);color:#f0a500;border-radius:3px;padding:1px 5px;margin-right:5px;font-weight:700">SWAPPED</span>' : '')
+    + '<span style="font-weight:700;color:#f0a500;font-size:12px">' + facName + '</span>'
+    + '</span></div>';
+
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">'
+    + '<span style="color:var(--text2);font-size:12px">Pilot</span>'
+    + '<span>'
+    + (pilotSwapped ? '<span style="font-size:9px;background:rgba(0,212,170,.1);color:var(--accent);border-radius:3px;padding:1px 5px;margin-right:5px;font-weight:700">SWAPPED</span>' : '')
+    + '<span style="font-weight:700;color:#00d4aa;font-size:12px">' + pilotName + '</span>'
+    + '</span></div>';
+
+  if(swap){
+    html += '<div style="font-size:9px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">&#8644; Override active'
+      + (swap.reason ? ' — ' + swap.reason : '')
+      + ' <button onclick="clearThisWeekSwap(\'' + mondayStr + '\')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:9px;font-weight:700">Remove</button></div>';
+  }
+
+  el.innerHTML = html;
 }
+
+function clearThisWeekSwap(mondayStr){
+  if(typeof roleSwaps !== 'undefined') delete roleSwaps[mondayStr];
+  localStorage.setItem('vel_role_swaps', JSON.stringify(roleSwaps||{}));
+  renderCalendar();
+  showToast('Swap removed');
+}
+
 
 function renderFundMR(){
   const el = document.getElementById('fund-mr-list');
@@ -2826,11 +2897,16 @@ function clearAllNotifs(){
 function toggleNotifPanel(){
   var panel = document.getElementById('notif-panel');
   var overlay = document.getElementById('notif-overlay');
-  if(!panel) return;
+  if(!panel){ console.log('notif-panel not found'); return; }
   var isOpen = panel.style.display === 'flex';
-  panel.style.display = isOpen ? 'none' : 'flex';
-  overlay.style.display = isOpen ? 'none' : 'block';
-  if(!isOpen) renderNotifList();
+  if(isOpen){
+    panel.style.display = 'none';
+    if(overlay) overlay.style.display = 'none';
+  } else {
+    panel.style.cssText = 'display:flex;flex-direction:column;position:fixed;top:54px;right:12px;width:340px;max-height:480px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;z-index:600;box-shadow:0 8px 32px rgba(0,0,0,.4);overflow:hidden;';
+    if(overlay) overlay.style.display = 'block';
+    renderNotifList();
+  }
 }
 
 function closeNotifPanel(){
@@ -3167,41 +3243,7 @@ function clearSwapForDate(){
 var _origGetSched = window.getScheduleEventsForDate;
 
 // Override renderThisWeek to show swap indicators
-function renderThisWeek(){
-  var el = document.getElementById('this-week-roles');
-  if(!el) return;
-  var today = new Date().toISOString().split('T')[0];
-  var d = new Date(today + 'T00:00:00');
-  var dow = d.getDay();
-  var monday = new Date(d);
-  monday.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
-  var mondayStr = monday.toISOString().split('T')[0];
-  if(typeof TEAM_SCHEDULE === 'undefined'){ el.innerHTML = '<div style="color:var(--muted)">No schedule data</div>'; return; }
-  var fac   = TEAM_SCHEDULE.find(function(e){ return e.date === mondayStr && e.role === 'facilitator'; });
-  var pilot = TEAM_SCHEDULE.find(function(e){ return e.date === mondayStr && e.role === 'pilot'; });
-  var swap = roleSwaps[mondayStr];
-  var facName   = (swap && swap.fac)   ? swap.fac   : (fac   ? fac.person   : '—');
-  var pilotName = (swap && swap.pilot) ? swap.pilot : (pilot ? pilot.person : '—');
-  var facSwapped   = swap && swap.fac;
-  var pilotSwapped = swap && swap.pilot;
-  el.innerHTML = [
-    '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">'+
-      '<span style="color:var(--text2)">Facilitator</span>'+
-      '<span>'+
-        (facSwapped ? '<span style="font-size:9px;background:var(--gold-dim,rgba(240,165,0,.15));color:var(--accent2,#f0a500);border-radius:3px;padding:1px 5px;margin-right:5px;font-weight:700">SWAPPED</span>' : '')+
-        '<span style="font-weight:700;color:#f0a500">'+facName+'</span>'+
-      '</span>'+
-    '</div>',
-    '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">'+
-      '<span style="color:var(--text2)">Pilot</span>'+
-      '<span>'+
-        (pilotSwapped ? '<span style="font-size:9px;background:rgba(0,212,170,.1);color:var(--accent);border-radius:3px;padding:1px 5px;margin-right:5px;font-weight:700">SWAPPED</span>' : '')+
-        '<span style="font-weight:700;color:#00d4aa">'+pilotName+'</span>'+
-      '</span>'+
-    '</div>',
-    swap ? '<div style="font-size:9px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">⇄ Override active'+(swap.reason?' — '+swap.reason:'')+'&nbsp;&nbsp;<button onclick="clearSwapForDate2(this.dataset.m)" data-m="'+mondayStr+'" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:9px;font-weight:700">Remove</button></div>' : ''
-  ].join('');
-}
+// renderThisWeek defined above
 
 function clearSwapForDate2(mondayStr){
   delete roleSwaps[mondayStr];
@@ -3218,7 +3260,108 @@ function switchFinvizNews(section, btn){
   if(frame) frame.src = 'https://finviz.com/' + section + '.ashx';
 }
 
+
+// ═══ KPI SEED DATA ═══
+function seedKPIData(){
+  if(localStorage.getItem('kpi26_seeded5')) return;
+  var md = JSON.parse(localStorage.getItem('kpi26_monthly')||'{}');
+  var emptyR = function(){ return {officeAbsent:0,officeLate:0,onlineAbsent:0,onlineLate:0,noRecap:0,sharingMissed:0,ideasShared:0,varMonth:0,varRecovered:0}; };
+  var traders = ['Ben Termulo','Jeff Chuan','Rome Mendiola','Monette Patrimonio'];
+  // January — Monette: 1 sharing missed; everyone else clean
+  var key0 = '2026-0';
+  if(!md[key0]) md[key0] = {};
+  traders.forEach(function(t){ md[key0][t] = emptyR(); });
+  md[key0]['Monette Patrimonio'] = Object.assign(emptyR(), {sharingMissed:1});
+  // February — Jeff: 1 no recap; everyone else clean
+  var key1 = '2026-1';
+  if(!md[key1]) md[key1] = {};
+  traders.forEach(function(t){ md[key1][t] = emptyR(); });
+  md[key1]['Jeff Chuan'] = Object.assign(emptyR(), {noRecap:1});
+  // March — Jeff: 1 no recap; everyone else clean
+  var key2 = '2026-2';
+  if(!md[key2]) md[key2] = {};
+  traders.forEach(function(t){ md[key2][t] = emptyR(); });
+  md[key2]['Jeff Chuan'] = Object.assign(emptyR(), {noRecap:1});
+
+  localStorage.setItem('kpi26_monthly', JSON.stringify(md));
+  localStorage.setItem('kpi26_seeded5', '1');
+}
+
+
+// ═══ CUSTOM PORTFOLIO TICKER ═══
+function buildCustomTicker(){
+  var inner = document.getElementById('custom-ticker-inner');
+  if(!inner) return;
+  var items = [];
+
+  // Add open positions from monitor
+  if(typeof monitorData !== 'undefined'){
+    monitorData.forEach(function(row){
+      if(!row.issue) return;
+      var sold = (row.partialSells||[]).reduce(function(a,s){return a+s.shares;},0);
+      if(row.shares - sold <= 0) return;
+      var pnl = row.curr && row.purchase ? ((row.curr - row.purchase) * (row.shares - sold)) : null;
+      var pnlStr = pnl != null ? (pnl >= 0 ? '+$' + pnl.toFixed(0) : '-$' + Math.abs(pnl).toFixed(0)) : '';
+      var pnlColor = pnl > 0 ? 'var(--green)' : pnl < 0 ? 'var(--red)' : 'var(--muted)';
+      items.push('<div class="ct-item"><span class="ct-sym">' + row.issue + '</span>'
+        + '<span class="ct-price">$' + (row.curr||0).toFixed(2) + '</span>'
+        + (pnlStr ? '<span style="color:'+pnlColor+';font-size:9px;font-weight:700">' + pnlStr + '</span>' : '')
+        + '<span class="ct-tag ct-tag-pos">POS</span></div>');
+    });
+  }
+
+  // Add today's picks from pitch
+  if(typeof pitchData !== 'undefined'){
+    pitchData.forEach(function(row){
+      if(!row.ticker) return;
+      var sc = [row.ben,row.jeff,row.monette,row.rome].filter(function(v){return v!=null;});
+      var avg = sc.length ? sc.reduce(function(a,b){return a+b;},0)/sc.length : null;
+      items.push('<div class="ct-item"><span class="ct-sym">' + row.ticker + '</span>'
+        + (avg != null ? '<span style="color:'+(avg>=3?'var(--green)':'var(--red)')+';font-size:9px;font-weight:700">' + avg.toFixed(1) + '</span>' : '')
+        + '<span class="ct-tag ct-tag-pick">PICK</span></div>');
+    });
+  }
+
+  if(!items.length){
+    items.push('<div class="ct-item"><span style="color:var(--muted)">No positions or picks today</span></div>');
+  }
+
+  // Duplicate for seamless scroll
+  var html = items.join('') + items.join('');
+  inner.innerHTML = html;
+}
+
+// Refresh custom ticker when data changes
+var _origRenderMonitor2 = window.renderMonitor;
+window.renderMonitor = function(){
+  if(typeof _origRenderMonitor2 === 'function') _origRenderMonitor2.apply(this, arguments);
+  buildCustomTicker();
+};
+
+var _origRenderPitch2 = window.renderPitch;
+window.renderPitch = function(){
+  if(typeof _origRenderPitch2 === 'function') _origRenderPitch2.apply(this, arguments);
+  buildCustomTicker();
+};
+
 </script>
+
+<!-- ══ NOTIFICATION PANEL ══ -->
+<div id="notif-panel" style="display:none;position:fixed;top:54px;right:12px;width:340px;max-height:480px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;z-index:600;box-shadow:0 8px 32px rgba(0,0,0,.4);overflow:hidden;flex-direction:column">
+  <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+    <div style="font-weight:800;font-size:12px;letter-spacing:1.5px;color:var(--text)">NOTIFICATIONS</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button onclick="markAllRead()" style="font-size:9px;background:none;border:none;color:var(--accent);cursor:pointer;font-weight:700">MARK ALL READ</button>
+      <button onclick="clearAllNotifs()" style="font-size:9px;background:none;border:none;color:var(--muted);cursor:pointer;font-weight:700">CLEAR</button>
+      <button onclick="closeNotifPanel()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:16px">&#215;</button>
+    </div>
+  </div>
+  <div id="notif-list" style="overflow-y:auto;max-height:400px;scrollbar-width:thin"></div>
+  <div id="notif-empty" style="padding:24px;text-align:center;color:var(--muted);font-size:12px">
+    <div style="font-size:28px;margin-bottom:8px">&#128276;</div><div>No notifications yet</div>
+  </div>
+</div>
+<div id="notif-overlay" onclick="closeNotifPanel()" style="display:none;position:fixed;inset:0;z-index:399"></div>
 
 <!-- ══ SWAP MODAL ══ -->
 <div id="swap-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center">
@@ -3227,55 +3370,22 @@ function switchFinvizNews(section, btn){
       <div class="ct" style="font-size:13px;letter-spacing:2px">SWAP ROLES</div>
       <button onclick="closeSwapModal()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px">&#215;</button>
     </div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Override Facilitator or Pilot for any week. One-time swap — original schedule unchanged.</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Override Facilitator or Pilot for any week.</div>
     <div style="display:grid;gap:12px">
-      <div><div class="mlbl">Week (pick any date in that week)</div>
-        <input type="date" class="finp" id="swap-date" style="width:100%" onchange="updateSwapPreview()">
-      </div>
+      <div><div class="mlbl">Week (pick any date)</div><input type="date" class="finp" id="swap-date" style="width:100%" onchange="updateSwapPreview()"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div><div class="mlbl">Facilitator Override</div>
-          <select class="finp" id="swap-fac" style="width:100%">
-            <option value="">No change</option>
-            <option>Ben</option><option>Jeff</option><option>Monette</option><option>Rome</option>
-          </select>
-        </div>
-        <div><div class="mlbl">Pilot Override</div>
-          <select class="finp" id="swap-pilot" style="width:100%">
-            <option value="">No change</option>
-            <option>Ben</option><option>Jeff</option><option>Monette</option><option>Rome</option>
-          </select>
-        </div>
+        <div><div class="mlbl">Facilitator</div><select class="finp" id="swap-fac" style="width:100%"><option value="">No change</option><option>Ben</option><option>Jeff</option><option>Monette</option><option>Rome</option></select></div>
+        <div><div class="mlbl">Pilot</div><select class="finp" id="swap-pilot" style="width:100%"><option value="">No change</option><option>Ben</option><option>Jeff</option><option>Monette</option><option>Rome</option></select></div>
       </div>
-      <div><div class="mlbl">Reason (optional)</div>
-        <input class="finp" id="swap-reason" placeholder="e.g. Jeff unavailable this week" style="width:100%">
-      </div>
+      <div><div class="mlbl">Reason (optional)</div><input class="finp" id="swap-reason" style="width:100%"></div>
       <div id="swap-current" style="font-size:11px;color:var(--text2);background:var(--surface2);border-radius:5px;padding:10px;min-height:36px"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button class="btn-sm btn-sec" onclick="clearSwapForDate()">Remove Override</button>
+        <button class="btn-sm btn-sec" onclick="clearSwapForDate()">Remove</button>
         <button class="btn-sm btn-sec" onclick="closeSwapModal()">Cancel</button>
         <button class="btn-sm btn-accent" onclick="saveSwap()">Save Swap</button>
       </div>
     </div>
   </div>
 </div>
-
-<!-- ══ NOTIFICATION PANEL ══ -->
-<div id="notif-panel" style="display:none;position:fixed;top:54px;right:12px;width:340px;max-height:480px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;z-index:400;box-shadow:0 8px 32px rgba(0,0,0,.4);overflow:hidden;flex-direction:column">
-  <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-    <div style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:12px;letter-spacing:1.5px;color:var(--text)">NOTIFICATIONS</div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button onclick="openNotifSettings()" style="font-size:9px;background:none;border:none;color:var(--text2);cursor:pointer;font-weight:700;letter-spacing:.5px">&#9881; SETTINGS</button>
-      <button onclick="markAllRead()" style="font-size:9px;background:none;border:none;color:var(--accent);cursor:pointer;font-weight:700;letter-spacing:.5px">MARK ALL READ</button>
-      <button onclick="clearAllNotifs()" style="font-size:9px;background:none;border:none;color:var(--muted);cursor:pointer;font-weight:700;letter-spacing:.5px">CLEAR</button>
-      <button onclick="closeNotifPanel()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:16px;line-height:1">&#215;</button>
-    </div>
-  </div>
-  <div id="notif-list" style="overflow-y:auto;max-height:400px;scrollbar-width:thin"></div>
-  <div id="notif-empty" style="padding:24px;text-align:center;color:var(--muted);font-size:12px">
-    <div style="font-size:28px;margin-bottom:8px">&#128276;</div>
-    <div>No notifications yet</div>
-  </div>
-</div>
-<div id="notif-overlay" onclick="closeNotifPanel()" style="display:none;position:fixed;inset:0;z-index:399"></div>
 </body>
 </html>
