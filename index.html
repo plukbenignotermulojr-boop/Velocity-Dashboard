@@ -366,6 +366,16 @@ body:not(.light) .fd-tab { color: #e2e8f0 !important; font-weight: 700 !importan
 .fd-panel .ch .ct, .fd-panel .ct { color: #ffffff !important; font-weight: 700 !important; }
 .section-label, .picks-label, .col-hdr { color: #ffffff !important; font-weight: 700 !important; }
 
+/* Monitor colored cells — override the blanket white */
+.fd-panel td.mon-red { color: #ef4444 !important; font-weight: 700 !important; }
+.fd-panel td.mon-green { color: #22c55e !important; font-weight: 700 !important; }
+.fd-panel td.mon-accent { color: #f0a500 !important; font-weight: 700 !important; }
+.fd-panel td.mon-accent2 { color: #3b82f6 !important; font-weight: 700 !important; }
+body.light .fd-panel td.mon-red { color: #dc2626 !important; }
+body.light .fd-panel td.mon-green { color: #15803d !important; }
+body.light .fd-panel td.mon-accent { color: #c07a00 !important; }
+body.light .fd-panel td.mon-accent2 { color: #1d4ed8 !important; }
+
 
 /* ── LIGHT MODE STAT TILE FIX ── */
 body.light .stat-tile { background: #ffffff; border: 1px solid #bec9dc; }
@@ -467,6 +477,38 @@ body.light #fdp-pitch .rank-card * { color: #080f1e; }
 .ct-tag-pos { background: rgba(34,197,94,.15); color: var(--green); }
 .ct-tag-pick { background: rgba(59,130,246,.15); color: var(--accent2); }
 
+
+/* ── RESEARCH HUB ── */
+body.light #page-research .card,
+body.light #page-research [style*="background:var(--surface2)"] { background: #f5f7fc !important; }
+body.light #page-research [style*="color:var(--text)"] { color: #080f1e !important; }
+body.light #research-modal .card,
+body.light #quickpaste-modal .card,
+body.light #research-detail-modal .card { background: #ffffff !important; }
+
+/* ── MONITOR / POSITIONS LIGHT MODE ── */
+body.light #fdp-monitor th { color: #080f1e !important; background: #dde4f0 !important; }
+body.light #fdp-monitor td { color: #080f1e !important; }
+body.light #fdp-monitor td input { color: #080f1e !important; }
+body.light #fdp-monitor td.mon-red { color: #dc2626 !important; }
+body.light #fdp-monitor td.mon-green { color: #15803d !important; }
+body.light #fdp-monitor td.mon-accent { color: #c07a00 !important; }
+body.light #fdp-monitor td.mon-accent2 { color: #1d4ed8 !important; }
+body.light #fdp-monitor .stat-tile .stat-val { color: #080f1e !important; }
+body.light #fdp-monitor .stat-tile .stat-lbl { color: #1e2d45 !important; }
+body.light #fdp-monitor .stat-tile .stat-sub { color: #3a4f6a !important; }
+/* Exposure summary and pie legend in light mode */
+body.light #pie-summary span { color: #080f1e !important; }
+body.light #pie-summary span[style*="color:var(--accent)"] { color: #c07a00 !important; }
+body.light #pie-summary span[style*="color:var(--green)"] { color: #15803d !important; }
+body.light #pie-legend .pie-leg-row div { color: #080f1e !important; }
+body.light #pie-legend .pie-leg-row { color: #080f1e !important; }
+/* Ensure colored values stay visible in light */
+body.light td[style*="color:var(--red)"] { color: #dc2626 !important; }
+body.light td[style*="color:var(--green)"] { color: #15803d !important; }
+body.light td[style*="color:var(--accent)"] { color: #c07a00 !important; }
+body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
+
 </style>
 </head>
 <body>
@@ -516,12 +558,12 @@ body.light #fdp-pitch .rank-card * { color: #080f1e; }
       <div class="nav-item" onclick="showPage('links',this)" title="Links Repository">
         <span class="nav-icon">🔗</span><span class="nav-text">Links Repo</span>
       </div>
+      <div class="nav-item" onclick="showPage('research',this)" title="Research Hub">
+        <span class="nav-icon">🔍</span><span class="nav-text">Research Hub</span>
+      </div>
     </div>
     <div class="nav-section">
       <div class="nav-label">COMING SOON</div>
-      <div class="nav-item" style="opacity:.45;cursor:not-allowed" title="Research Hub — Coming Soon">
-        <span class="nav-icon">🔍</span><span class="nav-text">Research Hub <span class="nav-badge">WIP</span></span>
-      </div>
       <div class="nav-item" style="opacity:.45;cursor:not-allowed" title="Games — Coming Soon">
         <span class="nav-icon">🕹️</span><span class="nav-text">Games <span class="nav-badge">WIP</span></span>
       </div>
@@ -631,15 +673,9 @@ body.light #fdp-pitch .rank-card * { color: #080f1e; }
   <div class="card" style="margin-bottom:14px;border-top:2px solid var(--purple)">
     <div class="ch">
       <div class="ct">🔍 RESEARCH HUB</div>
-      <span style="font-size:9px;background:var(--surface3);color:var(--muted);padding:2px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px">COMING SOON</span>
+      <button class="btn-sm btn-sec" style="font-size:9px" onclick="showPage('research',null)">View All</button>
     </div>
-    <div id="research-preview" style="padding:20px 0;text-align:center">
-      <div style="font-size:36px;margin-bottom:10px;opacity:.3">🔍</div>
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Research Hub</div>
-      <div style="font-size:11px;color:var(--muted);max-width:340px;margin:0 auto;line-height:1.6">
-        Upload and share research files, analysis, and reports with your team. Filter by ticker, author, or date. Coming in the next update.
-      </div>
-    </div>
+    <div id="research-preview" style="padding:8px 0"></div>
   </div>
 </div>
 
@@ -1062,6 +1098,124 @@ body.light #fdp-pitch .rank-card * { color: #080f1e; }
   </div>
 </div>
 
+<!-- ══ RESEARCH HUB ══ -->
+<div class="page" id="page-research">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--text)">RESEARCH HUB</div>
+      <div style="font-size:10px;color:var(--muted)">Upload, share, and search team research and market outlooks</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn-sm btn-accent" onclick="openResearchModal()">+ New Research</button>
+      <button class="btn-sm btn-sec" onclick="openQuickPaste()">📋 Quick Paste</button>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+    <input class="finp" id="rh-search" placeholder="Search by ticker, title, keyword..." style="flex:1;min-width:200px;font-size:11px;padding:6px 12px" oninput="renderResearch()">
+    <select class="finp" id="rh-filter-type" style="font-size:10px;padding:4px 8px" onchange="renderResearch()">
+      <option value="">All Types</option>
+      <option value="outlook">Daily Market Outlook</option>
+      <option value="analysis">Stock Analysis</option>
+      <option value="sector">Sector Analysis</option>
+      <option value="report">Reports</option>
+      <option value="learning">Learning Module</option>
+    </select>
+    <select class="finp" id="rh-filter-author" style="font-size:10px;padding:4px 8px" onchange="renderResearch()">
+      <option value="">All Authors</option>
+      <option value="Ben">Ben</option>
+      <option value="Jeff">Jeff</option>
+      <option value="Monette">Monette</option>
+      <option value="Rome">Rome</option>
+    </select>
+    <select class="finp" id="rh-sort" style="font-size:10px;padding:4px 8px" onchange="renderResearch()">
+      <option value="newest">Newest First</option>
+      <option value="oldest">Oldest First</option>
+      <option value="ticker">By Ticker</option>
+    </select>
+    <span id="rh-count" style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace"></span>
+  </div>
+
+  <!-- RESEARCH CARDS -->
+  <div id="research-list"></div>
+</div>
+
+<!-- ADD RESEARCH MODAL -->
+<div id="research-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center">
+  <div class="card" style="width:520px;max-width:95vw;padding:22px;border:1px solid var(--border2);max-height:90vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div class="ct" style="font-size:13px;letter-spacing:2px">NEW RESEARCH</div>
+      <button onclick="closeResearchModal()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px">&#215;</button>
+    </div>
+    <div style="display:grid;gap:12px">
+      <div><div class="mlbl">Title</div>
+        <input class="finp" id="rh-title" placeholder="e.g. Market Outlook April 20, AMD Analysis..." style="width:100%">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><div class="mlbl">Ticker(s)</div>
+          <input class="finp" id="rh-tickers" placeholder="e.g. AMD, NVDA, SPY" style="width:100%">
+        </div>
+        <div><div class="mlbl">Type</div>
+          <select class="finp" id="rh-type" style="width:100%">
+            <option value="outlook">Daily Market Outlook</option>
+            <option value="analysis">Stock Analysis</option>
+            <option value="sector">Sector Analysis</option>
+            <option value="report">Reports</option>
+            <option value="learning">Learning Module</option>
+          </select>
+        </div>
+      </div>
+      <div><div class="mlbl">Content</div>
+        <textarea class="finp" id="rh-content" rows="10" placeholder="Paste your market outlook, analysis, or notes here..." style="width:100%;resize:vertical;font-size:12px;line-height:1.6" oninput="autoDetectTickers()"></textarea>
+        <div id="rh-auto-tickers" style="font-size:10px;color:var(--accent);margin-top:4px;min-height:14px"></div>
+      </div>
+      <div><div class="mlbl">Attachments / Links <span style="color:var(--muted);font-size:8px;letter-spacing:0;text-transform:none">(paste URLs — supports PDF, DOCX, XLSX, PPTX, HTML, PNG, JPG, GIF)</span></div>
+        <input class="finp" id="rh-links" placeholder="Paste file URLs from Drive, Dropbox, etc. — separated by commas" style="width:100%">
+        <div id="rh-link-preview" style="margin-top:6px;min-height:0"></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:10px;color:var(--muted)">Publishing as <span id="rh-author-display" style="font-weight:700;color:var(--accent)"></span></span>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sm btn-sec" onclick="closeResearchModal()">Cancel</button>
+          <button class="btn-sm btn-accent" onclick="saveResearch()">Publish Research</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK PASTE MODAL -->
+<div id="quickpaste-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center">
+  <div class="card" style="width:480px;max-width:95vw;padding:22px;border:1px solid var(--border2)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="ct" style="font-size:13px;letter-spacing:2px">📋 QUICK PASTE</div>
+      <button onclick="closeQuickPaste()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px">&#215;</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Paste your Discord message or market outlook. Tickers will be auto-detected.</div>
+    <textarea class="finp" id="qp-text" rows="8" placeholder="Ctrl+V your message here..." style="width:100%;resize:vertical;font-size:12px;line-height:1.6;margin-bottom:10px"></textarea>
+    <div id="qp-detected" style="font-size:10px;color:var(--accent);margin-bottom:10px;min-height:16px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn-sm btn-sec" onclick="closeQuickPaste()">Cancel</button>
+      <button class="btn-sm btn-accent" onclick="saveQuickPaste()">Save as Outlook</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESEARCH DETAIL MODAL -->
+<div id="research-detail-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center">
+  <div class="card" style="width:600px;max-width:95vw;padding:24px;border:1px solid var(--border2);max-height:90vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div class="ct" id="rd-title" style="font-size:14px;letter-spacing:2px"></div>
+      <button onclick="closeResearchDetail()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px">&#215;</button>
+    </div>
+    <div id="rd-meta" style="margin-bottom:14px"></div>
+    <div id="rd-content" style="font-size:12px;line-height:1.7;color:var(--text);white-space:pre-wrap;word-wrap:break-word"></div>
+    <div id="rd-links" style="margin-top:14px"></div>
+  </div>
+</div>
+
+
   </div><!-- end content -->
 </div><!-- end main -->
 </div><!-- end app -->
@@ -1149,6 +1303,25 @@ body.light #fdp-pitch .rank-card * { color: #080f1e; }
 </div>
 
 <div id="toast"></div>
+
+<!-- Notification Panel -->
+<div id="notif-overlay" onclick="closeNotifPanel()" style="display:none;position:fixed;inset:0;z-index:590"></div>
+<div id="notif-panel" style="display:none">
+  <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+    <span style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--accent)">NOTIFICATIONS</span>
+    <div style="display:flex;gap:6px">
+      <button onclick="markAllRead()" style="background:none;border:1px solid var(--border);color:var(--text2);border-radius:4px;padding:2px 8px;font-size:9px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">Mark all read</button>
+      <button onclick="clearAllNotifs()" style="background:none;border:1px solid var(--border);color:var(--text2);border-radius:4px;padding:2px 8px;font-size:9px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px;transition:all .15s" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">Clear</button>
+      <button onclick="closeNotifPanel()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:16px;line-height:1">×</button>
+    </div>
+  </div>
+  <div id="notif-list" style="overflow-y:auto;flex:1;max-height:380px"></div>
+  <div id="notif-empty" style="display:none;padding:30px 20px;text-align:center">
+    <div style="font-size:28px;margin-bottom:8px;opacity:.3">🔔</div>
+    <div style="font-size:12px;font-weight:600;color:var(--text2)">No notifications</div>
+    <div style="font-size:10px;color:var(--text2);margin-top:4px;opacity:.6">You're all caught up</div>
+  </div>
+</div>
 
 <script>
 
@@ -1308,6 +1481,10 @@ function logout(){
   if(!confirm('Sign out?')) return;
   localStorage.removeItem('velo_user');
   currentUser = null;
+  isGuestMode = false;
+  // Remove guest banner if exists
+  var gBanner = document.getElementById('guest-banner');
+  if(gBanner) gBanner.remove();
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-page').style.display = 'flex';
   document.getElementById('login-pw').value = '';
@@ -1322,6 +1499,7 @@ function logout(){
 let PORT = parseInt(localStorage.getItem('velo_PORT')||'400000');
 let DVAR = parseInt(localStorage.getItem('velo_DVAR')||'1200');
 let pitchData=[],planData=[],monitorData=[],tradesData=[],tagData=[];
+let isGuestMode = false;
 let activePitchDate = new Date().toISOString().split('T')[0];
 let planFilter = 'all';
 let execPlanIdx = null, sellMonIdx = null;
@@ -1341,7 +1519,7 @@ function startApp(){
   av.style.background = u.bg;
   av.style.color = u.color;
   document.getElementById('sb-name').textContent = u.fullName;
-  document.getElementById('sb-role').textContent = 'Trader · sign out';
+  document.getElementById('sb-role').textContent = isGuestMode ? 'Guest · sign out' : 'Trader · sign out';
   // Greeting
   const hr = new Date().getHours();
   document.getElementById('greet-time').textContent = hr<12?'MORNING':hr<17?'AFTERNOON':'EVENING';
@@ -1371,7 +1549,7 @@ function editVar(){const v=prompt('Default VAR $:',DVAR);if(v){DVAR=parseInt(v);
 // ════════════════════════════════════════════════════════════
 // NAVIGATION
 // ════════════════════════════════════════════════════════════
-const PAGE_TITLES = {home:'HOME',funddesk:'FUND DESK',kpi:'KPI DASHBOARD',scheduler:'SCHEDULER',links:'LINKS REPO'};
+const PAGE_TITLES = {home:'HOME',funddesk:'FUND DESK',kpi:'KPI DASHBOARD',scheduler:'SCHEDULER',links:'LINKS REPO',research:'RESEARCH HUB'};
 
 function showPage(id, navEl){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1831,17 +2009,17 @@ function renderMonitor(){
         <span onclick="refreshOnePrice(${i})" title="Fetch from Finnhub" style="cursor:pointer;font-size:9px;color:var(--text2);opacity:.5" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">↻</span>
       </td>
       <td class="r"><input type="number" step=".01" value="${row.cut||''}" placeholder="trail" ${isClosed?'disabled':''} onchange="monitorData[${i}].cut=parseFloat(this.value)||null;renderMonitor()" style="background:transparent;border:none;color:${isClosed?'var(--text2)':trail?'var(--green)':'var(--red)'};font-family:'JetBrains Mono',monospace;font-size:12px;width:65px;text-align:right;font-weight:${trail?'700':'400'};${isClosed?'opacity:.4':''}"></td>
-      <td class="r" style="color:var(--accent2)">${row.purchase||'—'}</td>
+      <td class="r mon-accent2">${row.purchase||'—'}</td>
       <td style="padding:4px">${buildRBar(row,row.r1,'#00d4aa',i,1)}</td>
       <td style="padding:4px">${buildRBar(row,row.r2,'#ffd700',i,2)}</td>
       <td style="padding:4px">${buildRBar(row,row.r3,'#ff9f43',i,3)}</td>
       <td style="padding:4px">${buildRBar(row,row.r4,'#f97316',i,4)}</td>
-      <td class="r" style="color:var(--green)">${locked>0?f$(locked):'—'}</td>
-      <td class="r" style="color:var(--accent)">${oR>0?f$(oR):trail&&!isClosed?'<span class="badge badge-g" style="font-size:8px">FREE</span>':'$0'}</td>
-      <td class="r" style="color:var(--green)">${gR>0?f$(gR):'$0'}</td>
-      <td class="r" style="color:var(--red)">${f$(oR+gR)}</td>
-      <td class="r ${pnl>0?'pos':pnl<0?'neg':''}" style="color:${pnl>0?'var(--green)':pnl<0?'var(--red)':'var(--text)'}">${f$(pnl)}</td>
-      <td class="r" style="color:${pp!=null&&pp>0?'var(--green)':pp!=null&&pp<0?'var(--red)':'var(--text)'}">${pp!=null?fP(pp):'—'}</td>
+      <td class="r mon-green">${locked>0?f$(locked):'—'}</td>
+      <td class="r ${oR>0?'mon-red':''}">${oR>0?f$(oR):trail&&!isClosed?'<span class="badge badge-g" style="font-size:8px">FREE</span>':'$0'}</td>
+      <td class="r mon-green">${gR>0?f$(gR):'$0'}</td>
+      <td class="r mon-red">${f$(oR+gR)}</td>
+      <td class="r ${pnl>0?'mon-green':pnl<0?'mon-red':''}">${f$(pnl)}</td>
+      <td class="r ${pp!=null&&pp>0?'mon-green':pp!=null&&pp<0?'mon-red':''}">${pp!=null?fP(pp):'—'}</td>
       <td style="text-align:center">${isClosed?'<span style="font-size:9px;color:var(--text2);opacity:.3">SELL</span>':`<button onclick="openSellModal(${i})" style="background:var(--surface3);border:1px solid var(--accent);border-radius:3px;padding:2px 8px;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;color:var(--accent);cursor:pointer">SELL</button>`}</td>
       <td style="text-align:center">${isClosed?'<span class="badge badge-r" style="font-size:8px">CLOSED</span>':'<span class="badge badge-g" style="font-size:8px">OPEN</span>'}</td>
       <td style="text-align:center">${row.loggedAt?'<span class="badge badge-g" style="font-size:8px">LOGGED</span>':isClosed?`<button onclick="logTrade(${i})" style="background:var(--surface3);border:1px solid var(--green);border-radius:3px;padding:2px 7px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;color:var(--green);cursor:pointer">Log</button>`:'<span style="font-size:9px;color:var(--text2);opacity:.35;cursor:not-allowed">Log</span>'}</td>
@@ -1892,15 +2070,15 @@ function renderPortfolioPie(){
   ctx.fillStyle=pct>60?'#000':'#e2e8f0';ctx.font='bold 16px Bebas Neue,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillText(fP(invested/PORT),cx,cy-7);ctx.fillStyle='#64748b';ctx.font='500 9px DM Sans,sans-serif';ctx.fillText('INVESTED',cx,cy+9);
   const leg=document.getElementById('pie-legend');
-  leg.innerHTML=slices.filter(s=>s.label!=='Cash').map(s=>`<div class="pie-leg-row"><div><span class="pie-dot" style="background:${s.color}"></span>${s.label}</div><div style="color:var(--text2)">${f$(s.value)} · ${fP(s.value/PORT)}</div></div>`).join('');
+  leg.innerHTML=slices.filter(s=>s.label!=='Cash').map(s=>`<div class="pie-leg-row"><div style="font-weight:700;color:var(--text)"><span class="pie-dot" style="background:${s.color}"></span>${s.label}</div><div style="color:var(--text);font-weight:600">${f$(s.value)} · ${fP(s.value/PORT)}</div></div>`).join('');
   const newSlots=Math.floor(avail/DVAR);
   document.getElementById('pie-summary').innerHTML=`
-    <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Fund Size</span><span>${f$(PORT)}</span></div>
-    <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Invested</span><span style="color:var(--accent)">${f$(invested)} (${fP(invested/PORT)})</span></div>
-    <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Available</span><span style="color:var(--green)">${f$(avail)} (${fP(avail/PORT)})</span></div>
+    <div style="display:flex;justify-content:space-between"><span style="color:var(--text);font-weight:700">Fund Size</span><span style="font-weight:700">${f$(PORT)}</span></div>
+    <div style="display:flex;justify-content:space-between"><span style="color:var(--text);font-weight:700">Invested</span><span style="color:var(--accent);font-weight:700">${f$(invested)} (${fP(invested/PORT)})</span></div>
+    <div style="display:flex;justify-content:space-between"><span style="color:var(--text);font-weight:700">Available</span><span style="color:var(--green);font-weight:700">${f$(avail)} (${fP(avail/PORT)})</span></div>
     <hr style="border-color:var(--border);margin:6px 0">
-    <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Open Positions</span><span>${open.length}</span></div>
-    <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">New Slots @ VAR</span><span style="color:var(--accent);font-weight:700">${newSlots} trades</span></div>`;
+    <div style="display:flex;justify-content:space-between"><span style="color:var(--text);font-weight:700">Open Positions</span><span style="font-weight:700">${open.length}</span></div>
+    <div style="display:flex;justify-content:space-between"><span style="color:var(--text);font-weight:700">New Slots @ VAR</span><span style="color:var(--accent);font-weight:700">${newSlots} trades</span></div>`;
 }
 
 // ── SELL ──────────────────────────────────────────
@@ -2732,14 +2910,13 @@ function clearCalcFields(){
 // ════════════════════════════════════════════════════
 // GUEST MODE
 // ════════════════════════════════════════════════════
-let isGuestMode = false;
 
 function enterGuest(){
   isGuestMode = true;
-  currentUser = {name:'Guest', fullName:'Guest', role:'Viewer', color:'#64748b', emoji:'👁', bg:'rgba(100,116,139,.2)', pw:''};
+  currentUser = {name:'Guest', fullName:'Guest Viewer', role:'Viewer', color:'#64748b', emoji:'👁', bg:'rgba(100,116,139,.2)', pw:''};
   document.getElementById('login-page').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  initApp();
+  document.getElementById('app').style.display = 'flex';
+  startApp();
   // Lock all edit controls
   lockGuestMode();
   showToast('👁 Viewing as Guest — read only');
@@ -3344,48 +3521,380 @@ window.renderPitch = function(){
   buildCustomTicker();
 };
 
+
+// ═══════════════════════════════════════════════
+// RESEARCH HUB
+// ═══════════════════════════════════════════════
+var researchData = JSON.parse(localStorage.getItem('vel_research') || '[]');
+
+var RESEARCH_TYPE_ICONS = {
+  outlook: '📊', analysis: '🔬', sector: '📈', report: '📄', learning: '📚'
+};
+var RESEARCH_TYPE_LABELS = {
+  outlook: 'Daily Market Outlook', analysis: 'Stock Analysis', sector: 'Sector Analysis', report: 'Reports', learning: 'Learning Module'
+};
+var RESEARCH_TYPE_COLORS = {
+  outlook: 'var(--accent2)', analysis: 'var(--accent)', sector: '#f97316', report: 'var(--purple)', learning: '#06b6d4'
+};
+
+function saveResearchData(){
+  localStorage.setItem('vel_research', JSON.stringify(researchData));
+}
+
+var FILE_TYPE_MAP = {
+  pdf:  {icon:'📕', label:'PDF',  color:'#ef4444'},
+  docx: {icon:'📘', label:'Word', color:'#2563eb'},
+  doc:  {icon:'📘', label:'Word', color:'#2563eb'},
+  xlsx: {icon:'📗', label:'Excel',color:'#16a34a'},
+  xls:  {icon:'📗', label:'Excel',color:'#16a34a'},
+  csv:  {icon:'📗', label:'CSV',  color:'#16a34a'},
+  pptx: {icon:'📙', label:'PPT',  color:'#ea580c'},
+  ppt:  {icon:'📙', label:'PPT',  color:'#ea580c'},
+  html: {icon:'🌐', label:'HTML', color:'#8b5cf6'},
+  htm:  {icon:'🌐', label:'HTML', color:'#8b5cf6'},
+  png:  {icon:'🖼️', label:'Image',color:'#06b6d4'},
+  jpg:  {icon:'🖼️', label:'Image',color:'#06b6d4'},
+  jpeg: {icon:'🖼️', label:'Image',color:'#06b6d4'},
+  gif:  {icon:'🖼️', label:'GIF',  color:'#06b6d4'},
+  txt:  {icon:'📝', label:'Text', color:'#64748b'}
+};
+
+function detectFileType(url){
+  if(!url) return null;
+  var u = url.toLowerCase().split('?')[0].split('#')[0];
+  var ext = u.split('.').pop();
+  if(FILE_TYPE_MAP[ext]) return Object.assign({ext:ext}, FILE_TYPE_MAP[ext]);
+  // Detect from common hosting patterns
+  if(u.includes('docs.google.com/document')) return {ext:'gdoc',icon:'📘',label:'Google Doc',color:'#2563eb'};
+  if(u.includes('docs.google.com/spreadsheets')) return {ext:'gsheet',icon:'📗',label:'Google Sheet',color:'#16a34a'};
+  if(u.includes('docs.google.com/presentation')) return {ext:'gslides',icon:'📙',label:'Google Slides',color:'#ea580c'};
+  if(u.includes('drive.google.com')) return {ext:'gdrive',icon:'📁',label:'Google Drive',color:'#f0a500'};
+  if(u.includes('dropbox.com')) return {ext:'dropbox',icon:'📦',label:'Dropbox',color:'#0061fe'};
+  return {ext:'link',icon:'🔗',label:'Link',color:'var(--accent2)'};
+}
+
+function renderLinkBadge(url){
+  var ft = detectFileType(url);
+  if(!ft) return '';
+  return '<a href="'+url+'" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;background:'+ft.color+'18;color:'+ft.color+';padding:3px 8px;border-radius:4px;font-weight:700;text-decoration:none;border:1px solid '+ft.color+'30;transition:opacity .12s;margin:2px" onmouseover="this.style.opacity=\'.75\'" onmouseout="this.style.opacity=\'1\'">'+ft.icon+' '+ft.label+' <span style="opacity:.5;font-size:8px">↗</span></a>';
+}
+
+function renderResearch(){
+  var list = document.getElementById('research-list');
+  var countEl = document.getElementById('rh-count');
+  if(!list) return;
+
+  var search = (document.getElementById('rh-search')?.value || '').toLowerCase();
+  var filterType = document.getElementById('rh-filter-type')?.value || '';
+  var filterAuthor = document.getElementById('rh-filter-author')?.value || '';
+  var sort = document.getElementById('rh-sort')?.value || 'newest';
+
+  var filtered = researchData.filter(function(r){
+    if(filterType && r.type !== filterType) return false;
+    if(filterAuthor && r.author !== filterAuthor) return false;
+    if(search){
+      var haystack = (r.title + ' ' + r.tickers + ' ' + r.content + ' ' + r.author).toLowerCase();
+      if(!haystack.includes(search)) return false;
+    }
+    return true;
+  });
+
+  if(sort === 'newest') filtered.sort(function(a,b){ return b.date.localeCompare(a.date); });
+  else if(sort === 'oldest') filtered.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  else if(sort === 'ticker') filtered.sort(function(a,b){ return (a.tickers||'').localeCompare(b.tickers||''); });
+
+  if(countEl) countEl.textContent = filtered.length + ' of ' + researchData.length + ' entries';
+
+  if(!filtered.length){
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px;opacity:.3">🔍</div><div style="font-size:13px;font-weight:600">No research found</div><div style="font-size:11px;margin-top:6px">' + (researchData.length ? 'Try adjusting your filters' : 'Click + New Research or Quick Paste to add your first entry') + '</div></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(function(r, i){
+    var icon = RESEARCH_TYPE_ICONS[r.type] || '📎';
+    var typeLabel = RESEARCH_TYPE_LABELS[r.type] || r.type;
+    var typeColor = RESEARCH_TYPE_COLORS[r.type] || 'var(--muted)';
+    var preview = (r.content || '').substring(0, 180).replace(/</g, '&lt;');
+    if(r.content && r.content.length > 180) preview += '...';
+    var tickers = r.tickers ? r.tickers.split(',').map(function(t){ return t.trim().toUpperCase(); }).filter(function(t){ return t; }) : [];
+    var PERSON_COLORS = {Ben:'#22c55e',Jeff:'#f0a500',Monette:'#8b5cf6',Rome:'#ef4444'};
+    var authorColor = PERSON_COLORS[r.author] || 'var(--accent)';
+
+    return '<div onclick="openResearchDetail('+i+')" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .12s;border-left:3px solid '+typeColor+'" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.borderLeftColor=\''+typeColor+'\'">'
+      + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">'
+        + '<div style="flex:1;overflow:hidden">'
+          + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
+            + '<span style="font-size:16px">' + icon + '</span>'
+            + '<span style="font-size:13px;font-weight:700;color:var(--text)">' + r.title + '</span>'
+          + '</div>'
+          + '<div style="font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:8px">' + preview + '</div>'
+          + '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">'
+            + '<span style="font-size:9px;background:'+typeColor+'22;color:'+typeColor+';padding:2px 8px;border-radius:10px;font-weight:700">' + typeLabel + '</span>'
+            + '<span style="font-size:9px;color:'+authorColor+';font-weight:700">' + r.author + '</span>'
+            + '<span style="font-size:9px;color:var(--muted)">' + r.date + '</span>'
+            + tickers.map(function(t){ return '<span style="font-size:9px;background:var(--accent)22;color:var(--accent);padding:1px 6px;border-radius:3px;font-weight:700;font-family:\'JetBrains Mono\',monospace">' + t + '</span>'; }).join('')
+            + (r.links ? r.links.split(',').map(function(u){ return renderLinkBadge(u.trim()); }).join('') : '')
+          + '</div>'
+        + '</div>'
+        + '<button onclick="event.stopPropagation();deleteResearch('+i+')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;flex-shrink:0;padding:2px 4px;opacity:.5" onmouseover="this.style.opacity=1;this.style.color=\'var(--red)\'" onmouseout="this.style.opacity=.5;this.style.color=\'var(--muted)\'">&#215;</button>'
+      + '</div>'
+    + '</div>';
+  }).join('');
+}
+
+function openResearchModal(){
+  var m = document.getElementById('research-modal');
+  if(m){ m.style.display='flex'; m.style.alignItems='center'; m.style.justifyContent='center'; }
+  document.getElementById('rh-title').value = '';
+  document.getElementById('rh-tickers').value = '';
+  document.getElementById('rh-content').value = '';
+  document.getElementById('rh-links').value = '';
+  if(currentUser){
+    document.getElementById('rh-title').focus();
+    var ad = document.getElementById('rh-author-display');
+    if(ad) ad.textContent = currentUser.name;
+  }
+  // Live link preview
+  var linkInput = document.getElementById('rh-links');
+  var linkPreview = document.getElementById('rh-link-preview');
+  if(linkInput && linkPreview){
+    linkInput.oninput = function(){
+      var urls = this.value.split(',').map(function(u){ return u.trim(); }).filter(function(u){ return u; });
+      if(!urls.length){ linkPreview.innerHTML = ''; return; }
+      linkPreview.innerHTML = urls.map(function(u){ return renderLinkBadge(u); }).join('');
+    };
+  }
+}
+
+function closeResearchModal(){
+  var m = document.getElementById('research-modal');
+  if(m) m.style.display = 'none';
+}
+
+function saveResearch(){
+  var title = document.getElementById('rh-title')?.value.trim();
+  var content = document.getElementById('rh-content')?.value.trim();
+  if(!title){ showToast('Enter a title'); return; }
+  if(!content){ showToast('Enter content'); return; }
+
+  var entry = {
+    id: Date.now().toString(),
+    title: title,
+    tickers: document.getElementById('rh-tickers')?.value.trim() || '',
+    type: document.getElementById('rh-type')?.value || 'note',
+    content: content,
+    links: document.getElementById('rh-links')?.value.trim() || '',
+    author: currentUser ? currentUser.name : 'Team',
+    date: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
+    timestamp: new Date().toISOString()
+  };
+
+  researchData.unshift(entry);
+  saveResearchData();
+  closeResearchModal();
+  renderResearch();
+  renderHomeResearch();
+  showToast('Research published');
+
+  // Fire notification
+  if(typeof notifyResearchUploaded === 'function'){
+    notifyResearchUploaded(entry.author, entry.title);
+  }
+}
+
+function deleteResearch(idx){
+  if(!confirm('Delete this research entry?')) return;
+  researchData.splice(idx, 1);
+  saveResearchData();
+  renderResearch();
+  renderHomeResearch();
+  showToast('Research deleted');
+}
+
+function openResearchDetail(idx){
+  var r = researchData[idx];
+  if(!r) return;
+  var m = document.getElementById('research-detail-modal');
+  if(m){ m.style.display='flex'; m.style.alignItems='center'; m.style.justifyContent='center'; }
+  document.getElementById('rd-title').textContent = r.title;
+
+  var PERSON_COLORS = {Ben:'#22c55e',Jeff:'#f0a500',Monette:'#8b5cf6',Rome:'#ef4444'};
+  var ac = PERSON_COLORS[r.author] || 'var(--accent)';
+  var icon = RESEARCH_TYPE_ICONS[r.type] || '📎';
+  var typeLabel = RESEARCH_TYPE_LABELS[r.type] || r.type;
+  var typeColor = RESEARCH_TYPE_COLORS[r.type] || 'var(--muted)';
+  var tickers = r.tickers ? r.tickers.split(',').map(function(t){ return t.trim().toUpperCase(); }).filter(function(t){ return t; }) : [];
+
+  document.getElementById('rd-meta').innerHTML =
+    '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+    + '<span style="font-size:10px;background:'+typeColor+'22;color:'+typeColor+';padding:2px 8px;border-radius:10px;font-weight:700">' + icon + ' ' + typeLabel + '</span>'
+    + '<span style="font-size:10px;color:'+ac+';font-weight:700">by ' + r.author + '</span>'
+    + '<span style="font-size:10px;color:var(--muted)">' + r.date + '</span>'
+    + tickers.map(function(t){ return '<span style="font-size:10px;background:var(--accent)22;color:var(--accent);padding:1px 6px;border-radius:3px;font-weight:700;font-family:\'JetBrains Mono\',monospace">' + t + '</span>'; }).join('')
+    + '</div>';
+
+  document.getElementById('rd-content').textContent = r.content;
+
+  var linksHtml = '';
+  if(r.links){
+    var urls = r.links.split(',').map(function(u){ return u.trim(); }).filter(function(u){ return u; });
+    if(urls.length){
+      linksHtml = '<div style="border-top:1px solid var(--border);padding-top:12px;margin-top:12px"><div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;font-weight:700">ATTACHMENTS</div>';
+      urls.forEach(function(url){
+        var ft = detectFileType(url);
+        var displayUrl = url.length > 60 ? url.substring(0,57) + '...' : url;
+        linksHtml += '<a href="' + url + '" target="_blank" style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;text-decoration:none;margin-bottom:6px;transition:border-color .12s" onmouseover="this.style.borderColor=\''+ft.color+'\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
+          + '<span style="font-size:20px;flex-shrink:0">' + ft.icon + '</span>'
+          + '<div style="flex:1;overflow:hidden">'
+            + '<div style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + displayUrl + '</div>'
+            + '<div style="font-size:9px;color:'+ft.color+';font-weight:600;margin-top:2px">' + ft.label + (ft.ext && ft.ext.length <= 4 ? ' · .' + ft.ext.toUpperCase() : '') + '</div>'
+          + '</div>'
+          + '<span style="color:var(--muted);flex-shrink:0;font-size:12px">↗</span>'
+        + '</a>';
+      });
+      linksHtml += '</div>';
+    }
+  }
+  document.getElementById('rd-links').innerHTML = linksHtml;
+}
+
+function closeResearchDetail(){
+  var m = document.getElementById('research-detail-modal');
+  if(m) m.style.display = 'none';
+}
+
+// ═══ QUICK PASTE ═══
+function openQuickPaste(){
+  var m = document.getElementById('quickpaste-modal');
+  if(m){ m.style.display='flex'; m.style.alignItems='center'; m.style.justifyContent='center'; }
+  document.getElementById('qp-text').value = '';
+  document.getElementById('qp-detected').textContent = '';
+  document.getElementById('qp-text').focus();
+  // Auto-detect tickers on input
+  document.getElementById('qp-text').oninput = function(){
+    var text = this.value.toUpperCase();
+    var COMMON_TICKERS = ['AAPL','MSFT','GOOGL','AMZN','META','NVDA','TSLA','AMD','SPY','QQQ','IWM','NFLX','BA','DIS','JPM','GS','BAC','WFC','XOM','CVX','PFE','JNJ','UNH','V','MA','PYPL','SQ','COIN','HOOD','PLTR','SOFI','RIVN','NIO','LCID','F','GM','INTC','MU','QCOM','AVGO','CRM','ORCL','NOW','SNOW','NET','DDOG','ZS','CRWD','PANW'];
+    var found = COMMON_TICKERS.filter(function(t){ return text.includes(t); });
+    // Also detect $TICKER patterns
+    var dollar = text.match(/\$([A-Z]{1,5})/g);
+    if(dollar) dollar.forEach(function(d){ var t = d.replace('$',''); if(found.indexOf(t) === -1) found.push(t); });
+    document.getElementById('qp-detected').textContent = found.length ? 'Detected tickers: ' + found.join(', ') : '';
+  };
+}
+
+function closeQuickPaste(){
+  var m = document.getElementById('quickpaste-modal');
+  if(m) m.style.display = 'none';
+}
+
+function saveQuickPaste(){
+  var text = document.getElementById('qp-text')?.value.trim();
+  if(!text){ showToast('Paste your content first'); return; }
+  // Auto-detect tickers
+  var upper = text.toUpperCase();
+  var COMMON_TICKERS = ['AAPL','MSFT','GOOGL','AMZN','META','NVDA','TSLA','AMD','SPY','QQQ','IWM','NFLX','BA','DIS','JPM','GS','BAC','WFC','XOM','CVX'];
+  var found = COMMON_TICKERS.filter(function(t){ return upper.includes(t); });
+  var dollar = upper.match(/\$([A-Z]{1,5})/g);
+  if(dollar) dollar.forEach(function(d){ var t = d.replace('$',''); if(found.indexOf(t) === -1) found.push(t); });
+
+  var today = new Date();
+  var entry = {
+    id: Date.now().toString(),
+    title: 'Market Outlook — ' + today.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    tickers: found.join(', '),
+    type: 'outlook',
+    content: text,
+    links: '',
+    author: currentUser ? currentUser.name : 'Team',
+    date: today.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    timestamp: today.toISOString()
+  };
+
+  researchData.unshift(entry);
+  saveResearchData();
+  closeQuickPaste();
+  renderResearch();
+  renderHomeResearch();
+  showToast('Outlook saved to Research Hub');
+  if(typeof notifyResearchUploaded === 'function'){
+    notifyResearchUploaded(entry.author, entry.title);
+  }
+}
+
+// ═══ HOME PAGE RESEARCH PREVIEW ═══
+function renderHomeResearch(){
+  var el = document.getElementById('research-preview');
+  if(!el) return;
+  var recent = researchData.slice(0, 3);
+  if(!recent.length){
+    el.innerHTML = '<div style="padding:20px 0;text-align:center"><div style="font-size:36px;margin-bottom:10px;opacity:.3">🔍</div><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Research Hub</div><div style="font-size:11px;color:var(--muted);max-width:340px;margin:0 auto;line-height:1.6">Upload and share research files, analysis, and reports with your team.</div></div>';
+    return;
+  }
+  el.innerHTML = recent.map(function(r){
+    var icon = RESEARCH_TYPE_ICONS[r.type] || '📎';
+    var preview = (r.content||'').substring(0,100).replace(/</g,'&lt;');
+    if(r.content && r.content.length > 100) preview += '...';
+    return '<div onclick="showPage(\'research\',null)" style="padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer">'
+      + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
+        + '<span style="font-size:12px">' + icon + '</span>'
+        + '<span style="font-size:12px;font-weight:700;color:var(--text)">' + r.title + '</span>'
+        + '<span style="font-size:9px;color:var(--muted);margin-left:auto">' + r.date + '</span>'
+      + '</div>'
+      + '<div style="font-size:10px;color:var(--text2)">' + preview + '</div>'
+    + '</div>';
+  }).join('')
+  + '<div style="text-align:center;padding:8px 0"><button class="btn-sm btn-sec" style="font-size:9px" onclick="showPage(\'research\',null)">View All Research</button></div>';
+}
+
+
+// ═══ AUTO-DETECT TICKERS FROM CONTENT ═══
+var KNOWN_TICKERS = ['AAPL','MSFT','GOOGL','GOOG','AMZN','META','NVDA','TSLA','AMD','SPY','QQQ','IWM','DIA',
+  'NFLX','BA','DIS','JPM','GS','BAC','WFC','XOM','CVX','PFE','JNJ','UNH','V','MA','PYPL','SQ','COIN',
+  'HOOD','PLTR','SOFI','RIVN','NIO','LCID','F','GM','INTC','MU','QCOM','AVGO','CRM','ORCL','NOW','SNOW',
+  'NET','DDOG','ZS','CRWD','PANW','SHOP','ROKU','UBER','LYFT','ABNB','DASH','RBLX','U','DKNG','PENN',
+  'MARA','RIOT','MSTR','SMCI','ARM','DELL','HPE','IBM','CSCO','TXN','AMAT','LRCX','KLAC','ASML',
+  'LLY','ABBV','MRK','BMY','GILD','REGN','MRNA','BNTX','TMO','DHR','ABT','MDT','SYK','ISRG','BSX',
+  'BRK.B','BLK','C','MS','SCHW','AXP','COF','DFS','USB','PNC','TFC',
+  'HD','LOW','TGT','WMT','COST','AMZN','EBAY','ETSY','W','MCD','SBUX','CMG','YUM','DPZ',
+  'ETHA','UAMY','BMNR','CRML','GLD','SLV','USO','TLT','VIX','DXY',
+  'XLK','XLF','XLE','XLV','XLI','XLC','XLY','XLP','XLU','XLRE','XLB',
+  'ARKK','ARKG','ARKF','ARKW','ARKQ'];
+
+function autoDetectTickers(){
+  var content = (document.getElementById('rh-content')?.value || '').toUpperCase();
+  var tickerInput = document.getElementById('rh-tickers');
+  var display = document.getElementById('rh-auto-tickers');
+  if(!content || !display) return;
+
+  var found = [];
+  // Detect $TICKER patterns first
+  var dollarMatches = content.match(/\$([A-Z]{1,5})/g);
+  if(dollarMatches){
+    dollarMatches.forEach(function(d){
+      var t = d.replace('$','');
+      if(found.indexOf(t) === -1) found.push(t);
+    });
+  }
+  // Detect known tickers (word boundary check)
+  KNOWN_TICKERS.forEach(function(t){
+    if(content.includes(t) && found.indexOf(t) === -1){
+      // Simple word boundary: check if surrounded by non-letter chars
+      var regex = new RegExp('(^|[^A-Z])' + t.replace('.','\\.') + '([^A-Z]|$)');
+      if(regex.test(content)) found.push(t);
+    }
+  });
+
+  if(found.length){
+    display.innerHTML = '🎯 Detected: ' + found.map(function(t){
+      return '<span style="background:var(--accent)22;color:var(--accent);padding:1px 6px;border-radius:3px;font-weight:700;margin:0 2px;font-family:JetBrains Mono,monospace">' + t + '</span>';
+    }).join(' ');
+    // Auto-fill ticker input if empty
+    if(tickerInput && !tickerInput.value.trim()){
+      tickerInput.value = found.join(', ');
+    }
+  } else {
+    display.textContent = '';
+  }
+}
+
 </script>
-
-<!-- ══ NOTIFICATION PANEL ══ -->
-<div id="notif-panel" style="display:none;position:fixed;top:54px;right:12px;width:340px;max-height:480px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;z-index:600;box-shadow:0 8px 32px rgba(0,0,0,.4);overflow:hidden;flex-direction:column">
-  <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-    <div style="font-weight:800;font-size:12px;letter-spacing:1.5px;color:var(--text)">NOTIFICATIONS</div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button onclick="markAllRead()" style="font-size:9px;background:none;border:none;color:var(--accent);cursor:pointer;font-weight:700">MARK ALL READ</button>
-      <button onclick="clearAllNotifs()" style="font-size:9px;background:none;border:none;color:var(--muted);cursor:pointer;font-weight:700">CLEAR</button>
-      <button onclick="closeNotifPanel()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:16px">&#215;</button>
-    </div>
-  </div>
-  <div id="notif-list" style="overflow-y:auto;max-height:400px;scrollbar-width:thin"></div>
-  <div id="notif-empty" style="padding:24px;text-align:center;color:var(--muted);font-size:12px">
-    <div style="font-size:28px;margin-bottom:8px">&#128276;</div><div>No notifications yet</div>
-  </div>
-</div>
-<div id="notif-overlay" onclick="closeNotifPanel()" style="display:none;position:fixed;inset:0;z-index:399"></div>
-
-<!-- ══ SWAP MODAL ══ -->
-<div id="swap-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center">
-  <div class="card" style="width:400px;max-width:95vw;padding:22px;border:1px solid var(--border2)">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div class="ct" style="font-size:13px;letter-spacing:2px">SWAP ROLES</div>
-      <button onclick="closeSwapModal()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px">&#215;</button>
-    </div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Override Facilitator or Pilot for any week.</div>
-    <div style="display:grid;gap:12px">
-      <div><div class="mlbl">Week (pick any date)</div><input type="date" class="finp" id="swap-date" style="width:100%" onchange="updateSwapPreview()"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div><div class="mlbl">Facilitator</div><select class="finp" id="swap-fac" style="width:100%"><option value="">No change</option><option>Ben</option><option>Jeff</option><option>Monette</option><option>Rome</option></select></div>
-        <div><div class="mlbl">Pilot</div><select class="finp" id="swap-pilot" style="width:100%"><option value="">No change</option><option>Ben</option><option>Jeff</option><option>Monette</option><option>Rome</option></select></div>
-      </div>
-      <div><div class="mlbl">Reason (optional)</div><input class="finp" id="swap-reason" style="width:100%"></div>
-      <div id="swap-current" style="font-size:11px;color:var(--text2);background:var(--surface2);border-radius:5px;padding:10px;min-height:36px"></div>
-      <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button class="btn-sm btn-sec" onclick="clearSwapForDate()">Remove</button>
-        <button class="btn-sm btn-sec" onclick="closeSwapModal()">Cancel</button>
-        <button class="btn-sm btn-accent" onclick="saveSwap()">Save Swap</button>
-      </div>
-    </div>
-  </div>
-</div>
-</body>
-</html>
