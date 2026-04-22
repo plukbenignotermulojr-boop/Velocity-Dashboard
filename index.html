@@ -388,6 +388,10 @@ body.light .ct,
 body.light .card .ct { color: #080f1e !important; font-weight: 700 !important; }
 /* Home hero stat tiles specifically */
 body.light #home-stats .stat-tile { background: #ffffff; }
+/* Recent trades cards light mode */
+body.light #home-trades > div { background: #f2f5fb !important; border-color: #c5d0e0 !important; }
+body.light #home-trades > div:hover { border-color: #008f70 !important; }
+body.light #home-trades .empty { color: #5a6e88 !important; }
 
 
 /* ── HOME TAB TYPOGRAPHY ── */
@@ -658,9 +662,15 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
   </div>
 
   <div class="g2" style="margin-bottom:14px">
-    <div class="card">
-      <div class="ch"><div class="ct">Recent Trades</div><button class="btn-sm btn-sec" style="font-size:9px" onclick="showPage('funddesk',null);showFdTab('records')">View All</button></div>
-      <div id="home-trades" class="empty">No recent trades</div>
+    <div class="card" style="padding:16px 18px">
+      <div class="ch" style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:14px">💰</span>
+          <div class="ct">Recent Trades</div>
+        </div>
+        <button class="btn-sm btn-sec" style="font-size:9px" onclick="showPage('funddesk',null);showFdTab('records')">View All ↗</button>
+      </div>
+      <div id="home-trades"><div class="empty">No recent trades</div></div>
     </div>
     <div class="card">
       <div class="ch"><div class="ct">Top KPI This Month</div><button class="btn-sm btn-sec" style="font-size:9px" onclick="showPage('kpi',null)">View All</button></div>
@@ -924,7 +934,78 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
   </div>
   <div class="card">
     <div class="card-title">PERFORMANCE TREND</div>
+    <div id="kpi-chart-legend" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px"></div>
     <div id="kpi-chart-wrap" style="position:relative"></div>
+  </div>
+  <!-- GRADING REFERENCE -->
+  <div class="card">
+    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+      <span>GRADING REFERENCE</span>
+      <span id="kpi-grade-edit-btn" style="display:none">
+        <button class="btn-sm btn-sec" onclick="openKPIGradeEditor()" style="font-size:10px">⚙ Edit Grades</button>
+      </span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;user-select:text">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px">
+        <div style="font-size:10px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase;margin-bottom:8px;font-weight:700">Office Attendance</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)"><span>Absent</span><span style="color:var(--red);font-family:'JetBrains Mono',monospace" id="gr-officeAbsent">−<span id="gv-officeAbsent">3.13</span>%</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0"><span>Late</span><span style="color:var(--red);font-family:'JetBrains Mono',monospace">−<span id="gv-officeLate">1.56</span>%</span></div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px">
+        <div style="font-size:10px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase;margin-bottom:8px;font-weight:700">Online Attendance</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)"><span>Absent</span><span style="color:var(--red);font-family:'JetBrains Mono',monospace">−<span id="gv-onlineAbsent">1.88</span>%</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0"><span>Late</span><span style="color:var(--red);font-family:'JetBrains Mono',monospace">−<span id="gv-onlineLate">0.94</span>%</span></div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px">
+        <div style="font-size:10px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase;margin-bottom:8px;font-weight:700">Weekly Recap</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0"><span>No Output</span><span style="color:var(--red);font-family:'JetBrains Mono',monospace">−<span id="gv-noRecap">2.50</span>%</span></div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px">
+        <div style="font-size:10px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase;margin-bottom:8px;font-weight:700">Hitlist / Sharing</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0"><span>Missed</span><span style="color:var(--red);font-family:'JetBrains Mono',monospace">−<span id="gv-sharingMissed">1.50</span>%</span></div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px">
+        <div style="font-size:10px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase;margin-bottom:8px;font-weight:700">Idea Gen / Quarter</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)"><span>1 Idea Shared</span><span style="color:var(--green);font-family:'JetBrains Mono',monospace">+<span id="gv-idea1">5</span>%</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0"><span>2 Ideas Shared</span><span style="color:var(--green);font-family:'JetBrains Mono',monospace">+<span id="gv-idea2">10</span>%</span></div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px">
+        <div style="font-size:10px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase;margin-bottom:8px;font-weight:700">Score System</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)"><span>Base Score</span><span style="font-family:'JetBrains Mono',monospace"><span id="gv-base">90</span>%</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)"><span>Clean Month</span><span style="font-family:'JetBrains Mono',monospace">36 / 40 pts</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0"><span>External KPI</span><span style="font-family:'JetBrains Mono',monospace">60 pts</span></div>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);line-height:2;user-select:text">
+      <span style="color:var(--accent)">BASE</span> = <span id="gf-base">90</span>%<br>
+      <span style="color:var(--red)">DEDUCTIONS</span> = (OA×<span id="gf-oa">3.13</span>) + (OL×<span id="gf-ol">1.56</span>) + (NA×<span id="gf-na">1.88</span>) + (NL×<span id="gf-nl">0.94</span>) + (NR×<span id="gf-nr">2.50</span>) + (SM×<span id="gf-sm">1.50</span>)<br>
+      <span style="color:var(--green)">ADDITIONS</span> = Ideas≥2 → +<span id="gf-i2">10</span>% | Ideas=1 → +<span id="gf-i1">5</span>%<br>
+      <span style="color:var(--accent2)">KPI RATING</span> = BASE − DEDUCTIONS + ADDITIONS<br>
+      <span style="color:var(--accent2)">DIV ADJUSTED</span> = (KPI RATING × 40 ÷ 100) − VAR_DEDUCTION
+    </div>
+  </div>
+</div>
+
+<!-- KPI GRADE EDITOR MODAL (Ben & Jeff only) -->
+<div id="kpi-grade-modal" style="display:none" class="modal-ov">
+  <div class="modal-box" style="width:480px;max-width:95vw">
+    <div class="modal-title">⚙ EDIT KPI GRADING VALUES</div>
+    <div style="font-size:10px;color:var(--text2);margin-bottom:16px">Changes apply to all future calculations. Historical data uses saved violation counts so will recalculate automatically.</div>
+    <div style="display:grid;gap:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--red)">Office Absent %</span><input type="number" step="0.01" min="0" max="100" id="ge-officeAbsent" class="finp" style="width:90px;text-align:center"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--red)">Office Late %</span><input type="number" step="0.01" min="0" max="100" id="ge-officeLate" class="finp" style="width:90px;text-align:center"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--red)">Online Absent %</span><input type="number" step="0.01" min="0" max="100" id="ge-onlineAbsent" class="finp" style="width:90px;text-align:center"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--red)">Online Late %</span><input type="number" step="0.01" min="0" max="100" id="ge-onlineLate" class="finp" style="width:90px;text-align:center"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--red)">No Recap %</span><input type="number" step="0.01" min="0" max="100" id="ge-noRecap" class="finp" style="width:90px;text-align:center"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--red)">Sharing Missed %</span><input type="number" step="0.01" min="0" max="100" id="ge-sharingMissed" class="finp" style="width:90px;text-align:center"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--green)">1 Idea Bonus %</span><input type="number" step="0.01" min="0" max="100" id="ge-idea1" class="finp" style="width:90px;text-align:center"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--green)">2 Ideas Bonus %</span><input type="number" step="0.01" min="0" max="100" id="ge-idea2" class="finp" style="width:90px;text-align:center"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--text)">Base Score %</span><input type="number" step="0.01" min="0" max="100" id="ge-base" class="finp" style="width:90px;text-align:center"></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+      <button class="btn-sm btn-sec" onclick="closeKPIGradeEditor()">Cancel</button>
+      <button class="btn-sm btn-accent" onclick="saveKPIGradeEditor()">Save & Apply</button>
+    </div>
   </div>
 </div>
 
@@ -1121,6 +1202,7 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
       <option value="sector">Sector Analysis</option>
       <option value="report">Reports</option>
       <option value="learning">Learning Module</option>
+      <option value="html_file">HTML File</option>
     </select>
     <select class="finp" id="rh-filter-author" style="font-size:10px;padding:4px 8px" onchange="renderResearch()">
       <option value="">All Authors</option>
@@ -1163,11 +1245,18 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
             <option value="sector">Sector Analysis</option>
             <option value="report">Reports</option>
             <option value="learning">Learning Module</option>
+            <option value="html_file">HTML File</option>
           </select>
         </div>
       </div>
       <div><div class="mlbl">Content</div>
-        <textarea class="finp" id="rh-content" rows="10" placeholder="Paste your market outlook, analysis, or notes here..." style="width:100%;resize:vertical;font-size:12px;line-height:1.6" oninput="autoDetectTickers()"></textarea>
+        <!-- Drag & Drop File Zone -->
+        <div id="rh-drop-zone" style="border:2px dashed var(--border);border-radius:6px;padding:14px;text-align:center;margin-bottom:8px;cursor:pointer;transition:all .15s;font-size:11px;color:var(--text2)" ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='rgba(240,165,0,.05)'" ondragleave="this.style.borderColor='var(--border)';this.style.background=''" ondrop="handleResearchFileDrop(event)" onclick="document.getElementById('rh-file-input').click()">
+          📂 Drop an HTML file here or <span style="color:var(--accent);font-weight:700">click to browse</span>
+          <div style="font-size:10px;color:var(--text2);margin-top:3px;opacity:.6">Supported: HTML — content will be extracted as text</div>
+        </div>
+        <input type="file" id="rh-file-input" accept=".html,.htm" style="display:none" onchange="handleResearchFileSelect(this)">
+        <textarea class="finp" id="rh-content" rows="8" placeholder="Paste your market outlook, analysis, or notes here — or drop an HTML file above..." style="width:100%;resize:vertical;font-size:12px;line-height:1.6" oninput="autoDetectTickers()"></textarea>
         <div id="rh-auto-tickers" style="font-size:10px;color:var(--accent);margin-top:4px;min-height:14px"></div>
       </div>
       <div><div class="mlbl">Attachments / Links <span style="color:var(--muted);font-size:8px;letter-spacing:0;text-transform:none">(paste URLs — supports PDF, DOCX, XLSX, PPTX, HTML, PNG, JPG, GIF)</span></div>
@@ -1219,6 +1308,18 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
   </div><!-- end content -->
 </div><!-- end main -->
 </div><!-- end app -->
+
+<!-- HTML FILE VIEWER (fullscreen) -->
+<div id="html-viewer" style="display:none;position:fixed;inset:0;z-index:700;flex-direction:column;background:#000">
+  <div style="display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0">
+    <span style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--accent)">🌐 HTML VIEWER</span>
+    <span id="html-viewer-title" style="font-size:12px;color:var(--text2);font-weight:600"></span>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button onclick="closeHtmlViewer()" style="background:var(--red);color:#fff;border:none;border-radius:4px;padding:4px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">✕ Close</button>
+    </div>
+  </div>
+  <iframe id="html-viewer-frame" style="flex:1;border:none;width:100%;height:100%" sandbox="allow-scripts allow-same-origin"></iframe>
+</div>
 
 <!-- Execute Modal -->
 <div id="exec-modal" style="display:none" class="modal-ov">
@@ -1664,15 +1765,40 @@ function renderHome(){
   document.getElementById('h-pos').textContent=openPos.length;
   document.getElementById('h-picks').textContent=pitchData.length;
   document.getElementById('h-plans').textContent=planData.filter(r=>(r.status||'pending')==='pending').length;
-  // Recent trades
+  // Recent trades — combine closed trades + partial sells from monitor
   const rt=tradesData.slice(0,5);
-  document.getElementById('home-trades').innerHTML=rt.length?rt.map(t=>{
-    const pnl=t.ret_usd||((t.sell_price&&t.shares_sold)?(t.sell_price-t.buy_price)*t.shares_sold:null);
-    return`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px">
-      <span><b>${t.ticker}</b> <span class="sb" style="font-size:9px">${t.setup||'—'}</span></span>
-      <span style="color:${pnl>0?'var(--green)':pnl<0?'var(--red)':'var(--text2)'}">${pnl!=null?f$(pnl):'open'}</span>
-    </div>`;
-  }).join(''):'<div class="empty">No recent trades</div>';
+  // Also collect partial sells from monitor as recent activity
+  const partialActivity=[];
+  monitorData.forEach(row=>{
+    (row.partialSells||[]).forEach(ps=>{
+      partialActivity.push({ticker:row.issue,setup:row.setup||'Partial',date:ps.date,pnl:(ps.price-row.purchase)*ps.shares,type:'partial'});
+    });
+  });
+  partialActivity.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const allRecent=[...rt.map(t=>({ticker:t.ticker,setup:t.setup,pnl:t.ret_usd||((t.sell_price&&t.shares_sold)?(t.sell_price-t.buy_price)*t.shares_sold:null),type:'trade'})),...partialActivity.slice(0,3)].slice(0,6);
+  document.getElementById('home-trades').innerHTML=allRecent.length?allRecent.map(function(t){
+    var isPos=t.pnl>0, isNeg=t.pnl<0;
+    var pnlColor=isPos?'var(--green)':isNeg?'var(--red)':'var(--text2)';
+    var pnlBg=isPos?'rgba(34,197,94,.08)':isNeg?'rgba(239,68,68,.08)':'transparent';
+    var arrow=isPos?'▲':isNeg?'▼':'—';
+    var pnlStr=t.pnl!=null?(isPos?'+':'')+f$(t.pnl):'OPEN';
+    var typeTag=t.type==='partial'
+      ?'<span style="font-size:8px;font-weight:700;background:rgba(59,130,246,.15);color:var(--accent2);padding:1px 6px;border-radius:3px;letter-spacing:.3px">PARTIAL</span>'
+      :'<span style="font-size:8px;font-weight:700;background:rgba(255,255,255,.06);color:var(--text2);padding:1px 6px;border-radius:3px;letter-spacing:.3px">CLOSED</span>';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:6px;background:var(--surface2);border:1px solid var(--border);transition:border-color .12s" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
+      +'<div style="width:36px;height:36px;border-radius:6px;background:'+pnlBg+';border:1px solid '+(isPos?'rgba(34,197,94,.2)':isNeg?'rgba(239,68,68,.2)':'var(--border)')+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:'+pnlColor+';flex-shrink:0">'+arrow+'</div>'
+      +'<div style="flex:1;min-width:0">'
+        +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">'
+          +'<span style="font-family:\'JetBrains Mono\',monospace;font-size:13px;font-weight:800;color:var(--text)">'+t.ticker+'</span>'
+          +typeTag
+        +'</div>'
+        +'<div style="font-size:10px;color:var(--text2);font-weight:500">'+( t.setup||'—')+(t.date?' · '+t.date:'')+'</div>'
+      +'</div>'
+      +'<div style="text-align:right;flex-shrink:0">'
+        +'<div style="font-family:\'JetBrains Mono\',monospace;font-size:13px;font-weight:800;color:'+pnlColor+'">'+pnlStr+'</div>'
+      +'</div>'
+    +'</div>';
+  }).join(''):'<div class="empty" style="padding:20px 0">No recent trades</div>';
   // KPI snippet
   const kData = loadKPIMonthly();
   const kTraders = loadKPITraders();
@@ -2211,7 +2337,9 @@ function renderAnalytics(){
 // ════════════════════════════════════════════════════════════
 // KPI DASHBOARD
 // ════════════════════════════════════════════════════════════
-const KPI_G={officeAbsent:3.13,officeLate:1.56,onlineAbsent:1.88,onlineLate:0.94,noRecap:2.50,sharingMissed:1.50,idea1:5,idea2:10,base:90};
+const KPI_DEFAULT_G={officeAbsent:3.13,officeLate:1.56,onlineAbsent:1.88,onlineLate:0.94,noRecap:2.50,sharingMissed:1.50,idea1:5,idea2:10,base:90};
+let KPI_G=Object.assign({},KPI_DEFAULT_G,JSON.parse(localStorage.getItem('kpi26_grades')||'null'));
+function saveKPIGrades(){localStorage.setItem('kpi26_grades',JSON.stringify(KPI_G));}
 const KPI_MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const KPI_YEAR=2026;
 function loadKPITraders(){return JSON.parse(localStorage.getItem('kpi26_traders')||'null')||['Ben Termulo','Jeff Chuan','Rome Mendiola','Monette Patrimonio'];}
@@ -2258,19 +2386,45 @@ function renderKPI(){
     }
   });
   document.getElementById('kpi-heatmap').innerHTML=html;
-  // Trend chart
-  const wrap=document.getElementById('kpi-chart-wrap');wrap.innerHTML='';
-  const cv=document.createElement('canvas');cv.height=160;wrap.style.padding='12px';wrap.appendChild(cv);
-  const ctx=cv.getContext('2d');const W=wrap.offsetWidth||600;cv.width=W;
-  const months=[...Array(12).keys()].filter(m=>traders.some(t=>getKPIMonthData(md,m,t)));
-  if(!months.length)return;
+  // Grading reference display
+  ['officeAbsent','officeLate','onlineAbsent','onlineLate','noRecap','sharingMissed','idea1','idea2','base'].forEach(k=>{
+    const el=document.getElementById('gv-'+k);if(el)el.textContent=KPI_G[k];
+  });
+  const gfMap={oa:'officeAbsent',ol:'officeLate',na:'onlineAbsent',nl:'onlineLate',nr:'noRecap',sm:'sharingMissed',i1:'idea1',i2:'idea2',base:'base'};
+  Object.entries(gfMap).forEach(([sfx,key])=>{const el=document.getElementById('gf-'+sfx);if(el)el.textContent=KPI_G[key];});
+  const gfBase=document.getElementById('gf-base');if(gfBase)gfBase.textContent=KPI_G.base;
+  // Show edit button for Ben/Jeff
+  const editBtn=document.getElementById('kpi-grade-edit-btn');
+  if(editBtn&&currentUser&&(currentUser.name==='Ben'||currentUser.name==='Jeff'))editBtn.style.display='block';
+  // Trend bar chart
+  const kpiLegendEl=document.getElementById('kpi-chart-legend');
+  const wrap=document.getElementById('kpi-chart-wrap');
+  if(!kpiLegendEl||!wrap)return;
   const colors=['#22c55e','#f0a500','#8b5cf6','#ef4444'];
-  const all=traders.flatMap(t=>months.map(m=>{const d=getKPIMonthData(md,m,t);return d?parseFloat(kpiDivAdj(kpiCalc(d),d)):null;}).filter(v=>v!==null));
-  const minV=Math.min(...all,32),maxV=Math.max(...all,40);
-  const toX=i=>(i/(months.length-1||1))*(W-60)+30;
-  const toY=v=>160-((v-minV)/(maxV-minV||1))*140-10;
-  ctx.strokeStyle='rgba(255,255,255,.04)';[34,36,38,40].forEach(g=>{if(g>=minV&&g<=maxV){ctx.beginPath();ctx.moveTo(30,toY(g));ctx.lineTo(W-30,toY(g));ctx.stroke();ctx.fillStyle='rgba(255,255,255,.2)';ctx.font='9px JetBrains Mono,monospace';ctx.fillText(g,4,toY(g)+3);}});
-  traders.forEach((t,ti)=>{const vals=months.map(m=>{const d=getKPIMonthData(md,m,t);return d?parseFloat(kpiDivAdj(kpiCalc(d),d)):null;});const pts=vals.map((v,i)=>v!=null?{x:toX(i),y:toY(v)}:null).filter(Boolean);if(pts.length<1)return;ctx.strokeStyle=colors[ti%colors.length];ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);pts.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));ctx.stroke();pts.forEach(p=>{ctx.fillStyle=colors[ti%colors.length];ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fill();});});
+  const datasets=traders.map((t,i)=>{
+    const points=[];
+    for(let m=0;m<12;m++){const d=getKPIMonthData(md,m,t);points.push(d!==null?parseFloat(kpiDivAdj(kpiCalc(d),d)):null);}
+    return{trader:t,color:colors[i%colors.length],points};
+  });
+  const loggedMonths=[...Array(12).keys()].filter(m=>traders.some(t=>getKPIMonthData(md,m,t)!==null));
+  // Legend
+  if(!window._kpiActiveTrader)window._kpiActiveTrader='all';
+  kpiLegendEl.innerHTML='';
+  const mkKBtn=(label,color,active,onClick)=>{const b=document.createElement('button');b.textContent=label;b.style.cssText=`padding:4px 14px;border-radius:20px;border:1.5px solid ${color};background:${active?color:'transparent'};color:${active?'#000':color};font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin:2px`;b.onclick=onClick;return b;};
+  kpiLegendEl.appendChild(mkKBtn('ALL','#e2e8f0',window._kpiActiveTrader==='all',()=>{window._kpiActiveTrader='all';renderKPI();}));
+  datasets.forEach(ds=>{kpiLegendEl.appendChild(mkKBtn(ds.trader.split(' ')[0],ds.color,window._kpiActiveTrader===ds.trader,()=>{window._kpiActiveTrader=ds.trader;renderKPI();}));});
+  if(!loggedMonths.length){wrap.innerHTML='<div style="color:var(--text2);text-align:center;padding:32px;font-size:12px">No KPI data logged yet</div>';return;}
+  const vis=window._kpiActiveTrader==='all'?datasets:datasets.filter(d=>d.trader===window._kpiActiveTrader);
+  const minY=33,maxY=42,chartH=220;
+  const barGW=100/loggedMonths.length;const pad=vis.length>1?.35:.45;const barW=(barGW*(1-pad))/vis.length;
+  const gridLines=[33,34,35,36,37,38,39,40].map(v=>{const pct=100-((v-minY)/(maxY-minY)*100);return`<div style="position:absolute;left:0;right:0;top:${pct}%;height:1px;background:var(--border);pointer-events:none"></div><div style="position:absolute;right:100%;top:${pct}%;transform:translateY(-50%);padding-right:6px;font-size:9px;color:var(--text2);font-family:'JetBrains Mono',monospace;white-space:nowrap">${v}</div>`;}).join('');
+  const bars=loggedMonths.map((m,xi)=>{
+    const gLeft=xi*barGW+(barGW*pad/2);
+    const bHtml=vis.map((ds,bi)=>{const val=ds.points[m];if(val===null)return'';const bLeft=gLeft+bi*barW;const bH=((val-minY)/(maxY-minY))*100;const label=`${ds.trader.split(' ')[0]}: ${val.toFixed(2)} / 40`;return`<div style="position:absolute;left:${bLeft}%;width:${barW*.85}%;bottom:0;height:${bH}%;background:${ds.color};border-radius:3px 3px 0 0;transition:opacity .15s" onmouseover="this.style.opacity='.65';showKPIBarTip(event,'${label}')" onmouseout="this.style.opacity='1';hideKPIBarTip()"></div>`;}).join('');
+    const mLabel=`<div style="position:absolute;bottom:-22px;left:${xi*barGW}%;width:${barGW}%;text-align:center;font-size:10px;color:var(--text2)">${KPI_MONTHS[m].slice(0,3)}</div>`;
+    return bHtml+mLabel;
+  }).join('');
+  wrap.innerHTML=`<div id="kpi-bar-tip" style="display:none;position:fixed;background:var(--surface2);color:var(--text);padding:5px 10px;border-radius:5px;font-size:11px;font-family:'JetBrains Mono',monospace;z-index:500;pointer-events:none;border:1px solid var(--border)"></div><div style="position:relative;margin-left:40px;margin-bottom:28px;height:${chartH}px"><div style="position:absolute;inset:0">${gridLines}</div><div style="position:absolute;inset:0">${bars}</div></div>`;
 }
 
 function showKPIInput(){document.getElementById('kpi-input-modal').style.display='flex';}
@@ -2311,7 +2465,77 @@ function saveKPIMonth(){
   saveKPIMonthly(md);showToast('✓ KPI saved for '+KPI_MONTHS[m]);renderKPI();
 }
 
-// (old scheduler removed — see new renderCalendar below)
+function handleResearchFileDrop(event){
+  event.preventDefault();
+  var zone=document.getElementById('rh-drop-zone');
+  zone.style.borderColor='var(--border)';zone.style.background='';
+  var files=event.dataTransfer.files;
+  if(!files||!files.length){showToast('No file detected');return;}
+  readResearchFile(files[0]);
+}
+function handleResearchFileSelect(input){
+  if(!input.files||!input.files.length)return;
+  readResearchFile(input.files[0]);
+  input.value='';
+}
+function readResearchFile(file){
+  var allowed=['.html','.htm'];
+  var name=file.name.toLowerCase();
+  if(!allowed.some(function(ext){ return name.endsWith(ext); })){showToast('Only HTML files supported here');return;}
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var raw=e.target.result;
+    var ta=document.getElementById('rh-content');
+    if(ta){
+      ta.value=raw;
+      var dz=document.getElementById('rh-drop-zone');
+      if(dz) dz.innerHTML='✅ <b>'+file.name+'</b> loaded — will render as HTML viewer when opened';
+      showToast('📂 HTML file ready — '+file.name);
+    }
+    // DO NOT force type — let user pick their own tag (Learning Module, Analysis, etc.)
+    // HTML detection on open is done by content sniffing, not type
+    var titleEl=document.getElementById('rh-title');
+    if(titleEl&&!titleEl.value.trim()){
+      titleEl.value=file.name.replace(/\.(html|htm)$/i,'').replace(/[-_]/g,' ');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function openHtmlViewer(title, htmlContent){
+  var viewer = document.getElementById('html-viewer');
+  var frame = document.getElementById('html-viewer-frame');
+  var titleEl = document.getElementById('html-viewer-title');
+  if(!viewer || !frame) return;
+  if(titleEl) titleEl.textContent = title;
+  viewer.style.display = 'flex';
+  // Write HTML into iframe using srcdoc for sandboxed rendering
+  frame.srcdoc = htmlContent;
+}
+function closeHtmlViewer(){
+  var viewer = document.getElementById('html-viewer');
+  var frame = document.getElementById('html-viewer-frame');
+  if(viewer) viewer.style.display = 'none';
+  if(frame) frame.srcdoc = '';
+}
+
+function showKPIBarTip(e,text){const t=document.getElementById('kpi-bar-tip');if(!t)return;t.textContent=text;t.style.display='block';t.style.left=(e.clientX+12)+'px';t.style.top=(e.clientY-32)+'px';}
+function hideKPIBarTip(){const t=document.getElementById('kpi-bar-tip');if(t)t.style.display='none';}
+
+function openKPIGradeEditor(){
+  const m=document.getElementById('kpi-grade-modal');if(!m)return;
+  ['officeAbsent','officeLate','onlineAbsent','onlineLate','noRecap','sharingMissed','idea1','idea2','base'].forEach(k=>{
+    const el=document.getElementById('ge-'+k);if(el)el.value=KPI_G[k];
+  });
+  m.style.display='flex';
+}
+function closeKPIGradeEditor(){const m=document.getElementById('kpi-grade-modal');if(m)m.style.display='none';}
+function saveKPIGradeEditor(){
+  ['officeAbsent','officeLate','onlineAbsent','onlineLate','noRecap','sharingMissed','idea1','idea2','base'].forEach(k=>{
+    const el=document.getElementById('ge-'+k);if(el){const v=parseFloat(el.value);if(!isNaN(v)&&v>=0)KPI_G[k]=v;}
+  });
+  saveKPIGrades();closeKPIGradeEditor();renderKPI();showToast('✓ KPI grades updated');
+}
 
 // ════════════════════════════════════════════════════════════
 // LINKS REPOSITORY
@@ -3528,13 +3752,13 @@ window.renderPitch = function(){
 var researchData = JSON.parse(localStorage.getItem('vel_research') || '[]');
 
 var RESEARCH_TYPE_ICONS = {
-  outlook: '📊', analysis: '🔬', sector: '📈', report: '📄', learning: '📚'
+  outlook: '📊', analysis: '🔬', sector: '📈', report: '📄', learning: '📚', html_file: '🌐'
 };
 var RESEARCH_TYPE_LABELS = {
-  outlook: 'Daily Market Outlook', analysis: 'Stock Analysis', sector: 'Sector Analysis', report: 'Reports', learning: 'Learning Module'
+  outlook: 'Daily Market Outlook', analysis: 'Stock Analysis', sector: 'Sector Analysis', report: 'Reports', learning: 'Learning Module', html_file: 'HTML File'
 };
 var RESEARCH_TYPE_COLORS = {
-  outlook: 'var(--accent2)', analysis: 'var(--accent)', sector: '#f97316', report: 'var(--purple)', learning: '#06b6d4'
+  outlook: 'var(--accent2)', analysis: 'var(--accent)', sector: '#f97316', report: 'var(--purple)', learning: '#06b6d4', html_file: '#8b5cf6'
 };
 
 function saveResearchData(){
@@ -3614,8 +3838,11 @@ function renderResearch(){
     var icon = RESEARCH_TYPE_ICONS[r.type] || '📎';
     var typeLabel = RESEARCH_TYPE_LABELS[r.type] || r.type;
     var typeColor = RESEARCH_TYPE_COLORS[r.type] || 'var(--muted)';
-    var preview = (r.content || '').substring(0, 180).replace(/</g, '&lt;');
-    if(r.content && r.content.length > 180) preview += '...';
+    var isHtml = (function(){ var c=(r.content||'').trimStart(); return c.startsWith('<!DOCTYPE')||c.startsWith('<html')||c.startsWith('<!doctype'); })();
+    // For HTML files show a file card; for others show text preview
+    var preview = isHtml
+      ? '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface3);border-radius:6px;margin-bottom:8px"><span style="font-size:28px">🌐</span><div><div style="font-size:12px;font-weight:700;color:var(--text)">' + r.title + '</div><div style="font-size:10px;color:var(--text2);margin-top:2px">Click to open full HTML viewer</div></div><span style="margin-left:auto;font-size:18px">↗</span></div>'
+      : '<div style="font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:8px">' + (r.content||'').substring(0,180).replace(/</g,'&lt;') + (r.content&&r.content.length>180?'...':'') + '</div>';
     var tickers = r.tickers ? r.tickers.split(',').map(function(t){ return t.trim().toUpperCase(); }).filter(function(t){ return t; }) : [];
     var PERSON_COLORS = {Ben:'#22c55e',Jeff:'#f0a500',Monette:'#8b5cf6',Rome:'#ef4444'};
     var authorColor = PERSON_COLORS[r.author] || 'var(--accent)';
@@ -3627,7 +3854,7 @@ function renderResearch(){
             + '<span style="font-size:16px">' + icon + '</span>'
             + '<span style="font-size:13px;font-weight:700;color:var(--text)">' + r.title + '</span>'
           + '</div>'
-          + '<div style="font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:8px">' + preview + '</div>'
+          + preview
           + '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">'
             + '<span style="font-size:9px;background:'+typeColor+'22;color:'+typeColor+';padding:2px 8px;border-radius:10px;font-weight:700">' + typeLabel + '</span>'
             + '<span style="font-size:9px;color:'+authorColor+';font-weight:700">' + r.author + '</span>'
@@ -3714,6 +3941,15 @@ function deleteResearch(idx){
 function openResearchDetail(idx){
   var r = researchData[idx];
   if(!r) return;
+
+  // Detect HTML by content — if content looks like HTML, open iframe viewer regardless of type tag
+  var c = (r.content||'').trimStart();
+  var isHtmlContent = c.startsWith('<!DOCTYPE') || c.startsWith('<html') || c.startsWith('<!doctype');
+  if(isHtmlContent){
+    openHtmlViewer(r.title, r.content);
+    return;
+  }
+
   var m = document.getElementById('research-detail-modal');
   if(m){ m.style.display='flex'; m.style.alignItems='center'; m.style.justifyContent='center'; }
   document.getElementById('rd-title').textContent = r.title;
