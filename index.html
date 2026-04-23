@@ -1306,14 +1306,20 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
           </select>
         </div>
       </div>
-      <div><div class="mlbl">Content</div>
+      <div><div class="mlbl">Content / File Upload</div>
         <!-- Drag & Drop File Zone -->
-        <div id="rh-drop-zone" style="border:2px dashed var(--border);border-radius:6px;padding:14px;text-align:center;margin-bottom:8px;cursor:pointer;transition:all .15s;font-size:11px;color:var(--text2)" ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='rgba(240,165,0,.05)'" ondragleave="this.style.borderColor='var(--border)';this.style.background=''" ondrop="handleResearchFileDrop(event)" onclick="document.getElementById('rh-file-input').click()">
-          📂 Drop an HTML file here or <span style="color:var(--accent);font-weight:700">click to browse</span>
-          <div style="font-size:10px;color:var(--text2);margin-top:3px;opacity:.6">Supported: HTML — content will be extracted as text</div>
+        <div id="rh-drop-zone" style="border:2px dashed var(--border);border-radius:6px;padding:16px;text-align:center;margin-bottom:8px;cursor:pointer;transition:all .15s;font-size:11px;color:var(--text2)" ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='rgba(240,165,0,.05)'" ondragleave="this.style.borderColor='var(--border)';this.style.background=''" ondrop="handleResearchFileDrop(event)" onclick="document.getElementById('rh-file-input').click()">
+          📂 Drop any file here or <span style="color:var(--accent);font-weight:700">click to browse</span>
+          <div style="font-size:10px;color:var(--text2);margin-top:4px;opacity:.6">HTML · PNG · JPG · GIF · WEBP · PDF · PPTX · DOCX · XLSX</div>
+          <div id="rh-upload-progress" style="display:none;margin-top:8px">
+            <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+              <div id="rh-upload-bar" style="height:100%;background:var(--accent);border-radius:2px;width:0%;transition:width .3s"></div>
+            </div>
+            <div id="rh-upload-label" style="font-size:10px;color:var(--accent);margin-top:4px">Uploading...</div>
+          </div>
         </div>
-        <input type="file" id="rh-file-input" accept=".html,.htm" style="display:none" onchange="handleResearchFileSelect(this)">
-        <textarea class="finp" id="rh-content" rows="8" placeholder="Paste your market outlook, analysis, or notes here — or drop an HTML file above..." style="width:100%;resize:vertical;font-size:12px;line-height:1.6" oninput="autoDetectTickers()"></textarea>
+        <input type="file" id="rh-file-input" accept=".html,.htm,.png,.jpg,.jpeg,.gif,.webp,.pdf,.pptx,.ppt,.docx,.doc,.xlsx,.xls,.csv" style="display:none" onchange="handleResearchFileSelect(this)">
+        <textarea class="finp" id="rh-content" rows="6" placeholder="Paste your market outlook, analysis, or notes here — or drop a file above..." style="width:100%;resize:vertical;font-size:12px;line-height:1.6" oninput="autoDetectTickers()"></textarea>
         <div id="rh-auto-tickers" style="font-size:10px;color:var(--accent);margin-top:4px;min-height:14px"></div>
       </div>
       <div><div class="mlbl">Attachments / Links <span style="color:var(--muted);font-size:8px;letter-spacing:0;text-transform:none">(paste URLs — supports PDF, DOCX, XLSX, PPTX, HTML, PNG, JPG, GIF)</span></div>
@@ -1454,7 +1460,7 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
       <button onclick="closeHtmlViewer()" style="background:var(--red);color:#fff;border:none;border-radius:4px;padding:4px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">✕ Close</button>
     </div>
   </div>
-  <iframe id="html-viewer-frame" style="flex:1;border:none;width:100%;height:100%" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe id="html-viewer-frame" style="flex:1;border:none;width:100%;height:100%" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
 </div>
 
 <!-- Execute Modal -->
@@ -3084,28 +3090,119 @@ function handleResearchFileSelect(input){
   readResearchFile(input.files[0]);
   input.value='';
 }
+const RH_STORAGE_BUCKET = 'research-files';
+
+function getFileIcon(ext){
+  const map={pdf:'📕',pptx:'📙',ppt:'📙',docx:'📘',doc:'📘',xlsx:'📗',xls:'📗',csv:'📗',png:'🖼️',jpg:'🖼️',jpeg:'🖼️',gif:'🖼️',webp:'🖼️',html:'🌐',htm:'🌐'};
+  return map[ext]||'📎';
+}
+
+function getFileViewerUrl(publicUrl, ext){
+  // For Office files use Google Docs Viewer
+  var officeExts=['pptx','ppt','docx','doc','xlsx','xls','csv'];
+  if(officeExts.includes(ext)) return 'https://docs.google.com/viewer?url='+encodeURIComponent(publicUrl)+'&embedded=true';
+  // PDF and images open directly
+  return publicUrl;
+}
+
 function readResearchFile(file){
-  var allowed=['.html','.htm'];
-  var name=file.name.toLowerCase();
-  if(!allowed.some(function(ext){ return name.endsWith(ext); })){showToast('Only HTML files supported here');return;}
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var raw=e.target.result;
-    var ta=document.getElementById('rh-content');
-    if(ta){
-      ta.value=raw;
+  var name=file.name;
+  var ext=name.split('.').pop().toLowerCase();
+  var htmlExts=['html','htm'];
+  var imgExts=['png','jpg','jpeg','gif','webp'];
+  var storageExts=['pdf','pptx','ppt','docx','doc','xlsx','xls','csv'];
+  var isHtml=htmlExts.includes(ext);
+  var isImg=imgExts.includes(ext);
+  var isStorage=storageExts.includes(ext);
+
+  if(!isHtml&&!isImg&&!isStorage){showToast('Unsupported file type');return;}
+
+  if(isHtml){
+    // Read as text — store in content field
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var ta=document.getElementById('rh-content');
+      if(ta) ta.value=e.target.result;
       var dz=document.getElementById('rh-drop-zone');
-      if(dz) dz.innerHTML='✅ <b>'+file.name+'</b> loaded — will render as HTML viewer when opened';
-      showToast('📂 HTML file ready — '+file.name);
-    }
-    // DO NOT force type — let user pick their own tag (Learning Module, Analysis, etc.)
-    // HTML detection on open is done by content sniffing, not type
+      if(dz) dz.innerHTML='✅ <b>'+name+'</b> loaded — renders as HTML viewer';
+      var titleEl=document.getElementById('rh-title');
+      if(titleEl&&!titleEl.value.trim()) titleEl.value=name.replace(/\.(html|htm)$/i,'').replace(/[-_]/g,' ');
+      showToast('📂 HTML ready');
+    };
+    reader.readAsText(file);
+  } else if(isImg){
+    // Read as data URI — store in content field
+    var reader2=new FileReader();
+    reader2.onload=function(e){
+      var ta=document.getElementById('rh-content');
+      if(ta) ta.value=e.target.result;
+      var dz=document.getElementById('rh-drop-zone');
+      if(dz) dz.innerHTML='🖼️ <b>'+name+'</b> loaded — renders as image viewer';
+      var titleEl=document.getElementById('rh-title');
+      if(titleEl&&!titleEl.value.trim()) titleEl.value=name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
+      showToast('🖼️ Image ready');
+    };
+    reader2.readAsDataURL(file);
+  } else {
+    // Upload to Supabase Storage
+    uploadFileToStorage(file, ext);
+  }
+}
+
+async function uploadFileToStorage(file, ext){
+  var dz=document.getElementById('rh-drop-zone');
+  var prog=document.getElementById('rh-upload-progress');
+  var bar=document.getElementById('rh-upload-bar');
+  var lbl=document.getElementById('rh-upload-label');
+  if(prog) prog.style.display='block';
+  if(lbl) lbl.textContent='Uploading '+file.name+'...';
+  if(bar) bar.style.width='30%';
+
+  // Unique file path: timestamp_filename
+  var path=Date.now()+'_'+file.name.replace(/\s+/g,'_');
+
+  try{
+    const{data,error}=await sb.storage.from(RH_STORAGE_BUCKET).upload(path,file,{cacheControl:'3600',upsert:false});
+    if(error) throw error;
+    if(bar) bar.style.width='80%';
+
+    // Get public URL
+    const{data:urlData}=sb.storage.from(RH_STORAGE_BUCKET).getPublicUrl(path);
+    var publicUrl=urlData.publicUrl;
+
+    if(bar) bar.style.width='100%';
+    if(lbl) lbl.textContent='✅ Uploaded — '+file.name;
+
+    // Store the public URL as content with a special marker
+    var ta=document.getElementById('rh-content');
+    if(ta) ta.value='__FILE__:'+publicUrl;
+
+    // Set title from filename
     var titleEl=document.getElementById('rh-title');
-    if(titleEl&&!titleEl.value.trim()){
-      titleEl.value=file.name.replace(/\.(html|htm)$/i,'').replace(/[-_]/g,' ');
-    }
-  };
-  reader.readAsText(file);
+    if(titleEl&&!titleEl.value.trim()) titleEl.value=file.name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
+
+    // Update drop zone
+    if(dz) dz.innerHTML=getFileIcon(ext)+' <b>'+file.name+'</b> uploaded — click entry to open';
+    showToast(getFileIcon(ext)+' '+file.name+' uploaded');
+
+    // Hide progress after a moment
+    setTimeout(function(){ if(prog) prog.style.display='none'; },2000);
+  }catch(e){
+    if(lbl) lbl.textContent='❌ Upload failed: '+e.message;
+    if(bar) bar.style.background='var(--red)';
+    showToast('Upload failed: '+e.message);
+  }
+}
+
+function openImageViewer(title, dataUri){
+  var viewer = document.getElementById('html-viewer');
+  var frame = document.getElementById('html-viewer-frame');
+  var titleEl = document.getElementById('html-viewer-title');
+  if(!viewer||!frame) return;
+  if(titleEl) titleEl.textContent = title;
+  viewer.style.display = 'flex';
+  // Render image centered in iframe
+  frame.srcdoc = '<!DOCTYPE html><html><head><style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#080b12;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}img{max-width:100%;max-height:95vh;object-fit:contain;border-radius:6px;box-shadow:0 8px 32px rgba(0,0,0,.5);}</style></head><body><img src="'+dataUri+'" alt="'+title+'"></body></html>';
 }
 
 function openHtmlViewer(title, htmlContent){
@@ -3115,7 +3212,6 @@ function openHtmlViewer(title, htmlContent){
   if(!viewer || !frame) return;
   if(titleEl) titleEl.textContent = title;
   viewer.style.display = 'flex';
-  // Write HTML into iframe using srcdoc for sandboxed rendering
   frame.srcdoc = htmlContent;
 }
 function closeHtmlViewer(){
@@ -4479,9 +4575,16 @@ function renderResearch(){
     var icon = RESEARCH_TYPE_ICONS[r.type] || '📎';
     var typeLabel = RESEARCH_TYPE_LABELS[r.type] || r.type;
     var typeColor = RESEARCH_TYPE_COLORS[r.type] || 'var(--muted)';
-    var isHtml = (function(){ var c=(r.content||'').trimStart(); return c.startsWith('<!DOCTYPE')||c.startsWith('<html')||c.startsWith('<!doctype'); })();
-    // For HTML files show a file card; for others show text preview
-    var preview = isHtml
+    var contentStart=(r.content||'').trimStart();
+    var isHtml = contentStart.startsWith('<!DOCTYPE')||contentStart.startsWith('<html')||contentStart.startsWith('<!doctype');
+    var isImage = contentStart.startsWith('data:image');
+    var isStorageFile = contentStart.startsWith('__FILE__:');
+    var storageExt = isStorageFile ? (contentStart.replace('__FILE__:','').split('?')[0].split('.').pop().toLowerCase()) : '';
+    var preview = isImage
+      ? '<div style="margin-bottom:8px;border-radius:6px;overflow:hidden;max-height:120px;display:flex;align-items:center;justify-content:center;background:var(--surface3)"><img src="'+r.content+'" style="max-width:100%;max-height:120px;object-fit:contain" alt="'+r.title+'"></div>'
+      : isStorageFile
+      ? '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface3);border-radius:6px;margin-bottom:8px"><span style="font-size:28px">'+getFileIcon(storageExt)+'</span><div><div style="font-size:12px;font-weight:700;color:var(--text)">'+r.title+'</div><div style="font-size:10px;color:var(--text2);margin-top:2px">Click to open · .'+storageExt.toUpperCase()+'</div></div><span style="margin-left:auto;font-size:18px">↗</span></div>'
+      : isHtml
       ? '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface3);border-radius:6px;margin-bottom:8px"><span style="font-size:28px">🌐</span><div><div style="font-size:12px;font-weight:700;color:var(--text)">' + r.title + '</div><div style="font-size:10px;color:var(--text2);margin-top:2px">Click to open full HTML viewer</div></div><span style="margin-left:auto;font-size:18px">↗</span></div>'
       : '<div style="font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:8px">' + (r.content||'').substring(0,180).replace(/</g,'&lt;') + (r.content&&r.content.length>180?'...':'') + '</div>';
     var tickers = r.tickers ? r.tickers.split(',').map(function(t){ return t.trim().toUpperCase(); }).filter(function(t){ return t; }) : [];
@@ -4585,8 +4688,36 @@ function openResearchDetail(idx){
   var r = researchData[idx];
   if(!r) return;
 
-  // Detect HTML by content — if content looks like HTML, open iframe viewer regardless of type tag
   var c = (r.content||'').trimStart();
+
+  // Storage file — open via URL
+  if(c.startsWith('__FILE__:')){
+    var url=c.replace('__FILE__:','');
+    var ext=url.split('?')[0].split('.').pop().toLowerCase();
+    var viewerUrl=getFileViewerUrl(url,ext);
+    var viewer=document.getElementById('html-viewer');
+    var frame=document.getElementById('html-viewer-frame');
+    var titleEl=document.getElementById('html-viewer-title');
+    if(viewer&&frame){
+      if(titleEl) titleEl.textContent=r.title;
+      viewer.style.display='flex';
+      if(['png','jpg','jpeg','gif','webp'].includes(ext)){
+        frame.srcdoc='<!DOCTYPE html><html><head><style>*{margin:0;padding:0;}body{background:#080b12;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}img{max-width:100%;max-height:95vh;object-fit:contain;border-radius:6px;}</style></head><body><img src="'+url+'" alt="'+r.title+'"></body></html>';
+      } else {
+        frame.src=viewerUrl;
+        frame.srcdoc='';
+      }
+    }
+    return;
+  }
+
+  // Image data URI
+  if(c.startsWith('data:image')){
+    openImageViewer(r.title, r.content);
+    return;
+  }
+
+  // HTML
   var isHtmlContent = c.startsWith('<!DOCTYPE') || c.startsWith('<html') || c.startsWith('<!doctype');
   if(isHtmlContent){
     openHtmlViewer(r.title, r.content);
