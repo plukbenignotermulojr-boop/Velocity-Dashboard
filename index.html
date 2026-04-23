@@ -574,6 +574,11 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
     </div>
   </div>
   <div class="sidebar-footer">
+    <!-- Online Teammates -->
+    <div id="presence-panel" style="margin-bottom:10px;display:none">
+      <div style="font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:6px;padding:0 2px">Online Now</div>
+      <div id="presence-list" style="display:flex;flex-direction:column;gap:4px"></div>
+    </div>
     <div class="user-pill" onclick="logout()">
       <div class="user-avatar" id="sb-avatar"></div>
       <div class="user-info">
@@ -697,6 +702,7 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
     <button class="fd-tab" onclick="showFdTab('monitor',this)">📡 Monitor</button>
     <button class="fd-tab" onclick="showFdTab('records',this)">📜 Records</button>
     <button class="fd-tab" onclick="showFdTab('analytics',this)">📊 Analytics</button>
+    <button class="fd-tab" onclick="showFdTab('picksreview',this)">🔎 Picks Review</button>
   </div>
 
   <!-- PITCH -->
@@ -907,6 +913,36 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
     <div class="card"><div class="ch"><div class="ct">P&amp;L Chart</div></div>
       <canvas id="pnl-chart" height="90" style="padding:10px;width:100%"></canvas>
     </div>
+  </div>
+
+  <!-- PICKS REVIEW -->
+  <div class="fd-panel" id="fdp-picksreview">
+    <!-- Date Range Selector -->
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--accent)">🔎 PICKS REVIEW</div>
+        <div style="display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:10px;color:var(--text2);letter-spacing:.8px;text-transform:uppercase">From</span>
+            <input type="date" id="pr-from" class="finp" style="width:130px" onchange="renderPicksReview()">
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:10px;color:var(--text2);letter-spacing:.8px;text-transform:uppercase">To</span>
+            <input type="date" id="pr-to" class="finp" style="width:130px" onchange="renderPicksReview()">
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm btn-sec" onclick="setPRRange('week')" id="pr-btn-week">Last Week</button>
+            <button class="btn-sm btn-sec" onclick="setPRRange('2week')" id="pr-btn-2week">Last 2 Weeks</button>
+            <button class="btn-sm btn-sec" onclick="setPRRange('month')" id="pr-btn-month">This Month</button>
+          </div>
+          <button class="btn-sm btn-accent" onclick="loadAndRenderPicksReview()">🔍 Load</button>
+        </div>
+      </div>
+    </div>
+    <!-- Summary Stats -->
+    <div class="g4" id="pr-stats" style="margin-bottom:14px"></div>
+    <!-- Picks Cards Grid -->
+    <div id="pr-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px"></div>
   </div>
 </div>
 
@@ -1309,6 +1345,50 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
 </div><!-- end main -->
 </div><!-- end app -->
 
+<!-- SWAP MODAL -->
+<div id="swap-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center">
+  <div class="card" style="width:420px;max-width:95vw;padding:22px;border:1px solid var(--border2)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div class="ct" style="font-size:13px;letter-spacing:2px">⇄ ROLE SWAP</div>
+      <button onclick="closeSwapModal()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px">&#215;</button>
+    </div>
+    <div style="display:grid;gap:12px">
+      <div>
+        <div class="mlbl">Week (select any day in the week)</div>
+        <input type="date" id="swap-date" class="finp" style="width:100%">
+      </div>
+      <div id="swap-current" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;min-height:36px"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div class="mlbl" style="color:#f0a500">Override Facilitator</div>
+          <select id="swap-fac" class="finp" style="width:100%">
+            <option value="">— no change —</option>
+            <option>Ben</option><option>Jeff</option><option>Monette</option><option>Rome</option>
+          </select>
+        </div>
+        <div>
+          <div class="mlbl" style="color:#00d4aa">Override Pilot</div>
+          <select id="swap-pilot" class="finp" style="width:100%">
+            <option value="">— no change —</option>
+            <option>Ben</option><option>Jeff</option><option>Monette</option><option>Rome</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <div class="mlbl">Reason (optional)</div>
+        <input class="finp" id="swap-reason" placeholder="e.g. Ben on leave" style="width:100%">
+      </div>
+      <div style="display:flex;gap:8px;justify-content:space-between;margin-top:4px">
+        <button class="btn-sm btn-sec" onclick="clearSwapForDate()" style="color:var(--red);border-color:var(--red)">Remove Swap</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sm btn-sec" onclick="closeSwapModal()">Cancel</button>
+          <button class="btn-sm btn-accent" onclick="saveSwap()">Save Swap</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- HTML FILE VIEWER (fullscreen) -->
 <div id="html-viewer" style="display:none;position:fixed;inset:0;z-index:700;flex-direction:column;background:#000">
   <div style="display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0">
@@ -1580,6 +1660,7 @@ function doLogin(){
 
 function logout(){
   if(!confirm('Sign out?')) return;
+  stopPresence();
   localStorage.removeItem('velo_user');
   currentUser = null;
   isGuestMode = false;
@@ -1633,6 +1714,7 @@ function startApp(){
   loadAllData().then(setupRealtime);
   renderCalendar();
   renderLinks();
+  startPresence();
    setTimeout(function(){ if(typeof loadNews==='function') loadNews('general'); }, 1200);
    setTimeout(function(){ if(typeof renderNotifBell==='function') renderNotifBell(); }, 500);
   // Set lk-by default to current user
@@ -1677,6 +1759,7 @@ function showFdTab(id, btnEl){
   if(btnEl) btnEl.classList.add('active');
   else document.querySelectorAll('.fd-tab').forEach(t=>{ if(t.getAttribute('onclick')&&t.getAttribute('onclick').includes("'"+id+"'")) t.classList.add('active'); });
   if(id==='analytics') renderAnalytics();
+  if(id==='picksreview') initPicksReview();
 }
 
 function toggleSidebar(){
@@ -2391,6 +2474,214 @@ function renderAnalytics(){
   const max=Math.max(...pnls.map(Math.abs),1);const bw=Math.max(3,(w-40)/pnls.length-2);
   pnls.forEach((p,i)=>{const x=20+i*(bw+2),bh=(Math.abs(p)/max)*(h/2-8);ctx2.fillStyle=p>=0?'#22c55e':'#ef4444';ctx2.globalAlpha=.75;p>=0?ctx2.fillRect(x,h/2-bh,bw,bh):ctx2.fillRect(x,h/2,bw,bh);});
   ctx2.globalAlpha=1;ctx2.strokeStyle='rgba(255,255,255,.08)';ctx2.beginPath();ctx2.moveTo(20,h/2);ctx2.lineTo(w-20,h/2);ctx2.stroke();
+}
+
+// ════════════════════════════════════════════════════════════
+// PICKS REVIEW
+// ════════════════════════════════════════════════════════════
+function initPicksReview(){
+  // Default to last week if no dates set
+  if(!document.getElementById('pr-from').value){
+    setPRRange('week');
+  } else {
+    loadAndRenderPicksReview();
+  }
+}
+
+function setPRRange(range){
+  const today=new Date();
+  const toStr=today.toISOString().split('T')[0];
+  let fromDate=new Date();
+  if(range==='week') fromDate.setDate(today.getDate()-7);
+  else if(range==='2week') fromDate.setDate(today.getDate()-14);
+  else if(range==='month') fromDate=new Date(today.getFullYear(),today.getMonth(),1);
+  document.getElementById('pr-from').value=fromDate.toISOString().split('T')[0];
+  document.getElementById('pr-to').value=toStr;
+  // Highlight active button
+  ['week','2week','month'].forEach(r=>{
+    const btn=document.getElementById('pr-btn-'+r);
+    if(btn){btn.style.borderColor=r===range?'var(--accent)':'var(--border)';btn.style.color=r===range?'var(--accent)':'var(--text)';}
+  });
+  loadAndRenderPicksReview();
+}
+
+async function loadAndRenderPicksReview(){
+  const from=document.getElementById('pr-from').value;
+  const to=document.getElementById('pr-to').value;
+  if(!from||!to){showToast('Select a date range');return;}
+  const grid=document.getElementById('pr-grid');
+  const statsEl=document.getElementById('pr-stats');
+  if(!grid||!statsEl) return;
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--text2)"><div style="font-size:24px;margin-bottom:8px">⏳</div>Loading picks...</div>';
+  statsEl.innerHTML='';
+  try{
+    const res=await sb.from('pitch').select('*').gte('date',from).lte('date',to).order('date',{ascending:false});
+    const picks=(res.data||[]).map(p=>({
+      id:p.id,ticker:p.ticker,setup:p.setup,fundamentals:p.fundamentals,
+      notes:p.notes,picker:p.picker,date:p.date,
+      ben:p.ben,jeff:p.jeff,monette:p.monette,rome:p.rome
+    }));
+    if(!picks.length){
+      grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text2)"><div style="font-size:36px;margin-bottom:10px;opacity:.3">🔎</div><div style="font-weight:600">No picks found for this range</div><div style="font-size:11px;margin-top:6px;opacity:.6">'+from+' → '+to+'</div></div>';
+      return;
+    }
+    renderPicksReview(picks);
+  }catch(e){
+    grid.innerHTML='<div style="grid-column:1/-1;color:var(--red);padding:20px">Error: '+e.message+'</div>';
+  }
+}
+
+function renderPicksReview(picks){
+  const grid=document.getElementById('pr-grid');
+  const statsEl=document.getElementById('pr-stats');
+  // Group by ticker — dedupe across days
+  const byTicker={};
+  picks.forEach(p=>{
+    if(!p.ticker||!p.ticker.trim()) return;
+    const t=p.ticker.trim().toUpperCase();
+    if(!byTicker[t]) byTicker[t]={ticker:t,rows:[],dates:new Set()};
+    byTicker[t].rows.push(p);
+    byTicker[t].dates.add(p.date);
+  });
+  const tickers=Object.values(byTicker);
+  // Summary stats
+  const totalPicks=tickers.length;
+  const PICKERS=['ben','jeff','monette','rome'];
+  let totalPassed=0,scores=[];
+  tickers.forEach(tk=>{
+    // Average score across all instances of this ticker
+    const allScores=tk.rows.flatMap(r=>PICKERS.map(p=>r[p]).filter(v=>v!=null));
+    const avg=allScores.length?allScores.reduce((a,b)=>a+b,0)/allScores.length:null;
+    tk.avgScore=avg;
+    if(avg&&avg>=3.0){totalPassed++;scores.push(avg);}
+  });
+  // Check how many were traded (match against tradesData)
+  const tradedTickers=new Set(tradesData.map(t=>(t.ticker||'').toUpperCase()));
+  const traded=tickers.filter(tk=>tradedTickers.has(tk.ticker)).length;
+  statsEl.innerHTML=[
+    {l:'Tickers Picked',v:totalPicks,c:'b'},
+    {l:'Passed (≥3.0)',v:totalPassed,c:'g'},
+    {l:'Traded',v:traded,c:'a'},
+    {l:'Pass Rate',v:totalPicks?Math.round(totalPassed/totalPicks*100)+'%':'—',c:totalPassed/totalPicks>=0.5?'g':'r'},
+  ].map(s=>`<div class="stat-tile ${s.c}"><div class="stat-lbl">${s.l}</div><div class="stat-val" style="font-size:22px">${s.v}</div></div>`).join('');
+  // Render cards
+  const PICKER_COLORS={ben:'#22c55e',jeff:'#f0a500',monette:'#8b5cf6',rome:'#ef4444'};
+  grid.innerHTML=tickers.map(tk=>{
+    const avg=tk.avgScore;
+    const passed=avg&&avg>=3.0;
+    const wasTraded=tradedTickers.has(tk.ticker);
+    const scoreColor=avg==null?'var(--text2)':avg>=4?'var(--green)':avg>=3?'var(--accent)':'var(--red)';
+    const latestRow=tk.rows[0];
+    const setup=latestRow.setup||'—';
+    const datesArr=[...tk.dates].sort();
+    const dateStr=datesArr.length===1?datesArr[0]:datesArr[0]+' → '+datesArr[datesArr.length-1];
+    // Picker scores
+    const pickerScores=PICKERS.map(p=>{
+      const vals=tk.rows.map(r=>r[p]).filter(v=>v!=null);
+      const avg2=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+      return avg2!=null?`<div style="display:flex;align-items:center;gap:4px"><span style="font-size:9px;font-weight:700;color:${PICKER_COLORS[p]};text-transform:capitalize;width:46px">${p.charAt(0).toUpperCase()+p.slice(1)}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${avg2>=3?'var(--green)':avg2>=2?'var(--accent)':'var(--red)'};font-weight:700">${avg2.toFixed(1)}</span></div>`:null;
+    }).filter(Boolean).join('');
+    return `<div class="card" style="padding:0;overflow:hidden;border:1px solid ${passed?'var(--accent)':'var(--border)'};border-top:3px solid ${passed?'var(--accent)':'var(--border)'}">
+      <!-- Mini TradingView Chart -->
+      <div id="pr-chart-${tk.ticker}" style="height:180px;background:var(--surface2)"></div>
+      <div style="padding:12px 14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:var(--text)">${tk.ticker}</span>
+            <span class="sb" style="font-size:9px">${setup}</span>
+            ${wasTraded?'<span style="font-size:8px;background:rgba(34,197,94,.15);color:var(--green);padding:1px 6px;border-radius:3px;font-weight:700">TRADED</span>':''}
+          </div>
+          <span style="font-family:\'JetBrains Mono\',monospace;font-size:14px;font-weight:800;color:${scoreColor}">${avg!=null?avg.toFixed(1):'—'}</span>
+        </div>
+        <div style="font-size:9px;color:var(--text2);margin-bottom:10px;font-family:'JetBrains Mono',monospace">${dateStr}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">${pickerScores}</div>
+      </div>
+    </div>`;
+  }).join('');
+  // Mount TradingView mini charts
+  tickers.forEach(tk=>{
+    const el=document.getElementById('pr-chart-'+tk.ticker);
+    if(!el) return;
+    try{
+      new TradingView.MiniWidget({
+        container_id:'pr-chart-'+tk.ticker,
+        symbol:tk.ticker,
+        interval:'D',
+        width:'100%',
+        height:180,
+        locale:'en',
+        dateRange:'3M',
+        colorTheme:'dark',
+        trendLineColor:'rgba(240,165,0,1)',
+        underLineColor:'rgba(240,165,0,0.1)',
+        isTransparent:true,
+        autosize:true,
+      });
+    }catch(e){el.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text2);font-size:11px">'+tk.ticker+' chart</div>';}
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// ONLINE PRESENCE
+// ════════════════════════════════════════════════════════════
+var _presenceInterval=null;
+var _presenceChannel=null;
+
+async function startPresence(){
+  if(!currentUser||isGuestMode) return;
+  // Upsert own presence
+  await sb.from('presence').upsert([{
+    user_name: currentUser.name,
+    active_at: new Date().toISOString()
+  }],{onConflict:'user_name'});
+  // Heartbeat every 30s
+  _presenceInterval=setInterval(async function(){
+    await sb.from('presence').upsert([{
+      user_name: currentUser.name,
+      active_at: new Date().toISOString()
+    }],{onConflict:'user_name'});
+  },30000);
+  // Subscribe to presence changes
+  _presenceChannel=sb.channel('presence-rt')
+    .on('postgres_changes',{event:'*',schema:'public',table:'presence'},()=>{
+      renderPresence();
+    }).subscribe();
+  // Initial render
+  renderPresence();
+}
+
+async function stopPresence(){
+  if(_presenceInterval) clearInterval(_presenceInterval);
+  if(_presenceChannel) sb.removeChannel(_presenceChannel);
+  if(currentUser){
+    await sb.from('presence').delete().eq('user_name',currentUser.name);
+  }
+}
+
+async function renderPresence(){
+  const{data}=await sb.from('presence').select('*');
+  if(!data||!data.length){
+    document.getElementById('presence-panel').style.display='none';
+    return;
+  }
+  const PERSON_COLORS_P={Ben:'#22c55e',Jeff:'#f0a500',Monette:'#8b5cf6',Rome:'#ef4444'};
+  const now=Date.now();
+  const online=data.filter(p=>{
+    if(currentUser&&p.user_name===currentUser.name) return false; // don't show yourself
+    const age=now-new Date(p.active_at).getTime();
+    return age<90000; // online if active within 90s
+  });
+  const panel=document.getElementById('presence-panel');
+  const list=document.getElementById('presence-list');
+  if(!online.length){panel.style.display='none';return;}
+  panel.style.display='block';
+  list.innerHTML=online.map(p=>{
+    return `<div style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:5px;background:var(--surface2)">
+      <div style="width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 0 2px rgba(34,197,94,.25);animation:pulse 2s infinite"></div>
+      <span style="font-size:11px;font-weight:600;color:var(--text);white-space:nowrap">${p.user_name}</span>
+      <span style="font-size:9px;color:var(--text2);margin-left:auto">online</span>
+    </div>`;
+  }).join('');
 }
 
 // ════════════════════════════════════════════════════════════
