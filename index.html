@@ -677,9 +677,15 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
       </div>
       <div id="home-trades"><div class="empty">No recent trades</div></div>
     </div>
-    <div class="card">
-      <div class="ch"><div class="ct">Top KPI This Month</div><button class="btn-sm btn-sec" style="font-size:9px" onclick="showPage('kpi',null)">View All</button></div>
-      <div id="home-kpi" class="empty">Loading KPI data...</div>
+    <div class="card" style="padding:16px 18px">
+      <div class="ch" style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:14px">📈</span>
+          <div class="ct">MTD P&amp;L</div>
+        </div>
+        <button class="btn-sm btn-sec" style="font-size:9px" onclick="showPage('funddesk',null);showFdTab('monitor')">View Monitor ↗</button>
+      </div>
+      <div id="home-mtd"><div class="empty">No position data</div></div>
     </div>
   </div>
 
@@ -733,11 +739,11 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
       </div>
       <div id="pcv-wrap" style="height:520px"></div>
     </div>
-    <div class="g2">
+    <div style="display:grid;grid-template-columns:3fr 2fr;gap:14px">
       <div class="card">
         <div class="ch"><div class="ct">Picks Input</div><div style="font-size:10px;color:var(--text2)">Score 1–5</div></div>
         <div class="tw"><table><thead><tr>
-          <th>Ticker</th><th>Setup</th><th>Fund.</th><th>Notes</th><th>Picker</th>
+          <th>Ticker</th><th>Setup</th><th>Fundamentals</th><th>Notes</th><th>Picker</th><th style="text-align:center">Fund?</th>
           <th class="r">BEN</th><th class="r">JEFF</th><th class="r">MON</th><th class="r">ROME</th><th class="r">AVG</th><th></th>
         </tr></thead><tbody id="pitch-body"></tbody></table></div>
       </div>
@@ -830,7 +836,22 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
         <canvas id="portfolio-pie" width="232" height="232"></canvas>
         <div id="pie-legend" style="margin-top:8px"></div>
       </div>
-      <div class="card"><div class="ch"><div class="ct">Exposure Summary</div></div><div id="pie-summary" style="font-size:11px;display:flex;flex-direction:column;gap:8px"></div></div>
+      <div class="card" style="padding:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px">
+          <div class="ct">Exposure + P&amp;L MTD</div>
+          <div style="display:flex;gap:5px;align-items:center">
+            <input type="date" id="mtd-from" class="finp" style="width:110px;font-size:9px;padding:3px 6px" onchange="renderMTD()">
+            <span style="font-size:9px;color:var(--text2)">→</span>
+            <input type="date" id="mtd-to" class="finp" style="width:110px;font-size:9px;padding:3px 6px" onchange="renderMTD()">
+            <button class="btn-sm btn-sec" onclick="resetMTDRange()" style="font-size:9px;padding:3px 8px">MTD</button>
+          </div>
+        </div>
+        <!-- Exposure rows -->
+        <div id="pie-summary" style="font-size:11px;display:flex;flex-direction:column;gap:6px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)"></div>
+        <!-- MTD stats compact -->
+        <div id="mtd-stats" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px"></div>
+        <div id="mtd-ratios" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+      </div>
     </div>
     <!-- Monitor chart viewer -->
     <div id="mon-chart-viewer" class="chart-viewer">
@@ -1389,6 +1410,41 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
   </div>
 </div>
 
+<!-- MONITOR EDIT MODAL -->
+<div id="mon-edit-modal" style="display:none" class="modal-ov">
+  <div class="modal-box" style="width:400px">
+    <div class="modal-title" style="display:flex;align-items:center;justify-content:space-between">
+      <span>✎ EDIT POSITION ENTRY</span>
+      <button onclick="closeMonEditModal()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:20px;line-height:1;padding:0" title="Close (Esc)">&#215;</button>
+    </div>
+    <div id="mon-edit-lock" style="text-align:center;padding:16px">
+      <div style="font-size:32px;margin-bottom:8px">🔒</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">This is a critical action. Enter password to edit.</div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <input type="password" id="mon-edit-pw" class="finp" placeholder="Password..." style="width:160px" onkeydown="if(event.key==='Enter')checkMonEditPw()">
+        <button class="btn-sm btn-accent" onclick="checkMonEditPw()">Unlock</button>
+      </div>
+      <div id="mon-edit-pw-err" style="color:var(--red);font-size:11px;margin-top:6px;min-height:14px"></div>
+    </div>
+    <div id="mon-edit-content" style="display:none">
+      <div style="font-size:10px;color:var(--red);background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:4px;padding:8px;margin-bottom:14px">⚠️ Editing will notify all teammates. Use only to correct genuine mistakes.</div>
+      <div class="mrow">
+        <div><div class="mlbl">Issue</div><input class="finp" id="me-issue" style="width:100%"></div>
+        <div><div class="mlbl">Shares</div><input type="number" class="finp" id="me-shares" style="width:100%"></div>
+      </div>
+      <div class="mrow">
+        <div><div class="mlbl">Purchase Price</div><input type="number" step=".001" class="finp" id="me-purchase" style="width:100%"></div>
+        <div><div class="mlbl">Cut/Stop</div><input type="number" step=".001" class="finp" id="me-cut" style="width:100%"></div>
+      </div>
+      <div><div class="mlbl">Reason for Edit</div><input class="finp" id="me-reason" placeholder="e.g. Wrong shares entered" style="width:100%;margin-bottom:14px"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn-sm btn-sec" onclick="closeMonEditModal()">Cancel</button>
+        <button class="btn-sm btn-accent" onclick="saveMonEdit()">Save Edit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- HTML FILE VIEWER (fullscreen) -->
 <div id="html-viewer" style="display:none;position:fixed;inset:0;z-index:700;flex-direction:column;background:#000">
   <div style="display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0">
@@ -1688,7 +1744,7 @@ let execPlanIdx = null, sellMonIdx = null;
 let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
 let calEvents = [];
 let linksData = [];
-const SETUP_OPTIONS = ['Momo-XBO','Momo-180','Momo-Daily','GNG','Range','Reversal','Coil','Reset','Bluesky','IMAC','Others'];
+const SETUP_OPTIONS = ['Momo-XBO','Momo-180','Momo-Daily','GNG','Range','Reversal','Coil','Reset','Bluesky','IMAC','Pullback','Mover','Others'];
 const FUND_OPTIONS  = ['Earnings','Speculative','Growth Story','Mega Trend','Others'];
 const EMA_BY_TF = {'D':[9,20,50,100,200],'W':[10,30,40,50,200],'M':[6,12,24,48,200]};
 const EMA_COLORS = ['#FFD700','#00BFFF','#FF4444','#FF8C00','#7B2FBE'];
@@ -1810,7 +1866,7 @@ async function loadAllData(){
       sb.from('kpi_monthly').select('*'),
       sb.from('kpi_traders').select('*').order('id',{ascending:false}).limit(1),
     ]);
-    if(pr.data) pitchData=pr.data;
+    if(pr.data) pitchData=pr.data.map(r=>({...r,forFund:r.for_fund||false}));
     if(plr.data) planData=plr.data.map(rowToPlan);
     if(mr.data) monitorData=mr.data.map(rowToMon);
     if(tr.data) tradesData=tr.data;
@@ -1842,6 +1898,7 @@ async function loadAllData(){
     renderPitch();refreshRankings();renderPlan();renderMonitor();renderTrades();renderTags();
     renderLinks();renderHomeResearch();
     renderHome();
+    loadNotifications();
     setSS('ok','Live · '+new Date().toLocaleTimeString());
   }catch(e){setSS('','Error: '+e.message);}
 }
@@ -1897,6 +1954,18 @@ function setupRealtime(){
       if(document.getElementById('page-kpi').classList.contains('active'))renderKPI();
     }
   }).subscribe();
+  sb.channel('notif-rt').on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications'},function(p){
+    if(!p.new) return;
+    var exists=notifications.find(function(n){return n.id===p.new.id;});
+    if(!exists){
+      var n=Object.assign({},p.new,{read:false});
+      notifications.unshift(n);
+      if(notifications.length>50)notifications=notifications.slice(0,50);
+      renderNotifBell();
+      var t=NOTIF_TYPES[p.new.type]||{icon:'🔔'};
+      showToastNotif(t.icon+' '+p.new.message);
+    }
+  }).subscribe();
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1941,22 +2010,8 @@ function renderHome(){
       +'</div>'
     +'</div>';
   }).join(''):'<div class="empty" style="padding:20px 0">No recent trades</div>';
-  // KPI snippet
-  const kData = loadKPIMonthly();
-  const kTraders = loadKPITraders();
-  const curM = new Date().getMonth();
-  const scores = kTraders.map(t=>{
-    const d=getKPIMonthData(kData,curM,t);
-    if(!d) return null;
-    return{name:t,score:parseFloat(kpiDivAdj(kpiCalc(d),d))};
-  }).filter(Boolean).sort((a,b)=>b.score-a.score);
-  document.getElementById('home-kpi').innerHTML=scores.length?scores.map((s,i)=>`
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-      <span style="font-size:11px;color:var(--text2);width:16px">#${i+1}</span>
-      <span style="font-size:12px;font-weight:500;flex:1">${s.name.split(' ')[0]}</span>
-      <div class="sbar" style="width:80px"><div class="sbar-fill" style="width:${s.score/40*100}%;background:${s.score>=38?'var(--green)':s.score>=36?'var(--accent)':'var(--red)'}"></div></div>
-      <span style="font-size:11px;font-family:'JetBrains Mono',monospace;color:${s.score>=38?'var(--green)':s.score>=36?'var(--accent)':'var(--red)'}">${s.score.toFixed(1)}</span>
-    </div>`).join(''):'<div class="empty">No KPI data for this month</div>';
+  // MTD P&L
+  renderHomeMTD();
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1970,7 +2025,7 @@ async function loadPitchForDate(date){
 }
 
 function addPitchRow(){
-  pitchData.push({date:activePitchDate,ticker:'',setup:SETUP_OPTIONS[0],fundamentals:FUND_OPTIONS[0],notes:'',picker:currentUser?currentUser.name:'Ben',ben:null,jeff:null,monette:null,rome:null});
+  pitchData.push({date:activePitchDate,ticker:'',setup:SETUP_OPTIONS[0],fundamentals:FUND_OPTIONS[0],notes:'',picker:currentUser?currentUser.name:'Ben',ben:null,jeff:null,monette:null,rome:null,forFund:false});
   renderPitch();
 }
 
@@ -1990,18 +2045,21 @@ function renderPitch(){
     const sc=[row.ben,row.jeff,row.monette,row.rome].filter(v=>v!=null);
     const avg=sc.length?sc.reduce((a,b)=>a+b,0)/sc.length:null;
     const ac=avg===null?'var(--text2)':avg>=3?'var(--green)':avg>=2?'var(--accent)':'var(--red)';
+    const notesVal=row.notes||'';
+    const isLink=isUrl(notesVal);
+    const notesCell=isLink
+      ? `<td style="white-space:nowrap"><a href="${notesVal}" target="_blank" style="font-size:10px;color:var(--accent2);text-decoration:none;font-weight:700" onmouseover="showPitchNotesTooltip(event,pitchData[${i}].notes)" onmouseout="hidePitchTooltip()">🔗 Link ↗</a><button onclick="clearPitchNote(${i})" style="background:none;border:none;cursor:pointer;font-size:9px;color:var(--text2);opacity:.4;padding:0 2px" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.4">×</button></td>`
+      : `<td><div style="position:relative;display:inline-block;width:90px"><input value="${notesVal.replace(/"/g,'&quot;')}" placeholder="notes..." oninput="pitchData[${i}].notes=this.value;if(isUrl(this.value))renderPitch()" onmouseover="if(this.value.length>12)showPitchNotesTooltip(event,this.value)" onmouseout="hidePitchTooltip()" style="background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;width:90px;padding:2px 0;outline:none"></div></td>`;
     return`<tr>
       <td style="white-space:nowrap">
         <input style="background:transparent;border:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;width:48px" value="${row.ticker||''}" oninput="pitchData[${i}].ticker=this.value.trim().toUpperCase()">
         ${makePitchChartBtn(row.ticker)}
       </td>
-      <td><select style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:10px;border-radius:3px;padding:2px 3px;max-width:100px" onchange="pitchData[${i}].setup=this.value">${SETUP_OPTIONS.map(o=>`<option ${row.setup===o?'selected':''}>${o}</option>`).join('')}</select></td>
-      <td><select style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:10px;border-radius:3px;padding:2px 3px;max-width:100px" onchange="pitchData[${i}].fundamentals=this.value">${FUND_OPTIONS.map(o=>`<option ${row.fundamentals===o?'selected':''}>${o}</option>`).join('')}</select></td>
-      <td style="white-space:nowrap">
-        <input style="background:transparent;border:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;width:85px" placeholder="notes or URL..." value="${row.notes||''}" oninput="pitchData[${i}].notes=this.value">
-        ${makeNoteLink(row.notes)}
-      </td>
+      <td><select style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:10px;border-radius:3px;padding:2px 3px;max-width:110px" onchange="pitchData[${i}].setup=this.value">${SETUP_OPTIONS.map(o=>`<option ${row.setup===o?'selected':''}>${o}</option>`).join('')}</select></td>
+      <td><select style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:10px;border-radius:3px;padding:2px 3px;max-width:110px" onchange="pitchData[${i}].fundamentals=this.value">${FUND_OPTIONS.map(o=>`<option ${row.fundamentals===o?'selected':''}>${o}</option>`).join('')}</select></td>
+      ${notesCell}
       <td><select style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:10px;border-radius:3px;padding:2px 3px" onchange="pitchData[${i}].picker=this.value">${['Ben','Jeff','Monette','Rome'].map(p=>`<option ${row.picker===p?'selected':''}>${p}</option>`).join('')}</select></td>
+      <td style="text-align:center"><label style="cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px"><input type="checkbox" ${row.forFund?'checked':''} onchange="pitchData[${i}].forFund=this.checked;refreshRankings()" style="cursor:pointer;accent-color:var(--accent)"><span style="font-size:8px;color:var(--accent);font-weight:700;letter-spacing:.3px">${row.forFund?'FUND':''}</span></label></td>
       ${['ben','jeff','monette','rome'].map(p=>{
         const isMe=currentUser&&currentUser.name.toLowerCase().startsWith(p);
         const val=row[p];
@@ -2041,6 +2099,7 @@ function refreshRankings(){
           <span style="font-weight:700;font-size:13px">${r.ticker}</span>
           <span class="sb">${r.setup||'—'}</span>
           <span class="badge ${chip}">${label}</span>
+          ${r.forFund?'<span style="font-size:8px;background:rgba(240,165,0,.2);color:var(--accent);padding:1px 6px;border-radius:3px;font-weight:700;letter-spacing:.3px">FUND</span>':''}
         </div>
         <div style="font-size:10px;color:var(--text2);margin-top:2px"><span class="pk ${pkc(r.picker)}">${r.picker||'—'}</span> avg <span style="color:${r.avg>=3?'var(--green)':r.avg>=2?'var(--accent)':'var(--red)'}">${r.avg.toFixed(2)}</span></div>
       </div>
@@ -2051,6 +2110,23 @@ function refreshRankings(){
   }).join('');
 }
 
+function showPitchNotesTooltip(e,text){
+  var t=document.getElementById('pitch-tooltip');
+  if(!t){t=document.createElement('div');t.id='pitch-tooltip';t.style.cssText='position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--text);z-index:800;max-width:320px;word-break:break-all;box-shadow:0 4px 16px rgba(0,0,0,.4);pointer-events:none;line-height:1.5';document.body.appendChild(t);}
+  t.textContent=text;t.style.display='block';
+  t.style.left=Math.min(e.clientX+12,window.innerWidth-340)+'px';
+  t.style.top=(e.clientY-40)+'px';
+}
+function hidePitchTooltip(){const t=document.getElementById('pitch-tooltip');if(t)t.style.display='none';}
+function clearPitchNote(i){pitchData[i].notes='';renderPitch();}
+function editPitchNote(i){
+  const cur=pitchData[i].notes||'';
+  const val=prompt('Edit note / URL:',cur);
+  if(val===null)return;
+  pitchData[i].notes=val;
+  renderPitch();
+}
+
 async function savePitchToSupabase(){
   setSS('spin','Saving...');
   const today=activePitchDate;
@@ -2059,7 +2135,7 @@ async function savePitchToSupabase(){
   var hasError=false;
   for(var i=0;i<rows.length;i++){
     const r=rows[i];const tk=r.ticker.trim().toUpperCase();
-    const base={date:today,ticker:tk,setup:r.setup,fundamentals:r.fundamentals,notes:r.notes,picker:r.picker};
+    const base={date:today,ticker:tk,setup:r.setup,fundamentals:r.fundamentals,notes:r.notes,picker:r.picker,for_fund:r.forFund||false};
     if(r.ben!=null)base.ben=r.ben;if(r.jeff!=null)base.jeff=r.jeff;
     if(r.monette!=null)base.monette=r.monette;if(r.rome!=null)base.rome=r.rome;
     if(r.id){const{error}=await sb.from('pitch').update(base).eq('id',r.id);if(error){setSS('','Error');hasError=true;break;}}
@@ -2270,7 +2346,7 @@ function renderMonitor(){
     or+=oR;gr+=gR;if(oR>0)atR++;if(trail&&open>0&&!isClosed)rfC++;
     const status=isClosed?'<span class="badge badge-r">CLOSED</span>':trail?'<span style="font-size:8px;background:rgba(34,197,94,.12);color:var(--green);padding:1px 5px;border-radius:3px;font-weight:700">●FREE</span>':'<span style="font-size:8px;background:rgba(240,165,0,.08);color:var(--accent);padding:1px 5px;border-radius:3px;font-weight:700">●OPEN</span>';
     return`<tr style="${isClosed?'opacity:.65':''}">
-      <td style="white-space:nowrap;font-weight:700"><button onclick="openMonChart('${row.issue}','D')" style="background:none;border:none;cursor:pointer;font-size:10px;padding:0 3px;opacity:.5" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">📈</button>${row.issue} ${status}</td>
+      <td style="white-space:nowrap;font-weight:700"><button onclick="openMonChart('${row.issue}','D')" style="background:none;border:none;cursor:pointer;font-size:10px;padding:0 3px;opacity:.5" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">📈</button>${row.issue} ${status} <button onclick="openMonEditModal('${row.id||''}',${i})" title="Edit entry" style="background:none;border:none;cursor:pointer;font-size:9px;color:var(--text2);opacity:.4;padding:0 2px" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.4">✎</button></td>
       <td class="r">${open}${sold>0?`<span style="font-size:9px;color:var(--text2);margin-left:2px">/${row.shares}</span>`:''}</td>
       <td class="r" style="white-space:nowrap">
         <input type="number" step=".01" value="${row.curr||''}" ${isClosed?'disabled':''} onchange="monitorData[${i}].curr=parseFloat(this.value);renderMonitor()" style="background:transparent;border:none;color:${isClosed?'var(--text2)':'var(--accent)'};font-family:'JetBrains Mono',monospace;font-size:12px;width:58px;text-align:right;${isClosed?'opacity:.4':''}">
@@ -2295,6 +2371,8 @@ function renderMonitor(){
     </tr>`;
   }).join('');
   setMonTiles(or,gr,atR,rfC);renderPortfolioPie();
+  // Init MTD range if not set
+  if(!document.getElementById('mtd-from').value) resetMTDRange(); else renderMTD();
 }
 
 function buildRBar(row,target,color,idx,rNum){
@@ -2349,7 +2427,106 @@ function renderPortfolioPie(){
     <div style="display:flex;justify-content:space-between"><span style="color:var(--text);font-weight:700">New Slots @ VAR</span><span style="color:var(--accent);font-weight:700">${newSlots} trades</span></div>`;
 }
 
-// ── SELL ──────────────────────────────────────────
+// ── MTD P&L ───────────────────────────────────────
+function resetMTDRange(){
+  const now=new Date();
+  const from=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
+  const to=now.toISOString().split('T')[0];
+  const f=document.getElementById('mtd-from');const t=document.getElementById('mtd-to');
+  if(f)f.value=from;if(t)t.value=to;
+  renderMTD();
+}
+
+function renderMTD(){
+  const fromEl=document.getElementById('mtd-from');
+  const toEl=document.getElementById('mtd-to');
+  const statsEl=document.getElementById('mtd-stats');
+  const ratiosEl=document.getElementById('mtd-ratios');
+  if(!statsEl) return;
+  const from=fromEl?.value||new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().split('T')[0];
+  const to=toEl?.value||new Date().toISOString().split('T')[0];
+  // Calc P&L from monitor positions
+  let totalPaper=0,totalRealized=0,openCount=0;
+  let wins=0,losses=0,totalGain=0,totalLoss=0;
+  monitorData.forEach(row=>{
+    const sold=(row.partialSells||[]).reduce((a,s)=>a+s.shares,0);
+    const open=Math.max(0,row.shares-sold);
+    const curr=parseFloat(row.curr)||0;const purch=parseFloat(row.purchase)||0;
+    const paper=open>0&&purch>0?(curr-purch)*open:0;
+    const realized=(row.partialSells||[]).filter(ps=>ps.date>=from&&ps.date<=to)
+      .reduce((a,ps)=>(a+(ps.price-purch)*ps.shares),0);
+    totalPaper+=paper;totalRealized+=realized;
+    if(open>0) openCount++;
+    // For ratios use realized sells
+    (row.partialSells||[]).filter(ps=>ps.date>=from&&ps.date<=to).forEach(ps=>{
+      const pnl=(ps.price-purch)*ps.shares;
+      if(pnl>0){wins++;totalGain+=pnl;}else if(pnl<0){losses++;totalLoss+=Math.abs(pnl);}
+    });
+  });
+  const grandTotal=totalPaper+totalRealized;
+  const gc=grandTotal>0?'var(--green)':grandTotal<0?'var(--red)':'var(--text2)';
+  const pc=totalPaper>0?'var(--green)':totalPaper<0?'var(--red)':'var(--text2)';
+  const rc=totalRealized>0?'var(--green)':totalRealized<0?'var(--red)':'var(--text2)';
+  const mkTile=(label,val,color)=>`<div style="background:var(--surface3);border-radius:6px;padding:9px 11px;border:1px solid var(--border)">
+    <div style="font-size:9px;letter-spacing:.8px;text-transform:uppercase;color:var(--text2);font-weight:700;margin-bottom:4px">${label}</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:${color};letter-spacing:.5px">${val}</div>
+  </div>`;
+  statsEl.innerHTML=
+    mkTile('Total P&L MTD',(grandTotal>=0?'+':'')+f$(grandTotal),gc)+
+    mkTile('Paper Gains',(totalPaper>=0?'+':'')+f$(totalPaper),pc)+
+    mkTile('Realized',(totalRealized>=0?'+':'')+f$(totalRealized),rc)+
+    mkTile('Open Positions',openCount,'var(--accent2)');
+  // Hit ratio + Edge ratio from realized trades
+  const total=wins+losses;
+  const hitRatio=total>0?(wins/total*100).toFixed(0)+'%':'—';
+  const avgWin=wins>0?totalGain/wins:0;
+  const avgLoss=losses>0?totalLoss/losses:1;
+  const edge=avgLoss>0?(avgWin/avgLoss).toFixed(2)+'x':'—';
+  const hc=total>0&&wins/total>=0.5?'var(--green)':'var(--red)';
+  const ec=avgLoss>0&&avgWin/avgLoss>=1.5?'var(--green)':'var(--accent)';
+  if(ratiosEl) ratiosEl.innerHTML=
+    mkTile('Hit Ratio',hitRatio,hc)+
+    mkTile('Edge Ratio',edge,ec);
+}
+
+function renderHomeMTD(){
+  const el=document.getElementById('home-mtd');
+  if(!el) return;
+  if(!monitorData.length){el.innerHTML='<div class="empty" style="padding:12px 0">No positions</div>';return;}
+  let total=0;
+  monitorData.forEach(row=>{
+    const sold=(row.partialSells||[]).reduce((a,s)=>a+s.shares,0);
+    const open=Math.max(0,row.shares-sold);
+    const curr=parseFloat(row.curr)||0;const purch=parseFloat(row.purchase)||0;
+    if(open>0&&purch>0) total+=(curr-purch)*open;
+    // Realized this month
+    const now=new Date();const mFrom=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
+    (row.partialSells||[]).filter(ps=>ps.date>=mFrom).forEach(ps=>total+=(ps.price-purch)*ps.shares);
+  });
+  const color=total>0?'var(--green)':total<0?'var(--red)':'var(--text2)';
+  const arrow=total>0?'▲':total<0?'▼':'—';
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0">
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:${color};letter-spacing:1px">${total>=0?'+':''}${f$(total)}</div>
+        <div style="font-size:10px;color:var(--text2);margin-top:2px">Paper + Realized · ${new Date().toLocaleString('default',{month:'long'})} ${new Date().getFullYear()}</div>
+      </div>
+      <div style="font-size:36px;color:${color};opacity:.3">${arrow}</div>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px">
+      ${monitorData.filter(r=>{const s=(r.partialSells||[]).reduce((a,x)=>a+x.shares,0);return r.shares-s>0;}).slice(0,4).map(row=>{
+        const sold=(row.partialSells||[]).reduce((a,s)=>a+s.shares,0);
+        const open=row.shares-sold;
+        const curr=parseFloat(row.curr)||0;const purch=parseFloat(row.purchase)||0;
+        const pnl=open>0&&purch>0?(curr-purch)*open:0;
+        const c=pnl>0?'var(--green)':pnl<0?'var(--red)':'var(--text2)';
+        return`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:11px;border-bottom:1px solid var(--border)">
+          <span style="font-weight:700;font-family:'JetBrains Mono',monospace">${row.issue}</span>
+          <span style="color:${c};font-weight:700">${pnl>=0?'+':''}${f$(pnl)}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
 function openSellModal(idx){
   sellMonIdx=idx;const row=monitorData[idx];
   const sold=(row.partialSells||[]).reduce((a,s)=>a+s.shares,0);const open=row.shares-sold;
@@ -2602,29 +2779,90 @@ function renderPicksReview(picks){
   tickers.forEach(tk=>{
     const el=document.getElementById('pr-chart-'+tk.ticker);
     if(!el) return;
-    try{
-      new TradingView.MiniWidget({
-        container_id:'pr-chart-'+tk.ticker,
-        symbol:tk.ticker,
-        interval:'D',
-        width:'100%',
-        height:180,
-        locale:'en',
-        dateRange:'3M',
-        colorTheme:'dark',
-        trendLineColor:'rgba(240,165,0,1)',
-        underLineColor:'rgba(240,165,0,0.1)',
-        isTransparent:true,
-        autosize:true,
-      });
-    }catch(e){el.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text2);font-size:11px">'+tk.ticker+' chart</div>';}
+    el.innerHTML='';
+    const script=document.createElement('script');
+    script.src='https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js';
+    script.async=true;
+    script.innerHTML=JSON.stringify({
+      symbol:tk.ticker,
+      width:'100%',
+      height:180,
+      locale:'en',
+      dateRange:'3M',
+      colorTheme:'dark',
+      trendLineColor:'rgba(240,165,0,1)',
+      underLineColor:'rgba(240,165,0,0.08)',
+      underLineBottomColor:'rgba(0,0,0,0)',
+      isTransparent:true,
+      autosize:true,
+      largeChartUrl:''
+    });
+    const container=document.createElement('div');
+    container.className='tradingview-widget-container';
+    const widget=document.createElement('div');
+    widget.className='tradingview-widget-container__widget';
+    container.appendChild(widget);
+    container.appendChild(script);
+    el.appendChild(container);
   });
 }
 
 // ════════════════════════════════════════════════════════════
 // ONLINE PRESENCE
 // ════════════════════════════════════════════════════════════
-var _presenceInterval=null;
+var _monEditIdx=-1;var _monEditId='';
+function openMonEditModal(id,idx){
+  _monEditIdx=idx;_monEditId=id;
+  document.getElementById('mon-edit-lock').style.display='block';
+  document.getElementById('mon-edit-content').style.display='none';
+  document.getElementById('mon-edit-pw').value='';
+  document.getElementById('mon-edit-pw-err').textContent='';
+  document.getElementById('mon-edit-modal').style.display='flex';
+}
+function closeMonEditModal(){
+  document.getElementById('mon-edit-modal').style.display='none';
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    var m=document.getElementById('mon-edit-modal');
+    if(m&&m.style.display!=='none') closeMonEditModal();
+  }
+});
+function checkMonEditPw(){
+  const pw=document.getElementById('mon-edit-pw').value;
+  const err=document.getElementById('mon-edit-pw-err');
+  if(pw==='velocity2026'||pw===currentUser?.pw){
+    document.getElementById('mon-edit-lock').style.display='none';
+    document.getElementById('mon-edit-content').style.display='block';
+    const row=monitorData[_monEditIdx];
+    document.getElementById('me-issue').value=row.issue||'';
+    document.getElementById('me-shares').value=row.shares||'';
+    document.getElementById('me-purchase').value=row.purchase||'';
+    document.getElementById('me-cut').value=row.cut||'';
+    document.getElementById('me-reason').value='';
+  } else {
+    err.textContent='Incorrect password';
+    document.getElementById('mon-edit-pw').value='';
+    setTimeout(()=>err.textContent='',2000);
+  }
+}
+async function saveMonEdit(){
+  const row=monitorData[_monEditIdx];
+  const issue=(document.getElementById('me-issue').value||'').toUpperCase();
+  const shares=parseFloat(document.getElementById('me-shares').value)||row.shares;
+  const purchase=parseFloat(document.getElementById('me-purchase').value)||row.purchase;
+  const cut=parseFloat(document.getElementById('me-cut').value)||null;
+  const reason=document.getElementById('me-reason').value.trim()||'No reason given';
+  const tgts=cut&&purchase?calcTgt(purchase,cut):[row.r1,row.r2,row.r3,row.r4];
+  const updates={issue,shares,purchase,cut,r1:tgts[0]?+tgts[0].toFixed(2):null,r2:tgts[1]?+tgts[1].toFixed(2):null,r3:tgts[2]?+tgts[2].toFixed(2):null,r4:tgts[3]?+tgts[3].toFixed(2):null};
+  if(_monEditId) await sb.from('monitor').update(updates).eq('id',_monEditId);
+  Object.assign(monitorData[_monEditIdx],updates);
+  // Notify all users
+  const msg=`${currentUser?.name||'Someone'} edited ${issue} position (${reason})`;
+  await pushSharedNotif('position','Monitor Entry Edited',msg);
+  closeMonEditModal();renderMonitor();showToast('✓ Position updated');
+}
+
 var _presenceChannel=null;
 
 async function startPresence(){
@@ -3565,7 +3803,7 @@ function lockGuestMode(){
 // NOTIFICATION SYSTEM
 // ════════════════════════════════════════════════════
 
-var notifications = JSON.parse(localStorage.getItem('vel_notifs') || '[]');
+var notifications = [];
 
 var NOTIF_TYPES = {
   picks:    { icon: '📋', color: '#f0a500', label: 'Picks Reminder' },
@@ -3578,26 +3816,34 @@ var NOTIF_TYPES = {
   trade:    { icon: '💰', color: '#06b6d4', label: 'Trade Logged' },
 };
 
-function saveNotifs(){ localStorage.setItem('vel_notifs', JSON.stringify(notifications)); }
+function saveNotifs(){ /* Supabase-backed — no localStorage */ }
 
-function addNotif(type, message, detail){
+async function pushSharedNotif(type, message, detail){
   var n = {
     id: Date.now().toString(),
-    type: type,
-    message: message,
-    detail: detail || '',
+    type: type, message: message, detail: detail||'',
     time: new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}),
     date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}),
-    read: false
+    read_by: [], created_at: new Date().toISOString()
   };
-  notifications.unshift(n);
-  if(notifications.length > 50) notifications = notifications.slice(0,50);
-  saveNotifs();
+  await sb.from('notifications').insert([n]).catch(()=>{});
+  notifications.unshift({...n, read:false});
+  if(notifications.length>50) notifications=notifications.slice(0,50);
+  renderNotifBell(); renderNotifList();
+  var t=NOTIF_TYPES[type]||{icon:'🔔'};
+  showToastNotif(t.icon+' '+message);
+}
+
+async function loadNotifications(){
+  const{data}=await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(50).catch(()=>({data:[]}));
+  if(data) notifications=data.map(function(n){
+    return Object.assign({},n,{read:Array.isArray(n.read_by)&&n.read_by.includes(currentUser&&currentUser.name)});
+  });
   renderNotifBell();
-  renderNotifList();
-  // Show toast
-  var t = NOTIF_TYPES[type] || {icon:'🔔',color:'var(--accent)'};
-  showToastNotif(t.icon + ' ' + message);
+}
+
+async function addNotif(type, message, detail){
+  await pushSharedNotif(type, message, detail);
 }
 
 function showToastNotif(msg){
@@ -3649,26 +3895,32 @@ function renderNotifList(){
   }).join('');
 }
 
-function readNotif(id){
+async function readNotif(id){
   var n = notifications.find(function(x){ return x.id===id; });
-  if(n) n.read = true;
-  saveNotifs();
-  renderNotifBell();
-  renderNotifList();
+  if(n&&!n.read){
+    n.read=true;
+    var readBy=Array.isArray(n.read_by)?[...n.read_by]:[];
+    if(currentUser&&!readBy.includes(currentUser.name)) readBy.push(currentUser.name);
+    await sb.from('notifications').update({read_by:readBy}).eq('id',id).catch(()=>{});
+  }
+  renderNotifBell(); renderNotifList();
 }
 
-function markAllRead(){
-  notifications.forEach(function(n){ n.read = true; });
-  saveNotifs();
-  renderNotifBell();
-  renderNotifList();
+async function markAllRead(){
+  var unread=notifications.filter(function(n){return !n.read;});
+  for(var n of unread){
+    n.read=true;
+    var rb=Array.isArray(n.read_by)?[...n.read_by]:[];
+    if(currentUser&&!rb.includes(currentUser.name)){rb.push(currentUser.name);await sb.from('notifications').update({read_by:rb}).eq('id',n.id).catch(()=>{});}
+  }
+  renderNotifBell(); renderNotifList();
 }
 
-function clearAllNotifs(){
-  notifications = [];
-  saveNotifs();
-  renderNotifBell();
-  renderNotifList();
+async function clearAllNotifs(){
+  // Only clear for current user — mark all as read
+  await markAllRead();
+  notifications=[];
+  renderNotifBell(); renderNotifList();
 }
 
 function toggleNotifPanel(){
