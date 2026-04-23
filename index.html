@@ -1605,8 +1605,8 @@ let activePitchDate = new Date().toISOString().split('T')[0];
 let planFilter = 'all';
 let execPlanIdx = null, sellMonIdx = null;
 let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
-let calEvents = JSON.parse(localStorage.getItem('velo_events')||'[]');
-let linksData = JSON.parse(localStorage.getItem('velo_links')||'[]');
+let calEvents = [];
+let linksData = [];
 const SETUP_OPTIONS = ['Momo-XBO','Momo-180','Momo-Daily','GNG','Range','Reversal','Coil','Reset','Bluesky','IMAC','Others'];
 const FUND_OPTIONS  = ['Earnings','Speculative','Growth Story','Mega Trend','Others'];
 const EMA_BY_TF = {'D':[9,20,50,100,200],'W':[10,30,40,50,200],'M':[6,12,24,48,200]};
@@ -1667,6 +1667,7 @@ function showPage(id, navEl){
   if(id==='kpi') renderKPI();
   if(id==='home'){ renderHome(); setTimeout(function(){ loadNews(currentNewsCategory); }, 300); }
   if(id==='scheduler'){ renderCalendar(); setTimeout(renderThisWeek, 100); }
+  if(id==='research'){ loadResearchFromDB().then(()=>{ renderResearch(); renderHomeResearch(); }); }
 }
 
 function showFdTab(id, btnEl){
@@ -1713,22 +1714,58 @@ async function loadAllData(){
   setSS('spin','Loading...');
   try{
     const today=activePitchDate;
-    const[pr,plr,mr,tr,tgr]=await Promise.all([
+    const[pr,plr,mr,tr,tgr,lr,rr,er,kg,km,kt]=await Promise.all([
       sb.from('pitch').select('*').eq('date',today).order('created_at'),
       sb.from('plan').select('*').eq('date',today).order('created_at'),
       sb.from('monitor').select('*').order('created_at'),
       sb.from('trades').select('*').order('created_at',{ascending:false}),
       sb.from('tags').select('*').order('ticker'),
+      sb.from('links').select('*').order('created_at',{ascending:false}),
+      sb.from('research').select('*').order('created_at',{ascending:false}),
+      sb.from('events').select('*').order('created_at'),
+      sb.from('kpi_grades').select('*').order('id',{ascending:false}).limit(1),
+      sb.from('kpi_monthly').select('*'),
+      sb.from('kpi_traders').select('*').order('id',{ascending:false}).limit(1),
     ]);
     if(pr.data) pitchData=pr.data;
     if(plr.data) planData=plr.data.map(rowToPlan);
     if(mr.data) monitorData=mr.data.map(rowToMon);
     if(tr.data) tradesData=tr.data;
     if(tgr.data) tagData=tgr.data;
+    // Links
+    if(lr.data) linksData=lr.data;
+    // Research
+    if(rr.data) researchData=rr.data;
+    // Events + role swaps
+    if(er.data){
+      const swapRow=er.data.find(e=>e.is_swap);
+      if(swapRow&&swapRow.swap_data) roleSwaps=swapRow.swap_data;
+      calEvents=er.data.filter(e=>!e.is_swap).map(e=>({...e,endDate:e.end_date}));
+    }
+    // KPI grades
+    if(kg.data&&kg.data[0]) KPI_G=Object.assign({},KPI_DEFAULT_G,kg.data[0].grades);
+    // KPI monthly
+    if(km.data){
+      window._kpiMonthlyCache={};
+      km.data.forEach(r=>{
+        if(!window._kpiMonthlyCache[r.month_key])window._kpiMonthlyCache[r.month_key]={};
+        window._kpiMonthlyCache[r.month_key][r.trader]=r.data;
+      });
+    }
+    // KPI traders
+    if(kt.data&&kt.data[0]&&kt.data[0].traders) window._kpiTradersCache=kt.data[0].traders;
+    // Seed KPI if empty
+    if(!km.data||km.data.length===0) seedKPIData();
     renderPitch();refreshRankings();renderPlan();renderMonitor();renderTrades();renderTags();
+    renderLinks();renderHomeResearch();
     renderHome();
     setSS('ok','Live · '+new Date().toLocaleTimeString());
   }catch(e){setSS('','Error: '+e.message);}
+}
+
+async function loadResearchFromDB(){
+  const{data}=await sb.from('research').select('*').order('created_at',{ascending:false});
+  if(data) researchData=data;
 }
 
 function setupRealtime(){
@@ -1754,6 +1791,28 @@ function setupRealtime(){
     else if(p.eventType==='UPDATE'){const i=monitorData.findIndex(r=>r.id===p.new.id);if(i>=0)monitorData[i]=rowToMon(p.new);}
     else if(p.eventType==='DELETE')monitorData=monitorData.filter(r=>r.id!==p.old.id);
     renderMonitor();
+  }).subscribe();
+  // Realtime for shared tables
+  sb.channel('links-rt').on('postgres_changes',{event:'*',schema:'public',table:'links'},p=>{
+    if(p.eventType==='INSERT'&&!linksData.find(l=>l.id===p.new.id)){linksData.unshift(p.new);renderLinks();}
+    else if(p.eventType==='DELETE'){linksData=linksData.filter(l=>l.id!==p.old.id);renderLinks();}
+  }).subscribe();
+  sb.channel('research-rt').on('postgres_changes',{event:'*',schema:'public',table:'research'},p=>{
+    if(p.eventType==='INSERT'&&!researchData.find(r=>r.id===p.new.id)){researchData.unshift(p.new);renderResearch();renderHomeResearch();showToast('📚 New research: '+p.new.title);}
+    else if(p.eventType==='DELETE'){researchData=researchData.filter(r=>r.id!==p.old.id);renderResearch();renderHomeResearch();}
+  }).subscribe();
+  sb.channel('events-rt').on('postgres_changes',{event:'*',schema:'public',table:'events'},p=>{
+    if(p.eventType==='INSERT'&&!p.new.is_swap){calEvents.push({...p.new,endDate:p.new.end_date});renderCalendar();}
+    else if(p.eventType==='DELETE'){calEvents=calEvents.filter(e=>e.id!==p.old.id);renderCalendar();}
+    else if(p.eventType==='UPDATE'&&p.new.is_swap){roleSwaps=p.new.swap_data||{};renderCalendar();}
+  }).subscribe();
+  sb.channel('kpi-rt').on('postgres_changes',{event:'*',schema:'public',table:'kpi_monthly'},p=>{
+    if(p.new){
+      if(!window._kpiMonthlyCache)window._kpiMonthlyCache={};
+      if(!window._kpiMonthlyCache[p.new.month_key])window._kpiMonthlyCache[p.new.month_key]={};
+      window._kpiMonthlyCache[p.new.month_key][p.new.trader]=p.new.data;
+      if(document.getElementById('page-kpi').classList.contains('active'))renderKPI();
+    }
   }).subscribe();
 }
 
@@ -2338,13 +2397,31 @@ function renderAnalytics(){
 // KPI DASHBOARD
 // ════════════════════════════════════════════════════════════
 const KPI_DEFAULT_G={officeAbsent:3.13,officeLate:1.56,onlineAbsent:1.88,onlineLate:0.94,noRecap:2.50,sharingMissed:1.50,idea1:5,idea2:10,base:90};
-let KPI_G=Object.assign({},KPI_DEFAULT_G,JSON.parse(localStorage.getItem('kpi26_grades')||'null'));
-function saveKPIGrades(){localStorage.setItem('kpi26_grades',JSON.stringify(KPI_G));}
+let KPI_G=Object.assign({},KPI_DEFAULT_G);
 const KPI_MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const KPI_YEAR=2026;
-function loadKPITraders(){return JSON.parse(localStorage.getItem('kpi26_traders')||'null')||['Ben Termulo','Jeff Chuan','Rome Mendiola','Monette Patrimonio'];}
-function loadKPIMonthly(){return JSON.parse(localStorage.getItem('kpi26_monthly')||'{}');}
-function saveKPIMonthly(d){localStorage.setItem('kpi26_monthly',JSON.stringify(d));}
+async function saveKPIGrades(){
+  await sb.from('kpi_grades').delete().neq('id',0);
+  await sb.from('kpi_grades').insert([{grades:KPI_G}]);
+}
+function loadKPITraders(){
+  return window._kpiTradersCache||['Ben Termulo','Jeff Chuan','Rome Mendiola','Monette Patrimonio'];
+}
+function loadKPIMonthly(){
+  return window._kpiMonthlyCache||{};
+}
+async function saveKPIMonthly(md){
+  const m=parseInt(document.getElementById('input-month')?.value??new Date().getMonth());
+  const key=`${KPI_YEAR}-${m}`;
+  const traders=Object.keys(md[key]||{});
+  for(const t of traders){
+    const id=key+'_'+t.replace(/\s+/g,'_');
+    await sb.from('kpi_monthly').upsert([{id,month_key:key,trader:t,data:md[key][t]}],{onConflict:'month_key,trader'});
+    if(!window._kpiMonthlyCache)window._kpiMonthlyCache={};
+    if(!window._kpiMonthlyCache[key])window._kpiMonthlyCache[key]={};
+    window._kpiMonthlyCache[key][t]=md[key][t];
+  }
+}
 function kpiCalc(d){const ded=(d.officeAbsent||0)*KPI_G.officeAbsent+(d.officeLate||0)*KPI_G.officeLate+(d.onlineAbsent||0)*KPI_G.onlineAbsent+(d.onlineLate||0)*KPI_G.onlineLate+(d.noRecap||0)*KPI_G.noRecap+(d.sharingMissed||0)*KPI_G.sharingMissed;const add=(d.ideasShared||0)>=2?KPI_G.idea2:(d.ideasShared||0)===1?KPI_G.idea1:0;return Math.max(0,Math.min(110,KPI_G.base-ded+add));}
 function kpiVarDed(d){if(!(d.varMonth||0))return 0;return(d.varRecovered||0)?0.5:1;}
 function kpiDivAdj(kpi,d){return Math.max(0,kpi/100*40-kpiVarDed(d)).toFixed(2);}
@@ -2455,14 +2532,14 @@ function liveKPICalc(trader){
   if(ke){ke.textContent=kpi.toFixed(2)+'%';ke.style.color=c;}if(de){de.textContent=da+' / 40';de.style.color=c;}
 }
 
-function saveKPIMonth(){
+async function saveKPIMonth(){
   const md=loadKPIMonthly();const traders=loadKPITraders();const m=parseInt(document.getElementById('input-month').value);const key=`${KPI_YEAR}-${m}`;
   if(!md[key])md[key]={};
   traders.forEach(t=>{
     const tid=t.replace(/\s+/g,'_');
     md[key][t]={officeAbsent:parseInt(document.getElementById(`ki_officeAbsent_${tid}`)?.value)||0,officeLate:parseInt(document.getElementById(`ki_officeLate_${tid}`)?.value)||0,onlineAbsent:parseInt(document.getElementById(`ki_onlineAbsent_${tid}`)?.value)||0,onlineLate:parseInt(document.getElementById(`ki_onlineLate_${tid}`)?.value)||0,noRecap:parseInt(document.getElementById(`ki_noRecap_${tid}`)?.value)||0,sharingMissed:parseInt(document.getElementById(`ki_sharingMissed_${tid}`)?.value)||0,ideasShared:parseInt(document.getElementById(`ki_ideasShared_${tid}`)?.value)||0,varMonth:parseInt(document.getElementById(`ki_varMonth_${tid}`)?.value)||0,varRecovered:document.getElementById(`ki_varRecovered_${tid}`)?.checked?1:0};
   });
-  saveKPIMonthly(md);showToast('✓ KPI saved for '+KPI_MONTHS[m]);renderKPI();
+  await saveKPIMonthly(md);showToast('✓ KPI saved for '+KPI_MONTHS[m]);renderKPI();
 }
 
 function handleResearchFileDrop(event){
@@ -2530,11 +2607,11 @@ function openKPIGradeEditor(){
   m.style.display='flex';
 }
 function closeKPIGradeEditor(){const m=document.getElementById('kpi-grade-modal');if(m)m.style.display='none';}
-function saveKPIGradeEditor(){
+async function saveKPIGradeEditor(){
   ['officeAbsent','officeLate','onlineAbsent','onlineLate','noRecap','sharingMissed','idea1','idea2','base'].forEach(k=>{
     const el=document.getElementById('ge-'+k);if(el){const v=parseFloat(el.value);if(!isNaN(v)&&v>=0)KPI_G[k]=v;}
   });
-  saveKPIGrades();closeKPIGradeEditor();renderKPI();showToast('✓ KPI grades updated');
+  await saveKPIGrades();closeKPIGradeEditor();renderKPI();showToast('✓ KPI grades updated');
 }
 
 // ════════════════════════════════════════════════════════════
@@ -2543,29 +2620,42 @@ function saveKPIGradeEditor(){
 function renderLinks(){
   const byType={weekly:[],monthly:[],pres:[],other:[]};
   linksData.forEach(l=>{if(byType[l.cat])byType[l.cat].push(l);else byType.other.push(l);});
-  const renderGroup=links=>links.length?links.map(l=>`<a href="${l.url}" target="_blank" class="link-card" style="text-decoration:none">
-    <div class="link-icon">${l.url.includes('docs.google')?'📄':l.url.includes('slides.google')?'🎯':l.url.includes('sheets.google')?'📊':'🔗'}</div>
-    <div class="link-info"><div class="link-title">${l.title}</div><div class="link-meta">${l.by||''} · ${l.date||''}</div></div>
-    <div class="link-arrow">↗</div>
-  </a>`).join(''):'<div class="empty" style="padding:10px">No links yet</div>';
+  const renderGroup=links=>links.length?links.map(l=>`<div style="display:flex;align-items:center;gap:0">
+    <a href="${l.url}" target="_blank" class="link-card" style="text-decoration:none;flex:1">
+      <div class="link-icon">${l.url.includes('docs.google')?'📄':l.url.includes('slides.google')?'🎯':l.url.includes('sheets.google')?'📊':'🔗'}</div>
+      <div class="link-info"><div class="link-title">${l.title}</div><div class="link-meta">${l.by_user||l.by||''} · ${l.date||''}</div></div>
+      <div class="link-arrow">↗</div>
+    </a>
+    <button onclick="deleteLink('${l.id}')" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:14px;padding:0 8px;opacity:.4" onmouseover="this.style.opacity=1;this.style.color='var(--red)'" onmouseout="this.style.opacity=.4;this.style.color='var(--text2)'">×</button>
+  </div>`).join(''):'<div class="empty" style="padding:10px">No links yet</div>';
   document.getElementById('links-weekly').innerHTML=renderGroup(byType.weekly);
   document.getElementById('links-monthly').innerHTML=renderGroup(byType.monthly);
   document.getElementById('links-pres').innerHTML=renderGroup(byType.pres);
-  const all=[...linksData].reverse();
-  document.getElementById('links-all').innerHTML=all.length?all.map(l=>`<a href="${l.url}" target="_blank" class="link-card" style="text-decoration:none">
-    <div class="link-icon">${l.url.includes('docs.google')?'📄':l.url.includes('slides.google')?'🎯':l.url.includes('sheets.google')?'📊':'🔗'}</div>
-    <div class="link-info"><div class="link-title">${l.title}</div><div class="link-meta"><span class="badge ${l.cat==='weekly'?'badge-b':l.cat==='monthly'?'badge-g':l.cat==='pres'?'badge-a':'badge-r'}" style="font-size:9px">${l.cat}</span> · ${l.by||''} · ${l.date||''}</div></div>
-    <div class="link-arrow">↗</div>
-  </a>`).join(''):'<div class="empty">No links added yet</div>';
+  const all=[...linksData];
+  document.getElementById('links-all').innerHTML=all.length?all.map(l=>`<div style="display:flex;align-items:center;gap:0">
+    <a href="${l.url}" target="_blank" class="link-card" style="text-decoration:none;flex:1">
+      <div class="link-icon">${l.url.includes('docs.google')?'📄':l.url.includes('slides.google')?'🎯':l.url.includes('sheets.google')?'📊':'🔗'}</div>
+      <div class="link-info"><div class="link-title">${l.title}</div><div class="link-meta"><span class="badge ${l.cat==='weekly'?'badge-b':l.cat==='monthly'?'badge-g':l.cat==='pres'?'badge-a':'badge-r'}" style="font-size:9px">${l.cat}</span> · ${l.by_user||l.by||''} · ${l.date||''}</div></div>
+      <div class="link-arrow">↗</div>
+    </a>
+    <button onclick="deleteLink('${l.id}')" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:14px;padding:0 8px;opacity:.4" onmouseover="this.style.opacity=1;this.style.color='var(--red)'" onmouseout="this.style.opacity=.4;this.style.color='var(--text2)'">×</button>
+  </div>`).join(''):'<div class="empty">No links added yet</div>';
 }
 
 function openAddLink(){document.getElementById('lk-title').value='';document.getElementById('lk-url').value='';document.getElementById('link-modal').style.display='flex';}
 function closeLinkModal(){document.getElementById('link-modal').style.display='none';}
-function saveLink(){
+async function saveLink(){
   const title=document.getElementById('lk-title').value.trim();const url=document.getElementById('lk-url').value.trim();
   if(!title||!url){alert('Enter title and URL');return;}
-  linksData.push({id:Date.now().toString(),title,url,cat:document.getElementById('lk-cat').value,by:document.getElementById('lk-by').value,date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})});
-  localStorage.setItem('velo_links',JSON.stringify(linksData));closeLinkModal();renderLinks();showToast('Link added');
+  const entry={id:Date.now().toString(),title,url,cat:document.getElementById('lk-cat').value,by_user:document.getElementById('lk-by').value,date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})};
+  const{error}=await sb.from('links').insert([entry]);
+  if(error){showToast('Error saving link: '+error.message);return;}
+  linksData.unshift(entry);closeLinkModal();renderLinks();showToast('Link added');
+}
+async function deleteLink(id){
+  if(!confirm('Delete this link?'))return;
+  await sb.from('links').delete().eq('id',id);
+  linksData=linksData.filter(l=>l.id!==id);renderLinks();showToast('Link removed');
 }
 
 // ════════════════════════════════════════════════════════════
@@ -3041,7 +3131,7 @@ function showEventDetail(id){
   if(e.notes) msg += ' · ' + e.notes;
   showToast(msg);
 }
-function saveEvent(){
+async function saveEvent(){
   var title = document.getElementById('ev-title').value.trim();
   var startDate = document.getElementById('ev-date').value;
   if(!title||!startDate){ showToast('Enter a title and start date'); return; }
@@ -3050,15 +3140,10 @@ function saveEvent(){
   var assign = document.getElementById('ev-assign').value || '';
   var full = title + (assign?' ('+assign+')':'');
   var type = document.getElementById('ev-type').value || 'event';
-  var id = Date.now().toString();
-  calEvents.push({
-    id: id,
-    title: full,
-    date: startDate,
-    endDate: endDate,
-    type: type
-  });
-  localStorage.setItem('velo_events', JSON.stringify(calEvents));
+  var entry = { id: Date.now().toString(), title: full, date: startDate, end_date: endDate, type: type, assigned_to: assign };
+  const{error}=await sb.from('events').insert([entry]);
+  if(error){showToast('Error saving event: '+error.message);return;}
+  calEvents.push({...entry, endDate: endDate});
   closeEventModal();
   document.getElementById('ev-title').value='';
   document.getElementById('ev-end-date').value='';
@@ -3066,9 +3151,9 @@ function saveEvent(){
   showToast('Event saved');
 }
 
-function deleteEvent(id){
+async function deleteEvent(id){
+  await sb.from('events').delete().eq('id',id);
   calEvents = calEvents.filter(e => e.id !== id);
-  localStorage.setItem('velo_events', JSON.stringify(calEvents));
   renderCalendar();
   showToast('Event deleted');
 }
@@ -3542,9 +3627,22 @@ window.initApp = function(){
 // ════════════════════════════════════════════════════
 // SCHEDULER ROLE SWAP
 // ════════════════════════════════════════════════════
-var roleSwaps = JSON.parse(localStorage.getItem('vel_role_swaps') || '{}');
+var roleSwaps = {};
 
-function saveRoleSwaps(){ localStorage.setItem('vel_role_swaps', JSON.stringify(roleSwaps)); }
+async function saveRoleSwaps(){
+  // Store all swaps as a single row in events table with is_swap=true
+  await sb.from('events').delete().eq('is_swap', true);
+  if(Object.keys(roleSwaps).length > 0){
+    await sb.from('events').insert([{
+      id: 'role_swaps',
+      title: 'role_swaps',
+      date: new Date().toISOString().split('T')[0],
+      type: 'swap',
+      is_swap: true,
+      swap_data: roleSwaps
+    }]);
+  }
+}
 
 function getMondayStr(dateStr){
   var d = new Date(dateStr + 'T00:00:00');
@@ -3663,29 +3761,29 @@ function switchFinvizNews(section, btn){
 
 
 // ═══ KPI SEED DATA ═══
-function seedKPIData(){
-  if(localStorage.getItem('kpi26_seeded5')) return;
-  var md = JSON.parse(localStorage.getItem('kpi26_monthly')||'{}');
-  var emptyR = function(){ return {officeAbsent:0,officeLate:0,onlineAbsent:0,onlineLate:0,noRecap:0,sharingMissed:0,ideasShared:0,varMonth:0,varRecovered:0}; };
-  var traders = ['Ben Termulo','Jeff Chuan','Rome Mendiola','Monette Patrimonio'];
-  // January — Monette: 1 sharing missed; everyone else clean
-  var key0 = '2026-0';
-  if(!md[key0]) md[key0] = {};
-  traders.forEach(function(t){ md[key0][t] = emptyR(); });
-  md[key0]['Monette Patrimonio'] = Object.assign(emptyR(), {sharingMissed:1});
-  // February — Jeff: 1 no recap; everyone else clean
-  var key1 = '2026-1';
-  if(!md[key1]) md[key1] = {};
-  traders.forEach(function(t){ md[key1][t] = emptyR(); });
-  md[key1]['Jeff Chuan'] = Object.assign(emptyR(), {noRecap:1});
-  // March — Jeff: 1 no recap; everyone else clean
-  var key2 = '2026-2';
-  if(!md[key2]) md[key2] = {};
-  traders.forEach(function(t){ md[key2][t] = emptyR(); });
-  md[key2]['Jeff Chuan'] = Object.assign(emptyR(), {noRecap:1});
-
-  localStorage.setItem('kpi26_monthly', JSON.stringify(md));
-  localStorage.setItem('kpi26_seeded5', '1');
+async function seedKPIData(){
+  // Only seed if kpi_monthly table is empty
+  const{data}=await sb.from('kpi_monthly').select('id').limit(1);
+  if(data&&data.length>0) return; // already has data
+  var emptyR=function(){return{officeAbsent:0,officeLate:0,onlineAbsent:0,onlineLate:0,noRecap:0,sharingMissed:0,ideasShared:0,varMonth:0,varRecovered:0};};
+  var traders=['Ben Termulo','Jeff Chuan','Rome Mendiola','Monette Patrimonio'];
+  var rows=[];
+  // January — Monette: 1 sharing missed
+  traders.forEach(function(t){rows.push({id:'2026-0_'+t.replace(/\s+/g,'_'),month_key:'2026-0',trader:t,data:t==='Monette Patrimonio'?Object.assign(emptyR(),{sharingMissed:1}):emptyR()});});
+  // February — Jeff: 1 no recap
+  traders.forEach(function(t){rows.push({id:'2026-1_'+t.replace(/\s+/g,'_'),month_key:'2026-1',trader:t,data:t==='Jeff Chuan'?Object.assign(emptyR(),{noRecap:1}):emptyR()});});
+  // March — Jeff: 1 no recap
+  traders.forEach(function(t){rows.push({id:'2026-2_'+t.replace(/\s+/g,'_'),month_key:'2026-2',trader:t,data:t==='Jeff Chuan'?Object.assign(emptyR(),{noRecap:1}):emptyR()});});
+  await sb.from('kpi_monthly').upsert(rows,{onConflict:'month_key,trader'});
+  await sb.from('kpi_traders').insert([{traders:traders}]);
+  // Refresh cache and re-render
+  window._kpiTradersCache=traders;
+  if(!window._kpiMonthlyCache)window._kpiMonthlyCache={};
+  rows.forEach(r=>{
+    if(!window._kpiMonthlyCache[r.month_key])window._kpiMonthlyCache[r.month_key]={};
+    window._kpiMonthlyCache[r.month_key][r.trader]=r.data;
+  });
+  if(document.getElementById('page-kpi').classList.contains('active'))renderKPI();
 }
 
 
@@ -3749,7 +3847,7 @@ window.renderPitch = function(){
 // ═══════════════════════════════════════════════
 // RESEARCH HUB
 // ═══════════════════════════════════════════════
-var researchData = JSON.parse(localStorage.getItem('vel_research') || '[]');
+var researchData = [];
 
 var RESEARCH_TYPE_ICONS = {
   outlook: '📊', analysis: '🔬', sector: '📈', report: '📄', learning: '📚', html_file: '🌐'
@@ -3762,7 +3860,7 @@ var RESEARCH_TYPE_COLORS = {
 };
 
 function saveResearchData(){
-  localStorage.setItem('vel_research', JSON.stringify(researchData));
+  // no-op: saves happen directly in saveResearch/deleteResearch via Supabase
 }
 
 var FILE_TYPE_MAP = {
@@ -3898,7 +3996,7 @@ function closeResearchModal(){
   if(m) m.style.display = 'none';
 }
 
-function saveResearch(){
+async function saveResearch(){
   var title = document.getElementById('rh-title')?.value.trim();
   var content = document.getElementById('rh-content')?.value.trim();
   if(!title){ showToast('Enter a title'); return; }
@@ -3916,23 +4014,25 @@ function saveResearch(){
     timestamp: new Date().toISOString()
   };
 
+  const{error}=await sb.from('research').insert([entry]);
+  if(error){showToast('Error saving: '+error.message);return;}
   researchData.unshift(entry);
-  saveResearchData();
   closeResearchModal();
   renderResearch();
   renderHomeResearch();
   showToast('Research published');
-
-  // Fire notification
   if(typeof notifyResearchUploaded === 'function'){
     notifyResearchUploaded(entry.author, entry.title);
   }
 }
 
-function deleteResearch(idx){
+async function deleteResearch(idx){
   if(!confirm('Delete this research entry?')) return;
+  var entry = researchData[idx];
+  if(entry && entry.id){
+    await sb.from('research').delete().eq('id', entry.id);
+  }
   researchData.splice(idx, 1);
-  saveResearchData();
   renderResearch();
   renderHomeResearch();
   showToast('Research deleted');
@@ -4023,16 +4123,14 @@ function closeQuickPaste(){
   if(m) m.style.display = 'none';
 }
 
-function saveQuickPaste(){
+async function saveQuickPaste(){
   var text = document.getElementById('qp-text')?.value.trim();
   if(!text){ showToast('Paste your content first'); return; }
-  // Auto-detect tickers
   var upper = text.toUpperCase();
   var COMMON_TICKERS = ['AAPL','MSFT','GOOGL','AMZN','META','NVDA','TSLA','AMD','SPY','QQQ','IWM','NFLX','BA','DIS','JPM','GS','BAC','WFC','XOM','CVX'];
   var found = COMMON_TICKERS.filter(function(t){ return upper.includes(t); });
   var dollar = upper.match(/\$([A-Z]{1,5})/g);
   if(dollar) dollar.forEach(function(d){ var t = d.replace('$',''); if(found.indexOf(t) === -1) found.push(t); });
-
   var today = new Date();
   var entry = {
     id: Date.now().toString(),
@@ -4045,9 +4143,9 @@ function saveQuickPaste(){
     date: today.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
     timestamp: today.toISOString()
   };
-
+  const{error}=await sb.from('research').insert([entry]);
+  if(error){showToast('Error saving: '+error.message);return;}
   researchData.unshift(entry);
-  saveResearchData();
   closeQuickPaste();
   renderResearch();
   renderHomeResearch();
