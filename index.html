@@ -3933,7 +3933,11 @@ async function pushSharedNotif(type, message, detail){
 async function loadNotifications(){
   const{data}=await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(50).catch(()=>({data:[]}));
   if(data) notifications=data.map(function(n){
-    return Object.assign({},n,{read:Array.isArray(n.read_by)&&n.read_by.includes(currentUser&&currentUser.name)});
+    return Object.assign({},n,{
+  read: Array.isArray(n.read_by)&&n.read_by.includes(currentUser&&currentUser.name),
+  time: new Date(n.created_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}),
+  date: new Date(n.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'})
+});
   });
   renderNotifBell();
 }
