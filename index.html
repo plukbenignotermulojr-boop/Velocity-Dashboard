@@ -2647,7 +2647,7 @@ function renderAnalytics(){
   document.getElementById('a-stats').innerHTML=[
     {l:'Total Return',v:f$(tot),c:tot>=0?'g':'r'},{l:'Trades',v:closed.length,c:'b'},
     {l:'Hit Rate',v:(hr*100).toFixed(1)+'%',c:hr>=0.4?'g':'r'},{l:'Avg Gain',v:f$(ag),c:'g'},
-    {l:'Avg Loss',v:'-'+f$(al),c:'r'},{l:'Edge',v:(ag/al).toFixed(2)+'x',c:ag/al>=2?'g':'a'},
+    {l:'Avg Loss',v:'-'+f$(al),c:'r'},{l:'Edge',v:(al>0?(ag/al).toFixed(2)+'x':'N.A'),c:al>0&&ag/al>=2?'g':al>0?'a':'na'},
   ].map(s=>`<div class="stat-tile ${s.c}"><div class="stat-lbl">${s.l}</div><div class="stat-val" style="font-size:20px">${s.v}</div></div>`).join('');
   const setups={},pickers={};
   closed.forEach((t,idx)=>{const p=pnls[idx];const s=t.setup||'?';if(!setups[s])setups[s]={n:0,w:0,tot:0};setups[s].n++;if(p>0)setups[s].w++;setups[s].tot+=p;const pk=t.picker||'?';if(!pickers[pk])pickers[pk]={n:0,w:0,tot:0};pickers[pk].n++;if(p>0)pickers[pk].w++;pickers[pk].tot+=p;});
