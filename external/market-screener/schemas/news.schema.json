@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://megatrend-dashboard/schemas/news.schema.json",
+  "title": "News scan import",
+  "description": "Output shape of the daily/weekly news-scan prompt.",
+  "type": "object",
+  "required": ["generated_at", "items"],
+  "properties": {
+    "generated_at": { "type": "string", "format": "date-time" },
+    "items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/item" },
+      "maxItems": 200
+    }
+  },
+  "$defs": {
+    "item": {
+      "type": "object",
+      "required": ["headline", "summary", "source", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "headline":     { "type": "string", "minLength": 10, "maxLength": 240 },
+        "summary":      { "type": "string", "minLength": 20, "maxLength": 600 },
+        "source":       { "type": "string", "maxLength": 60 },
+        "url":          { "type": "string", "format": "uri" },
+        "published_at": { "type": "string", "format": "date-time" },
+        "type":         { "type": "string", "enum": ["catalyst", "headwind", "validation", "disruption"] },
+        "relevance":    { "type": "string", "enum": ["high", "med", "low"] },
+        "trend_id":     { "type": "string" },
+        "affected": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["ticker", "impact"],
+            "additionalProperties": false,
+            "properties": {
+              "ticker": { "type": "string", "pattern": "^[A-Z.\\-]{1,8}$" },
+              "name":   { "type": "string", "maxLength": 80 },
+              "impact": { "type": "string", "enum": ["pos", "neg", "neu"] },
+              "reason": { "type": "string", "maxLength": 200 }
+            }
+          },
+          "maxItems": 10
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 30 },
+          "maxItems": 8
+        }
+      }
+    }
+  }
+}

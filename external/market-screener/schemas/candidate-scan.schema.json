@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://megatrend-dashboard/schemas/candidate-scan.schema.json",
+  "title": "Candidate scan import",
+  "description": "Monthly trend-discovery output. Each candidate renders as a card with Accept/Dismiss buttons.",
+  "type": "object",
+  "required": ["generated_at", "candidates"],
+  "properties": {
+    "generated_at": { "type": "string", "format": "date-time" },
+    "window":       { "type": "string", "maxLength": 60 },
+    "candidates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/candidate" },
+      "minItems": 1,
+      "maxItems": 40
+    }
+  },
+  "$defs": {
+    "candidate": {
+      "type": "object",
+      "required": ["id", "name", "sector", "description", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id":          { "type": "string", "pattern": "^[a-z0-9-]{3,64}$" },
+        "name":        { "type": "string", "minLength": 3, "maxLength": 100 },
+        "sector":      { "type": "string", "maxLength": 60 },
+        "description": { "type": "string", "minLength": 20, "maxLength": 600 },
+        "confidence":  { "type": "string", "enum": ["high", "med", "low"] },
+        "icon":        { "type": "string", "maxLength": 4 },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 6,
+          "items": {
+            "type": "object",
+            "required": ["claim", "source"],
+            "additionalProperties": false,
+            "properties": {
+              "claim":  { "type": "string", "maxLength": 600 },
+              "source": { "type": "string", "maxLength": 120 },
+              "url":    { "type": "string", "format": "uri" }
+            }
+          }
+        },
+        "candidate_companies": {
+          "type": "array",
+          "maxItems": 12,
+          "items": {
+            "type": "object",
+            "required": ["ticker", "reason"],
+            "additionalProperties": false,
+            "properties": {
+              "ticker": { "type": "string", "pattern": "^[A-Z.\\-]{1,8}$" },
+              "name":   { "type": "string", "maxLength": 120 },
+              "reason": { "type": "string", "maxLength": 500 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://megatrend-dashboard/schemas/trends.schema.json",
+  "title": "Trends registry import",
+  "description": "Shape of a bulk trend import from the Claude Project. Dashboard validates against this before writing.",
+  "type": "object",
+  "required": ["generated_at", "trends"],
+  "properties": {
+    "generated_at": { "type": "string", "format": "date-time" },
+    "trends": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/trend" },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "trend": {
+      "type": "object",
+      "required": ["id", "name", "sector", "description", "confidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id":          { "type": "string", "pattern": "^[a-z0-9-]{3,64}$" },
+        "name":        { "type": "string", "minLength": 3, "maxLength": 100 },
+        "sector":      { "type": "string", "maxLength": 60 },
+        "description": { "type": "string", "minLength": 20, "maxLength": 600 },
+        "confidence":  { "type": "string", "enum": ["high", "med", "low"] },
+        "icon":        { "type": "string", "maxLength": 4 },
+        "drivers": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 60 },
+          "maxItems": 8
+        },
+        "companies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["ticker", "name", "reason"],
+            "additionalProperties": false,
+            "properties": {
+              "ticker": { "type": "string", "pattern": "^[A-Z.\\-]{1,8}$" },
+              "name":   { "type": "string", "maxLength": 120 },
+              "reason": { "type": "string", "maxLength": 500 }
+            }
+          },
+          "maxItems": 12
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,12 @@
 {
   "version": 2,
-  "builds": [{ "src": "index.html", "use": "@vercel/static" }],
-  "routes": [{ "src": "/(.*)", "dest": "/index.html" }]
+  "builds": [
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "api/**/*.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/max-gain", "dest": "/api/max-gain.js" },
+    { "src": "/external/(.*)", "dest": "/external/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
 }

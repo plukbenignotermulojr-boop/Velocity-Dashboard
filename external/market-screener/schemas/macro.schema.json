@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://megatrend-dashboard/schemas/macro.schema.json",
+  "title": "Macro weekly import",
+  "description": "FOMC probabilities + event calendar. FRED values and yields are fetched live by the dashboard and are NOT part of this payload.",
+  "type": "object",
+  "required": ["generated_at", "fomc", "calendar"],
+  "properties": {
+    "generated_at": { "type": "string", "format": "date-time" },
+    "fomc": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["meeting_date", "cut", "hold", "hike"],
+        "additionalProperties": false,
+        "properties": {
+          "meeting_date": { "type": "string", "format": "date" },
+          "cut":  { "type": "number", "minimum": 0, "maximum": 1 },
+          "hold": { "type": "number", "minimum": 0, "maximum": 1 },
+          "hike": { "type": "number", "minimum": 0, "maximum": 1 },
+          "note": { "type": "string", "maxLength": 200 }
+        }
+      },
+      "maxItems": 8
+    },
+    "calendar": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "title", "impact"],
+        "additionalProperties": false,
+        "properties": {
+          "date":   { "type": "string", "format": "date" },
+          "title":  { "type": "string", "maxLength": 120 },
+          "impact": { "type": "string", "enum": ["high", "med", "low"] },
+          "note":   { "type": "string", "maxLength": 200 }
+        }
+      },
+      "maxItems": 30
+    }
+  }
+}

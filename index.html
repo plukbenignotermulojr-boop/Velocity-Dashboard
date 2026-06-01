@@ -17,10 +17,10 @@
   --header-h:52px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;}
+html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;}
 
 /* ── LAYOUT ── */
-#app{display:flex;height:100vh;overflow:hidden;}
+#app{display:flex;width:100vw;max-width:none;min-width:0;height:100vh;overflow:hidden;}
 
 /* ── SIDEBAR ── */
 #sidebar{
@@ -59,7 +59,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .user-role{font-size:10px;color:var(--text2);white-space:nowrap;}
 
 /* ── MAIN AREA ── */
-#main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+#main{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
 
 /* ── TOPBAR ── */
 #topbar{height:var(--header-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;}
@@ -455,6 +455,51 @@ body.light #fdp-pitch td input { color: #080f1e !important; }
 body.light #fdp-pitch .rank-card { background: #f2f5fb; border-color: #bec9dc; }
 body.light #fdp-pitch .rank-card * { color: #080f1e; }
 
+/* Picks Review flip cards */
+.pr-flip-card{perspective:1400px;min-height:342px;}
+.pr-flip-inner{position:relative;width:100%;min-height:342px;transition:transform .48s cubic-bezier(.2,.7,.2,1);transform-style:preserve-3d;}
+.pr-flip-card.flipped .pr-flip-inner{transform:rotateY(180deg);}
+.pr-face{position:absolute;inset:0;backface-visibility:hidden;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--border);border-radius:8px;overflow:hidden;}
+.pr-face.front{z-index:2;}
+.pr-face.back{transform:rotateY(180deg);padding:10px;overflow:auto;}
+.pr-face.pass{border-color:var(--accent);border-top-color:var(--accent);}
+.pr-face.miss{border-color:rgba(239,68,68,.45);border-top-color:var(--red);}
+.pr-tag{font-size:8px;letter-spacing:.4px;text-transform:uppercase;border-radius:3px;padding:2px 6px;font-weight:800;white-space:nowrap;}
+.pr-tag.traded{background:rgba(34,197,94,.16);color:var(--green);}
+.pr-tag.missed{background:rgba(239,68,68,.16);color:var(--red);}
+.pr-tag.disagree{background:rgba(139,92,246,.18);color:var(--purple);}
+.pr-tag.consensus{background:rgba(59,130,246,.16);color:#60a5fa;}
+.pr-tag.incomplete{background:rgba(240,165,0,.17);color:var(--accent);}
+.pr-date-stack{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px;}
+.pr-date-chip{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);background:rgba(240,165,0,.12);border:1px solid rgba(240,165,0,.35);border-radius:4px;padding:3px 7px;font-weight:800;}
+.pr-repitch{font-size:8px;color:var(--accent);margin-bottom:6px;font-weight:700;}
+.pr-adv-btn{background:var(--surface3);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:4px 8px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:800;letter-spacing:.4px;cursor:pointer;}
+.pr-adv-btn:hover{border-color:var(--accent);color:var(--accent);}
+.pr-back-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;}
+.pr-mini-section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px;margin-bottom:8px;}
+.pr-mini-title{font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--text2);font-weight:800;margin-bottom:6px;}
+.pr-date-label{font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--text2);font-weight:800;margin-bottom:4px;}
+.pr-score-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:10px;margin-bottom:3px;}
+.pr-meter{height:6px;background:var(--border);border-radius:4px;overflow:hidden;}
+.pr-meter-fill{height:100%;border-radius:4px;transition:width .3s;}
+.pr-list{display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--text2);}
+.pr-summary-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin-top:16px;}
+.pr-bars{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;}
+.pr-bar-row{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px;}
+.pr-bar-track{height:6px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:7px;}
+.pr-bar-fill{height:100%;background:var(--accent);border-radius:4px;}
+.pr-filter-tile{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--border2);border-radius:7px;padding:10px 12px;cursor:pointer;transition:border-color .12s,background .12s,transform .12s;min-height:58px;}
+.pr-filter-tile:hover{border-color:var(--accent);background:var(--surface2);transform:translateY(-1px);}
+.pr-filter-tile.active{border-color:var(--accent);box-shadow:0 0 0 1px rgba(240,165,0,.18) inset;}
+.pr-filter-tile .stat-lbl{font-size:8px;}
+.pr-filter-tile .stat-val{font-size:18px!important;line-height:1;}
+.pr-tools{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.pr-tool-btn{height:28px;display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:9px;font-weight:800;padding:0 9px;cursor:pointer;}
+.pr-tool-btn:hover,.pr-tool-btn.active{border-color:var(--accent);color:var(--accent);}
+.pr-chart-slot,.pr-chart-slot .tradingview-widget-container,.pr-chart-slot .tradingview-widget-container__widget{height:120px;width:100%;overflow:hidden;}
+body.light .pr-face,body.light .pr-summary-card{background:#fff;border-color:#bec9dc;}
+body.light .pr-mini-section,body.light .pr-bar-row,body.light .pr-date-chip,body.light .pr-filter-tile,body.light .pr-tool-btn{background:#f2f5fb;border-color:#bec9dc;color:#1e2d45;}
+
 
 /* ── CUSTOM TICKER ROW ── */
 #custom-ticker { 
@@ -553,17 +598,20 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
       <div class="nav-item" onclick="showPage('funddesk',this)" title="Fund Desk">
         <span class="nav-icon">📊</span><span class="nav-text">Fund Desk</span>
       </div>
-      <div class="nav-item" onclick="showPage('kpi',this)" title="KPI Dashboard">
-        <span class="nav-icon">📈</span><span class="nav-text">KPI Dashboard</span>
-      </div>
-      <div class="nav-item" onclick="showPage('scheduler',this)" title="Scheduler">
-        <span class="nav-icon">📅</span><span class="nav-text">Scheduler</span>
-      </div>
-      <div class="nav-item" onclick="showPage('links',this)" title="Links Repository">
-        <span class="nav-icon">🔗</span><span class="nav-text">Links Repo</span>
+      <div class="nav-item" onclick="showPage('screener',this)" title="Market Screener">
+        <span class="nav-icon">📡</span><span class="nav-text">Market Screener</span>
       </div>
       <div class="nav-item" onclick="showPage('research',this)" title="Research Hub">
         <span class="nav-icon">🔍</span><span class="nav-text">Research Hub</span>
+      </div>
+      <div class="nav-item" onclick="showPage('kpi',this)" title="KPI Dashboard">
+        <span class="nav-icon">📈</span><span class="nav-text">KPI Dashboard</span>
+      </div>
+      <div class="nav-item" onclick="showPage('scheduler',this)" title="Calendar">
+        <span class="nav-icon">📅</span><span class="nav-text">Calendar</span>
+      </div>
+      <div class="nav-item" onclick="showPage('links',this)" title="Links Repository">
+        <span class="nav-icon">🔗</span><span class="nav-text">Links Repository</span>
       </div>
     </div>
     <div class="nav-section">
@@ -651,9 +699,11 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
     <div class="quick-actions">
       <div class="quick-btn" onclick="showPage('funddesk',null);showFdTab('pitch')">📋 Pitch Board</div>
       <div class="quick-btn" onclick="showPage('funddesk',null);showFdTab('monitor')">📡 Monitor</div>
+      <div class="quick-btn" onclick="showPage('screener',null)">📡 Market Screener</div>
+      <div class="quick-btn" onclick="showPage('research',null)">🔍 Research Hub</div>
       <div class="quick-btn" onclick="showPage('kpi',null)">📈 KPI Dashboard</div>
-      <div class="quick-btn" onclick="showPage('scheduler',null)">📅 Scheduler</div>
-      <div class="quick-btn" onclick="showPage('links',null)">🔗 Links Repo</div>
+      <div class="quick-btn" onclick="showPage('scheduler',null)">📅 Calendar</div>
+      <div class="quick-btn" onclick="showPage('links',null)">🔗 Links Repository</div>
     </div>
   </div>
 
@@ -945,25 +995,54 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
         <div style="display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap">
           <div style="display:flex;align-items:center;gap:6px">
             <span style="font-size:10px;color:var(--text2);letter-spacing:.8px;text-transform:uppercase">From</span>
-            <input type="date" id="pr-from" class="finp" style="width:130px" onchange="renderPicksReview()">
+            <input type="date" id="pr-from" class="finp" style="width:130px" onchange="loadAndRenderPicksReview()">
           </div>
           <div style="display:flex;align-items:center;gap:6px">
             <span style="font-size:10px;color:var(--text2);letter-spacing:.8px;text-transform:uppercase">To</span>
-            <input type="date" id="pr-to" class="finp" style="width:130px" onchange="renderPicksReview()">
+            <input type="date" id="pr-to" class="finp" style="width:130px" onchange="loadAndRenderPicksReview()">
           </div>
           <div style="display:flex;gap:6px">
             <button class="btn-sm btn-sec" onclick="setPRRange('week')" id="pr-btn-week">Last Week</button>
             <button class="btn-sm btn-sec" onclick="setPRRange('2week')" id="pr-btn-2week">Last 2 Weeks</button>
             <button class="btn-sm btn-sec" onclick="setPRRange('month')" id="pr-btn-month">This Month</button>
           </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:10px;color:var(--text2);letter-spacing:.8px;text-transform:uppercase">Max Gain</span>
+            <select id="pr-max-window" class="finp" style="width:118px;height:28px;font-size:10px" onchange="loadAndRenderPicksReview()">
+              <option value="1w">1 Week</option>
+              <option value="2w">2 Weeks</option>
+              <option value="3w">3 Weeks</option>
+              <option value="month">Month</option>
+              <option value="range">Loaded Range</option>
+            </select>
+          </div>
+          <button class="pr-tool-btn" id="pr-all-adv-btn" onclick="toggleAllPicksReviewStats()" title="Flip all visible cards">▦ All ADV STATS</button>
           <button class="btn-sm btn-accent" onclick="loadAndRenderPicksReview()">🔍 Load</button>
         </div>
       </div>
     </div>
     <!-- Summary Stats -->
-    <div class="g4" id="pr-stats" style="margin-bottom:14px"></div>
+    <div id="pr-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin-bottom:10px"></div>
     <!-- Picks Cards Grid -->
-    <div id="pr-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px"></div>
+    <div id="pr-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px"></div>
+    <div id="pr-week-summary"></div>
+  </div>
+</div>
+
+<!-- ══ MARKET SCREENER ══ -->
+<div class="page" id="page-screener">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px"><span style="color:var(--accent)">MARKET</span> SCREENER</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:4px">MegaTrend Intelligence embedded workspace.</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn-sm btn-sec" onclick="const f=document.getElementById('market-screener-frame');f.src='/external/market-screener/index.html?v='+Date.now()">↻ Reload</button>
+      <a class="btn-sm btn-sec" href="/external/market-screener/index.html" target="_blank" style="text-decoration:none">Open ↗</a>
+    </div>
+  </div>
+  <div style="height:calc(100vh - var(--header-h) - 92px);min-height:620px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#0b0f14">
+    <iframe id="market-screener-frame" src="/external/market-screener/index.html?v=1" title="Market Screener" style="width:100%;height:100%;border:0;background:#0b0f14"></iframe>
   </div>
 </div>
 
@@ -1104,7 +1183,7 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
   </div>
 </div>
 
-<!-- ══ SCHEDULER ══ -->
+<!-- ══ CALENDAR ══ -->
 <div class="page" id="page-scheduler">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
     <div style="display:flex;align-items:center;gap:10px">
@@ -1794,7 +1873,7 @@ function editVar(){const v=prompt('Default VAR $:',DVAR);if(v){DVAR=parseInt(v);
 // ════════════════════════════════════════════════════════════
 // NAVIGATION
 // ════════════════════════════════════════════════════════════
-const PAGE_TITLES = {home:'HOME',funddesk:'FUND DESK',kpi:'KPI DASHBOARD',scheduler:'SCHEDULER',links:'LINKS REPO',research:'RESEARCH HUB'};
+const PAGE_TITLES = {home:'HOME',funddesk:'FUND DESK',screener:'MARKET SCREENER',research:'RESEARCH HUB',kpi:'KPI DASHBOARD',scheduler:'CALENDAR',links:'LINKS REPOSITORY'};
 
 function showPage(id, navEl){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1884,7 +1963,7 @@ async function loadAllData(){
     // Events + role swaps
     if(er.data){
       const swapRow=er.data.find(e=>e.is_swap);
-      if(swapRow&&swapRow.swap_data) roleSwaps=swapRow.swap_data;
+      if(swapRow&&swapRow.swap_data) roleSwaps=normalizeRoleSwaps(swapRow.swap_data);
       calEvents=er.data.filter(e=>!e.is_swap).map(e=>({...e,endDate:e.end_date}));
     }
     // KPI grades
@@ -1948,9 +2027,18 @@ function setupRealtime(){
     else if(p.eventType==='DELETE'){researchData=researchData.filter(r=>r.id!==p.old.id);renderResearch();renderHomeResearch();}
   }).subscribe();
   sb.channel('events-rt').on('postgres_changes',{event:'*',schema:'public',table:'events'},p=>{
-    if(p.eventType==='INSERT'&&!p.new.is_swap){calEvents.push({...p.new,endDate:p.new.end_date});renderCalendar();}
-    else if(p.eventType==='DELETE'){calEvents=calEvents.filter(e=>e.id!==p.old.id);renderCalendar();}
-    else if(p.eventType==='UPDATE'&&p.new.is_swap){roleSwaps=p.new.swap_data||{};renderCalendar();}
+    if(p.new&&p.new.is_swap){roleSwaps=normalizeRoleSwaps(p.new.swap_data||{});renderCalendar();return;}
+    if(p.eventType==='INSERT'&&p.new){calEvents.push({...p.new,endDate:p.new.end_date});renderCalendar();}
+    else if(p.eventType==='DELETE'){
+      if(p.old&&p.old.is_swap) roleSwaps={};
+      else calEvents=calEvents.filter(e=>e.id!==p.old.id);
+      renderCalendar();
+    }
+    else if(p.eventType==='UPDATE'&&p.new){
+      const i=calEvents.findIndex(e=>e.id===p.new.id);
+      if(i>=0)calEvents[i]={...p.new,endDate:p.new.end_date};
+      renderCalendar();
+    }
   }).subscribe();
   sb.channel('kpi-rt').on('postgres_changes',{event:'*',schema:'public',table:'kpi_monthly'},p=>{
     if(p.new){
@@ -1960,18 +2048,7 @@ function setupRealtime(){
       if(document.getElementById('page-kpi').classList.contains('active'))renderKPI();
     }
   }).subscribe();
-  sb.channel('notif-rt').on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications'},function(p){
-    if(!p.new) return;
-    var exists=notifications.find(function(n){return n.id===p.new.id;});
-    if(!exists){
-      var n=Object.assign({},p.new,{read:false});
-      notifications.unshift(n);
-      if(notifications.length>50)notifications=notifications.slice(0,50);
-      renderNotifBell();
-      var t=NOTIF_TYPES[p.new.type]||{icon:'🔔'};
-      showToastNotif(t.icon+' '+p.new.message);
-    }
-  }).subscribe();
+  setupNotificationSync();
 }
 
 // ════════════════════════════════════════════════════════════
@@ -2663,7 +2740,7 @@ function renderAnalytics(){
 // PICKS REVIEW
 // ════════════════════════════════════════════════════════════
 function initPicksReview(){
-  // Default to last week if no dates set
+  // Default to the most recent completed Monday-Friday review window.
   if(!document.getElementById('pr-from').value){
     setPRRange('week');
   } else {
@@ -2671,14 +2748,41 @@ function initPicksReview(){
   }
 }
 
+function prLocalDateStr(d){
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+function prCompletedWeekRange(weeks){
+  const today=new Date();
+  const day=today.getDay();
+  const thisMonday=new Date(today);
+  thisMonday.setHours(0,0,0,0);
+  thisMonday.setDate(today.getDate()+(day===0?-6:1-day));
+  const currentWeekIsComplete=day===0||day===6;
+  const start=new Date(thisMonday);
+  start.setDate(thisMonday.getDate()-(currentWeekIsComplete?(weeks-1)*7:weeks*7));
+  const end=new Date(start);
+  end.setDate(start.getDate()+(weeks*7)-3);
+  return {from:prLocalDateStr(start),to:prLocalDateStr(end)};
+}
+
 function setPRRange(range){
   const today=new Date();
-  const toStr=today.toISOString().split('T')[0];
-  let fromDate=new Date();
-  if(range==='week') fromDate.setDate(today.getDate()-7);
-  else if(range==='2week') fromDate.setDate(today.getDate()-14);
-  else if(range==='month') fromDate=new Date(today.getFullYear(),today.getMonth(),1);
-  document.getElementById('pr-from').value=fromDate.toISOString().split('T')[0];
+  let fromStr=prLocalDateStr(today);
+  let toStr=prLocalDateStr(today);
+  if(range==='week'){
+    const r=prCompletedWeekRange(1);
+    fromStr=r.from;toStr=r.to;
+  } else if(range==='2week'){
+    const r=prCompletedWeekRange(2);
+    fromStr=r.from;toStr=r.to;
+  } else if(range==='month'){
+    fromStr=prLocalDateStr(new Date(today.getFullYear(),today.getMonth(),1));
+  }
+  document.getElementById('pr-from').value=fromStr;
   document.getElementById('pr-to').value=toStr;
   // Highlight active button
   ['week','2week','month'].forEach(r=>{
@@ -2816,6 +2920,419 @@ function renderPicksReview(picks){
 // ════════════════════════════════════════════════════════════
 // ONLINE PRESENCE
 // ════════════════════════════════════════════════════════════
+function prScoresForRows(rows){
+  const pickers=['ben','jeff','monette','rome'];
+  return rows.flatMap(r=>pickers.map(p=>r[p]).filter(v=>v!=null&&!isNaN(v)));
+}
+function prAvg(vals){return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;}
+function prStd(vals){
+  if(vals.length<2) return 0;
+  const avg=prAvg(vals);
+  return Math.sqrt(vals.reduce((a,v)=>a+Math.pow(v-avg,2),0)/vals.length);
+}
+function prConsensusLabel(std){
+  if(std<=0.3) return 'Strong';
+  if(std<=0.7) return 'Moderate';
+  if(std<1.0) return 'Mixed';
+  return 'High Disagree';
+}
+let prReviewFilter='all';
+let prShowAllAdv=false;
+function prOpportunityKey(ticker,dates){return 'velo_pr_opp_'+ticker+'_'+dates.join('_');}
+function togglePicksReviewCard(ticker){
+  const card=document.getElementById('pr-card-'+ticker);
+  if(card) card.classList.toggle('flipped');
+}
+function setPicksReviewFilter(filter){
+  prReviewFilter=filter||'all';
+  loadAndRenderPicksReview();
+}
+function toggleAllPicksReviewStats(){
+  prShowAllAdv=!prShowAllAdv;
+  document.querySelectorAll('.pr-flip-card').forEach(card=>card.classList.toggle('flipped',prShowAllAdv));
+  const btn=document.getElementById('pr-all-adv-btn');
+  if(btn){
+    btn.classList.toggle('active',prShowAllAdv);
+    btn.textContent=prShowAllAdv?'▦ Hide ADV STATS':'▦ All ADV STATS';
+  }
+}
+function savePROpportunity(ticker,dates){
+  const input=document.getElementById('pr-opp-'+ticker);
+  if(!input) return;
+  localStorage.setItem(prOpportunityKey(ticker,dates.split('|')),input.value||'');
+  showToast('Opportunity saved for '+ticker);
+}
+function prBadge(label,cls){return '<span class="pr-tag '+cls+'">'+label+'</span>';}
+function prDateUTC(dateStr){
+  const parts=String(dateStr||'').split('-').map(Number);
+  return new Date(Date.UTC(parts[0],(parts[1]||1)-1,parts[2]||1));
+}
+function prDateKeyUTC(d){
+  return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');
+}
+function prAddDaysUTC(d,days){
+  const x=new Date(d.getTime());
+  x.setUTCDate(x.getUTCDate()+days);
+  return x;
+}
+function prPrevUSTradingDayFromPH(phDateStr){
+  let d=prAddDaysUTC(prDateUTC(phDateStr),-1);
+  while(d.getUTCDay()===0||d.getUTCDay()===6) d=prAddDaysUTC(d,-1);
+  return d;
+}
+function prNextUSTradingDay(d){
+  let x=prAddDaysUTC(d,1);
+  while(x.getUTCDay()===0||x.getUTCDay()===6) x=prAddDaysUTC(x,1);
+  return x;
+}
+function prFridayOfWeek(d){
+  let x=new Date(d.getTime());
+  const day=x.getUTCDay();
+  const add=(5-day+7)%7;
+  x=prAddDaysUTC(x,add);
+  return x;
+}
+function prLastWeekdayOfMonth(d){
+  let x=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0));
+  while(x.getUTCDay()===0||x.getUTCDay()===6) x=prAddDaysUTC(x,-1);
+  return x;
+}
+function prWeekKeyFromPH(phDateStr){
+  const base=prPrevUSTradingDayFromPH(phDateStr);
+  const monday=prAddDaysUTC(base,-((base.getUTCDay()+6)%7));
+  return prDateKeyUTC(monday);
+}
+function prMaxGainGroups(tk,windowMode){
+  const dates=tk.datesArr.slice().sort();
+  const groups={};
+  dates.forEach(date=>{
+    const key=windowMode==='month'?date.slice(0,7):(windowMode==='range'?'range':prWeekKeyFromPH(date));
+    if(!groups[key]) groups[key]={key,mentionDates:[],firstMention:date};
+    groups[key].mentionDates.push(date);
+    if(date<groups[key].firstMention) groups[key].firstMention=date;
+  });
+  return Object.values(groups).sort((a,b)=>a.firstMention.localeCompare(b.firstMention)).map(g=>{
+    const baseline=prPrevUSTradingDayFromPH(g.firstMention);
+    const start=prNextUSTradingDay(baseline);
+    let end;
+    if(windowMode==='month') end=prLastWeekdayOfMonth(start);
+    else if(windowMode==='range') end=prPrevUSTradingDayFromPH(document.getElementById('pr-to')?.value||g.firstMention);
+    else {
+      const weeks=windowMode==='3w'?3:windowMode==='2w'?2:1;
+      end=prAddDaysUTC(prFridayOfWeek(start),(weeks-1)*7);
+    }
+    if(end<start) end=start;
+    return {...g,baselineDate:prDateKeyUTC(baseline),startDate:prDateKeyUTC(start),endDate:prDateKeyUTC(end)};
+  });
+}
+async function prFetchDailyCandles(ticker,startDate,endDate){
+  async function fromApi(){
+    const url='/api/max-gain?ticker='+encodeURIComponent(ticker)+'&start='+encodeURIComponent(startDate)+'&end='+encodeURIComponent(endDate);
+    const r=await fetch(url,{signal:AbortSignal.timeout(12000),headers:{Accept:'application/json'}});
+    const type=r.headers.get('content-type')||'';
+    if(!r.ok||!type.includes('application/json')) throw new Error('api candle fetch unavailable');
+    const json=await r.json();
+    const rows=(json.candles||[]).map(c=>({
+      date:c.date,
+      close:Number(c.close),
+      high:Number(c.high)
+    })).filter(c=>c.date&&isFinite(c.close)&&isFinite(c.high));
+    if(!rows.length) throw new Error('api returned no candles');
+    return rows;
+  }
+  async function fromYahoo(){
+  const p1=Math.floor(prAddDaysUTC(prDateUTC(startDate),-5).getTime()/1000);
+  const p2=Math.floor(prAddDaysUTC(prDateUTC(endDate),2).getTime()/1000);
+  const url='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(ticker)+'?period1='+p1+'&period2='+p2+'&interval=1d&events=history';
+  const r=await fetch(url,{signal:AbortSignal.timeout(9000)});
+  if(!r.ok) throw new Error('price fetch failed');
+  const json=await r.json();
+  const result=json.chart&&json.chart.result&&json.chart.result[0];
+  if(!result) throw new Error('no price data');
+  const quote=result.indicators&&result.indicators.quote&&result.indicators.quote[0];
+  const ts=result.timestamp||[];
+  return ts.map((t,i)=>({
+    date:prDateKeyUTC(new Date(t*1000)),
+    close:quote.close&&quote.close[i],
+    high:quote.high&&quote.high[i]
+  })).filter(c=>c.date&&c.close!=null&&c.high!=null);
+  }
+  async function fromStooq(){
+    const symbol=String(ticker||'').toLowerCase()+'.us';
+    const d1=prDateKeyUTC(prAddDaysUTC(prDateUTC(startDate),-5)).replace(/-/g,'');
+    const d2=prDateKeyUTC(prAddDaysUTC(prDateUTC(endDate),2)).replace(/-/g,'');
+    const url='https://stooq.com/q/d/l/?s='+encodeURIComponent(symbol)+'&d1='+d1+'&d2='+d2+'&i=d';
+    const r=await fetch(url,{signal:AbortSignal.timeout(9000)});
+    if(!r.ok) throw new Error('fallback price fetch failed');
+    const text=await r.text();
+    const lines=text.trim().split(/\r?\n/).slice(1);
+    const rows=lines.map(line=>{
+      const c=line.split(',');
+      return {date:c[0],high:parseFloat(c[2]),close:parseFloat(c[4])};
+    }).filter(c=>c.date&&isFinite(c.high)&&isFinite(c.close));
+    if(!rows.length) throw new Error('no fallback price data');
+    return rows;
+  }
+  try{return await fromApi();}
+  catch(e0){
+  try{return await fromYahoo();}
+  catch(e1){
+    try{return await fromStooq();}
+    catch(e2){throw new Error((e1&&e1.message?e1.message:'price fetch failed')+' / fallback unavailable');}
+  }
+  }
+}
+async function hydratePicksReviewMaxGain(tickers){
+  const mode=document.getElementById('pr-max-window')?.value||'1w';
+  await Promise.all(tickers.map(async tk=>{
+    const host=document.getElementById('pr-maxgain-'+tk.ticker);
+    if(!host) return;
+    const groups=prMaxGainGroups(tk,mode);
+    host.innerHTML='<div style="font-size:10px;color:var(--text2)">Calculating from daily candles...</div>';
+    try{
+      const rows=[];
+      for(const g of groups){
+        const candles=await prFetchDailyCandles(tk.ticker,g.baselineDate,g.endDate);
+        const baselineCandle=candles.filter(c=>c.date<=g.baselineDate).sort((a,b)=>b.date.localeCompare(a.date))[0];
+        if(!baselineCandle) throw new Error('missing baseline close');
+        const win=candles.filter(c=>c.date>=g.startDate&&c.date<=g.endDate);
+        if(!win.length) throw new Error('missing window candles');
+        const highCandle=win.reduce((best,c)=>c.high>best.high?c:best,win[0]);
+        const gain=(highCandle.high-baselineCandle.close)/baselineCandle.close*100;
+        rows.push({...g,baseline:baselineCandle.close,high:highCandle.high,highDate:highCandle.date,gain});
+      }
+      host.innerHTML=rows.map(r=>`<div style="padding:7px 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:3px">
+          <span style="font-weight:800;color:var(--text)">Mentioned ${r.mentionDates.join(', ')}</span>
+          <span style="font-family:'JetBrains Mono',monospace;color:${r.gain>=0?'var(--green)':'var(--red)'};font-weight:900">${r.gain>=0?'+':''}${r.gain.toFixed(2)}%</span>
+        </div>
+        <div style="font-size:9px;color:var(--text2);line-height:1.5">Baseline ${r.baselineDate} close $${r.baseline.toFixed(2)} · High ${r.highDate} $${r.high.toFixed(2)} · Window ${r.startDate} to ${r.endDate}</div>
+      </div>`).join('');
+    }catch(e){
+      host.innerHTML='<div style="font-size:10px;color:var(--red);line-height:1.45">Auto max gain unavailable. Browser price fetch was blocked or no candle data was returned. Manual note below still works.</div>';
+    }
+  }));
+}
+
+function renderPicksReview(picks){
+  const grid=document.getElementById('pr-grid');
+  const statsEl=document.getElementById('pr-stats');
+  const byTicker={};
+  picks.forEach(p=>{
+    if(!p.ticker||!p.ticker.trim()) return;
+    const t=p.ticker.trim().toUpperCase();
+    if(!byTicker[t]) byTicker[t]={ticker:t,rows:[],dates:new Set()};
+    byTicker[t].rows.push(p);
+    byTicker[t].dates.add(p.date);
+  });
+  const pickers=['ben','jeff','monette','rome'];
+  const pickerLabels={ben:'Ben',jeff:'Jeff',monette:'Monette',rome:'Rome'};
+  const pickerColors={ben:'#22c55e',jeff:'#f0a500',monette:'#8b5cf6',rome:'#ef4444'};
+  const tradedTickers=new Set(tradesData.map(t=>(t.ticker||'').toUpperCase()));
+  const tickers=Object.values(byTicker).map(tk=>{
+    tk.rows.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+    tk.datesArr=[...tk.dates].sort();
+    tk.allScores=prScoresForRows(tk.rows);
+    tk.avgScore=prAvg(tk.allScores);
+    tk.stdScore=prStd(tk.allScores);
+    tk.passed=tk.avgScore!=null&&tk.avgScore>=3.0;
+    tk.wasTraded=tradedTickers.has(tk.ticker);
+    tk.missed=tk.passed&&!tk.wasTraded;
+    tk.votedPickers=pickers.filter(p=>tk.rows.some(r=>r[p]!=null&&!isNaN(r[p])));
+    tk.missingPickers=pickers.filter(p=>!tk.votedPickers.includes(p));
+    tk.incomplete=tk.missingPickers.length>0;
+    tk.consensus=tk.passed&&tk.stdScore<=0.3;
+    tk.highDisagree=tk.stdScore>=1.0;
+    return tk;
+  }).sort((a,b)=>(b.avgScore??-1)-(a.avgScore??-1)||a.ticker.localeCompare(b.ticker));
+  const totalPicks=tickers.length;
+  const totalPassed=tickers.filter(t=>t.passed).length;
+  const traded=tickers.filter(t=>t.wasTraded).length;
+  const missed=tickers.filter(t=>t.missed).length;
+  const consensus=tickers.filter(t=>t.consensus).length;
+  const filterDefs=[
+    {id:'all',l:'Tickers Picked',v:totalPicks,c:'b'},
+    {id:'passed',l:'Passed >=3.0',v:totalPassed,c:'g'},
+    {id:'traded',l:'Traded',v:traded,c:'a'},
+    {id:'missed',l:'Missed Trades',v:missed,c:missed?'r':'na'},
+    {id:'consensus',l:'Consensus Picks',v:consensus,c:'b'},
+    {id:'passrate',l:'Pass Rate',v:totalPicks?Math.round(totalPassed/totalPicks*100)+'%':'-',c:totalPicks&&totalPassed/totalPicks>=0.5?'g':'r'},
+  ];
+  statsEl.innerHTML=filterDefs.map(s=>`<div class="stat-tile pr-filter-tile ${s.c} ${prReviewFilter===s.id?'active':''}" onclick="setPicksReviewFilter('${s.id}')" title="Show ${s.l}">
+    <div class="stat-lbl">${s.l}</div><div class="stat-val">${s.v}</div>
+  </div>`).join('');
+  const visibleTickers=tickers.filter(tk=>{
+    if(prReviewFilter==='passed'||prReviewFilter==='passrate') return tk.passed;
+    if(prReviewFilter==='traded') return tk.wasTraded;
+    if(prReviewFilter==='missed') return tk.missed;
+    if(prReviewFilter==='consensus') return tk.consensus;
+    return true;
+  });
+  if(!visibleTickers.length){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:26px;color:var(--text2)">No picks match this filter.</div>';
+    renderPicksReviewSummary(tickers,pickers,pickerLabels,pickerColors);
+    return;
+  }
+
+  grid.innerHTML=visibleTickers.map(tk=>{
+    const avg=tk.avgScore;
+    const latestRow=tk.rows[0]||{};
+    const setup=latestRow.setup||'-';
+    const scoreColor=avg==null?'var(--text2)':avg>=4?'var(--green)':avg>=3?'var(--accent)':'var(--red)';
+    const tagHtml=[
+      tk.wasTraded?prBadge('Traded','traded'):'',
+      tk.missed?prBadge('Missed Trade','missed'):'',
+      tk.highDisagree?prBadge('High Disagree','disagree'):'',
+      tk.consensus?prBadge('Consensus','consensus'):'',
+      tk.incomplete?prBadge('Incomplete Vote','incomplete'):''
+    ].filter(Boolean).join('');
+    const pickerScores=pickers.map(p=>{
+      const vals=tk.rows.map(r=>r[p]).filter(v=>v!=null&&!isNaN(v));
+      const avg2=prAvg(vals);
+      return avg2!=null?`<div style="display:flex;align-items:center;gap:4px"><span style="font-size:9px;font-weight:700;color:${pickerColors[p]};text-transform:capitalize;width:46px">${pickerLabels[p]}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${avg2>=3?'var(--green)':avg2>=2?'var(--accent)':'var(--red)'};font-weight:700">${avg2.toFixed(1)}</span></div>`:`<div style="display:flex;align-items:center;gap:4px;opacity:.6"><span style="font-size:9px;font-weight:700;color:${pickerColors[p]};width:46px">${pickerLabels[p]}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2)">-</span></div>`;
+    }).join('');
+    const dateChips=tk.datesArr.map(d=>`<span class="pr-date-chip">${d}</span>`).join('');
+    const byPicker=pickers.map(p=>{
+      const dayRows=tk.rows.filter(r=>r[p]!=null&&!isNaN(r[p]));
+      const vals=dayRows.map(r=>r[p]);
+      const a=prAvg(vals);
+      const detail=dayRows.map(r=>`${r.date}: ${r[p]}`).join(' / ') || 'No vote';
+      return `<div class="pr-score-row"><span style="color:${pickerColors[p]};font-weight:800">${pickerLabels[p]}</span><span style="color:${a!=null&&a>=3?'var(--green)':a!=null?'var(--accent)':'var(--text2)'};font-family:'JetBrains Mono',monospace;font-weight:800">${a!=null?a.toFixed(2):'-'}</span></div><div style="font-size:9px;color:var(--text2);margin:-2px 0 5px">${detail}</div>`;
+    }).join('');
+    const execText=tk.wasTraded?'Traded: yes':tk.missed?'Missed trade: passed but no trade record':'Not traded';
+    const oppKey=prOpportunityKey(tk.ticker,tk.datesArr);
+    const oppVal=localStorage.getItem(oppKey)||'';
+    const datesJoined=tk.datesArr.join('|');
+    return `<div class="pr-flip-card ${prShowAllAdv?'flipped':''}" id="pr-card-${tk.ticker}">
+      <div class="pr-flip-inner">
+        <div class="pr-face front ${tk.missed?'miss':tk.passed?'pass':''}">
+          <div id="pr-chart-${tk.ticker}" class="pr-chart-slot" style="background:var(--surface2)"></div>
+          <div style="padding:10px 12px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;gap:8px">
+              <div style="min-width:0">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:var(--text)">${tk.ticker}</span>
+                  <span class="sb" style="font-size:9px">${setup}</span>
+                </div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">${tagHtml}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+                <button class="pr-adv-btn" onclick="togglePicksReviewCard('${tk.ticker}')">ADV STATS</button>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;color:${scoreColor}">${avg!=null?avg.toFixed(1):'-'}</span>
+              </div>
+            </div>
+            <div class="pr-date-label">Pitch Date${tk.datesArr.length>1?'s':''}</div>
+            <div class="pr-date-stack">${dateChips}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">${pickerScores}</div>
+          </div>
+        </div>
+        <div class="pr-face back ${tk.missed?'miss':tk.passed?'pass':''}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">
+            <div class="pr-back-title">${tk.ticker} ADV STATS</div>
+            <button class="pr-adv-btn" onclick="togglePicksReviewCard('${tk.ticker}')">BACK</button>
+          </div>
+          <div class="pr-mini-section">
+            <div class="pr-mini-title">Max Gain Opportunity</div>
+            <div id="pr-maxgain-${tk.ticker}" style="margin-bottom:8px"></div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input id="pr-opp-${tk.ticker}" class="finp" value="${String(oppVal).replace(/"/g,'&quot;')}" placeholder="Manual note, e.g. +12% intraday" style="flex:1;font-size:11px">
+              <button class="btn-sm btn-sec" onclick="savePROpportunity('${tk.ticker}','${datesJoined}')">Save</button>
+            </div>
+          </div>
+          <div class="pr-mini-section"><div class="pr-mini-title">Individual Scores</div>${byPicker}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  renderPicksReviewSummary(tickers,pickers,pickerLabels,pickerColors);
+  const allAdvBtn=document.getElementById('pr-all-adv-btn');
+  if(allAdvBtn){
+    allAdvBtn.classList.toggle('active',prShowAllAdv);
+    allAdvBtn.textContent=prShowAllAdv?'▦ Hide ADV STATS':'▦ All ADV STATS';
+  }
+  visibleTickers.forEach(tk=>{
+    const el=document.getElementById('pr-chart-'+tk.ticker);
+    if(!el) return;
+    el.innerHTML='';
+    const script=document.createElement('script');
+    script.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+    script.async=true;
+    script.innerHTML=JSON.stringify({
+      autosize:true,
+      symbol:tk.ticker,
+      interval:'D',
+      timezone:'America/New_York',
+      theme:'dark',
+      style:'1',
+      locale:'en',
+      backgroundColor:'rgba(15,23,42,0)',
+      gridColor:'rgba(31,42,63,0.35)',
+      hide_top_toolbar:true,
+      hide_side_toolbar:true,
+      hide_legend:true,
+      save_image:false,
+      allow_symbol_change:false,
+      calendar:false,
+      support_host:'https://www.tradingview.com'
+    });
+    const container=document.createElement('div');
+    container.className='tradingview-widget-container';
+    container.style.height='120px';
+    container.style.width='100%';
+    const widget=document.createElement('div');
+    widget.className='tradingview-widget-container__widget';
+    widget.style.height='120px';
+    widget.style.width='100%';
+    container.appendChild(widget);
+    container.appendChild(script);
+    el.appendChild(container);
+  });
+  hydratePicksReviewMaxGain(visibleTickers);
+}
+
+function renderPicksReviewSummary(tickers,pickers,pickerLabels,pickerColors){
+  const el=document.getElementById('pr-week-summary');
+  if(!el) return;
+  if(!tickers.length){el.innerHTML='';return;}
+  const accuracies=pickers.map(p=>{
+    let total=0,matched=0,totalScore=0,scoreCount=0;
+    tickers.forEach(tk=>{
+      const vals=tk.rows.map(r=>r[p]).filter(v=>v!=null&&!isNaN(v));
+      if(!vals.length) return;
+      const a=prAvg(vals);
+      totalScore+=a;scoreCount++;
+      if((a>=3)===tk.passed) matched++;
+      total++;
+    });
+    return {picker:p,accuracy:total?matched/total:0,total,avgScore:scoreCount?totalScore/scoreCount:null};
+  }).sort((a,b)=>b.accuracy-a.accuracy);
+  const best=accuracies[0];
+  const listBlock=(title,items,color)=>`<div class="pr-mini-section" style="margin-bottom:0"><div class="pr-mini-title">${title}</div><div class="pr-list">${items.length?items.map(t=>`<div style="color:${color||'var(--text2)'};font-weight:700">${t.ticker}${t.missingPickers?' - missing '+t.missingPickers.map(p=>pickerLabels[p]).join(', '):''}</div>`).join(''):'<div>None</div>'}</div></div>`;
+  el.innerHTML=`<div class="pr-summary-card">
+    <div class="ch" style="margin-bottom:12px"><div class="ct">Week Summary Stats</div></div>
+    <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:12px;margin-bottom:12px">
+      <div class="pr-mini-section" style="margin-bottom:0">
+        <div class="pr-mini-title">Individual Caller Accuracy</div>
+        <div class="pr-bars">${accuracies.map(a=>`<div class="pr-bar-row">
+          <div style="display:flex;justify-content:space-between;gap:8px;font-size:11px"><span style="color:${pickerColors[a.picker]};font-weight:800">${a.picker===best.picker?'Best - ':''}${pickerLabels[a.picker]}</span><span style="font-family:'JetBrains Mono',monospace;color:var(--text)">${Math.round(a.accuracy*100)}%</span></div>
+          <div class="pr-bar-track"><div class="pr-bar-fill" style="width:${Math.round(a.accuracy*100)}%;background:${pickerColors[a.picker]}"></div></div>
+        </div>`).join('')}</div>
+      </div>
+      <div class="pr-mini-section" style="margin-bottom:0;border-color:var(--accent)">
+        <div class="pr-mini-title">Best Caller This Week</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:2px;color:${pickerColors[best.picker]}">${pickerLabels[best.picker]}</div>
+        <div style="font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:13px;font-weight:800">${Math.round(best.accuracy*100)}% accuracy</div>
+        <div style="font-size:10px;color:var(--text2);margin-top:4px">Avg score ${best.avgScore!=null?best.avgScore.toFixed(2):'-'} across ${best.total} call${best.total===1?'':'s'}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
+      ${listBlock('Missed Trades',tickers.filter(t=>t.missed),'var(--red)')}
+      ${listBlock('High Disagreement',tickers.filter(t=>t.highDisagree),'var(--purple)')}
+      ${listBlock('Incomplete Voting',tickers.filter(t=>t.incomplete),'var(--accent)')}
+    </div>
+  </div>`;
+}
+
 var _monEditIdx=-1;var _monEditId='';
 function openMonEditModal(id,idx){
   _monEditIdx=idx;_monEditId=id;
@@ -3535,7 +4052,7 @@ function getScheduleEventsForDate(dateStr){
   // Find the Monday of this date's week
   const monday = new Date(d);
   monday.setDate(d.getDate() - (dow - 1));
-  const mondayStr = monday.toISOString().split('T')[0];
+  const mondayStr = dateKeyLocal(monday);
   return TEAM_SCHEDULE.filter(e => e.date === mondayStr);
 }
 
@@ -3547,15 +4064,15 @@ function getWeekOf(dateStr){
   weekStart.setDate(d.getDate() - day);
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekStart.getDate() + 6);
-  const ws = weekStart.toISOString().split('T')[0];
-  const we = weekEnd.toISOString().split('T')[0];
+  const ws = dateKeyLocal(weekStart);
+  const we = dateKeyLocal(weekEnd);
   return TEAM_SCHEDULE.filter(e => e.date >= ws && e.date <= we);
 }
 
 function renderThisWeek(){
   var el = document.getElementById('this-week-roles');
   if(!el) return;
-  var today = new Date().toISOString().split('T')[0];
+  var today = dateKeyLocal(new Date());
   var d = new Date(today + 'T00:00:00');
   var dow = d.getDay();
   var monday = new Date(d);
@@ -3602,9 +4119,9 @@ function renderThisWeek(){
   el.innerHTML = html;
 }
 
-function clearThisWeekSwap(mondayStr){
+async function clearThisWeekSwap(mondayStr){
   if(typeof roleSwaps !== 'undefined') delete roleSwaps[mondayStr];
-  localStorage.setItem('vel_role_swaps', JSON.stringify(roleSwaps||{}));
+  await saveRoleSwaps();
   renderCalendar();
   showToast('Swap removed');
 }
@@ -3628,7 +4145,7 @@ function renderFundMR(){
 function renderUpcomingSchedule(){
   const el = document.getElementById('upcoming-events');
   if(!el) return;
-  const today = new Date().toISOString().split('T')[0];
+  const today = dateKeyLocal(new Date());
   // Combine team schedule (one per week, show as "Week of X — Fac: Y | Pilot: Z") + custom events
   const weeks = {};
   TEAM_SCHEDULE.filter(e=>e.date >= today).forEach(e=>{
@@ -3651,12 +4168,15 @@ function renderUpcomingSchedule(){
     });
   }
   weekEntries.forEach(([date,roles])=>{
+    const swap = (typeof roleSwaps !== 'undefined') ? roleSwaps[date] : null;
+    const facName = swap&&swap.fac ? swap.fac : roles.fac;
+    const pilotName = swap&&swap.pilot ? swap.pilot : roles.pilot;
     const d = new Date(date+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
     html += `<div style="padding:6px 0;border-bottom:1px solid var(--border)">
       <div style="font-size:10px;color:var(--text2);margin-bottom:3px">Week of ${d}</div>
       <div style="display:flex;gap:10px">
-        ${roles.fac?`<span style="font-size:10px"><span style="color:#f0a500;font-weight:700">FAC</span> ${roles.fac}</span>`:''}
-        ${roles.pilot?`<span style="font-size:10px"><span style="color:#00d4aa;font-weight:700">PILOT</span> ${roles.pilot}</span>`:''}
+        ${facName?`<span style="font-size:10px"><span style="color:#f0a500;font-weight:700">FAC</span> ${facName}${swap&&swap.fac?' *':''}</span>`:''}
+        ${pilotName?`<span style="font-size:10px"><span style="color:#00d4aa;font-weight:700">PILOT</span> ${pilotName}${swap&&swap.pilot?' *':''}</span>`:''}
       </div>
     </div>`;
   });
@@ -3679,7 +4199,7 @@ function renderCalendar(){
   });
   var firstDay=new Date(calYear,calMonth,1).getDay();
   var daysInMonth=new Date(calYear,calMonth+1,0).getDate();
-  var todayStr=new Date().toISOString().split("T")[0];
+  var todayStr=dateKeyLocal(new Date());
   for(var i=0;i<firstDay;i++){var b=document.createElement('div');b.style.minHeight='64px';grid.appendChild(b);}
   for(var d=1;d<=daysInMonth;d++){
     var dateStr=calYear+"-"+String(calMonth+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
@@ -3692,7 +4212,12 @@ function renderCalendar(){
         var mon=new Date(jsDate);
         mon.setDate(jsDate.getDate()-(dow-1));
         var monStr=mon.getFullYear()+"-"+String(mon.getMonth()+1).padStart(2,"0")+"-"+String(mon.getDate()).padStart(2,"0");
-        teamEvs=TEAM_SCHEDULE.filter(function(e){return e.date===monStr;});
+        teamEvs=TEAM_SCHEDULE.filter(function(e){return e.date===monStr;}).map(function(e){
+          var swap=(typeof roleSwaps!=="undefined")?roleSwaps[monStr]:null;
+          if(!swap) return e;
+          var swapped=e.role==="facilitator"?swap.fac:swap.pilot;
+          return swapped?Object.assign({},e,{person:swapped,isSwapped:true,originalPerson:e.person}):e;
+        });
       }
     }
     var customEvs=(typeof calEvents!=="undefined")?calEvents.filter(function(e){
@@ -3713,7 +4238,9 @@ function renderCalendar(){
     teamEvs.forEach(function(e){
       var color=e.role==="facilitator"?"#f0a500":"#00d4aa";
       var lbl=e.role==="facilitator"?"FAC":"PILOT";
-      html+="<div style='font-size:8px;border-radius:2px;padding:1px 4px;margin-bottom:2px;background:"+color+"22;color:"+color+";font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>"+lbl+": "+e.person+"</div>";
+      var swapMark=e.isSwapped?" *":"";
+      var swapTitle=e.isSwapped?" title='Swapped from "+e.originalPerson+"'":"";
+      html+="<div"+swapTitle+" style='font-size:8px;border-radius:2px;padding:1px 4px;margin-bottom:2px;background:"+color+"22;color:"+color+";font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>"+lbl+": "+e.person+swapMark+"</div>";
     });
     customEvs.forEach(function(e){
       var tl=e.startTime?' '+e.startTime+(e.endTime?'-'+e.endTime:''):'';
@@ -3900,6 +4427,8 @@ function lockGuestMode(){
 // ════════════════════════════════════════════════════
 
 var notifications = [];
+var _notifChannel = null;
+var _notifPollTimer = null;
 
 var NOTIF_TYPES = {
   picks:    { icon: '📋', color: '#f0a500', label: 'Picks Reminder' },
@@ -3914,32 +4443,107 @@ var NOTIF_TYPES = {
 
 function saveNotifs(){ /* Supabase-backed — no localStorage */ }
 
+function fixMojibakeText(value){
+  if(value==null) return '';
+  var s = String(value);
+  s = s
+    .replace(/Â·/g,'·')
+    .replace(/Â /g,' ')
+    .replace(/â€”/g,'—')
+    .replace(/â€“/g,'–')
+    .replace(/â†’/g,'→')
+    .replace(/â†‘/g,'↑')
+    .replace(/â†“/g,'↓')
+    .replace(/âˆ’/g,'−')
+    .replace(/â‰¥/g,'≥')
+    .replace(/â‰¤/g,'≤');
+  if(!/[ÃÂâð]/.test(s)) return s;
+  try{
+    var bytes = new Uint8Array(Array.from(s,function(ch){ return ch.charCodeAt(0)&255; }));
+    var fixed = new TextDecoder('utf-8',{fatal:false}).decode(bytes);
+    return fixed && fixed.indexOf('�')===-1 ? fixed : s;
+  }catch(e){ return s; }
+}
+
+function escapeHtml(value){
+  return fixMojibakeText(value).replace(/[&<>"']/g,function(ch){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+}
+
+function isLegacyChunkNotif(row){
+  var msg = String(row&&row.message||'');
+  var detail = String(row&&row.detail||'');
+  return /^chunk_\d+_of_\d+$/i.test(msg) || (msg.indexOf('chunk_')===0 && detail.indexOf('<div style=')>=0);
+}
+
+function normalizeNotif(row){
+  var created = row.created_at ? new Date(row.created_at) : new Date();
+  var readBy = Array.isArray(row.read_by) ? row.read_by : [];
+  return Object.assign({}, row, {
+    read_by: readBy,
+    read: readBy.includes(currentUser&&currentUser.name),
+    time: created.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}),
+    date: created.toLocaleDateString('en-US',{month:'short',day:'numeric'})
+  });
+}
+
+function upsertNotif(row, shouldToast){
+  if(!row) return;
+  if(isLegacyChunkNotif(row)) return;
+  var n = normalizeNotif(row);
+  var idx = notifications.findIndex(function(x){ return String(x.id)===String(n.id); });
+  if(idx>=0) notifications[idx]=Object.assign({},notifications[idx],n);
+  else notifications.unshift(n);
+  if(notifications.length>50) notifications=notifications.slice(0,50);
+  renderNotifBell();
+  renderNotifList();
+  if(shouldToast){
+    var t=NOTIF_TYPES[n.type]||{icon:'🔔'};
+    showToastNotif(t.icon+' '+n.message);
+  }
+}
+
 async function pushSharedNotif(type, message, detail){
-  var n = {
-    id: Date.now().toString(),
+  var payload = {
+    id: 'notif_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
     type: type, message: message, detail: detail||'',
-    time: new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}),
-    date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}),
     read_by: [], created_at: new Date().toISOString()
   };
-  await sb.from('notifications').insert([n]).catch(()=>{});
-  notifications.unshift({...n, read:false});
-  if(notifications.length>50) notifications=notifications.slice(0,50);
-  renderNotifBell(); renderNotifList();
-  var t=NOTIF_TYPES[type]||{icon:'🔔'};
-  showToastNotif(t.icon+' '+message);
+  var res = await sb.from('notifications').insert([payload]).select('*').single();
+  if(res.error){
+    console.error('Notification insert failed:', res.error);
+    showToastNotif('Notification save failed: '+res.error.message);
+    return;
+  }
+  upsertNotif(res.data||payload,true);
 }
 
 async function loadNotifications(){
-  const{data}=await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(50).catch(()=>({data:[]}));
-  if(data) notifications=data.map(function(n){
-    return Object.assign({},n,{
-  read: Array.isArray(n.read_by)&&n.read_by.includes(currentUser&&currentUser.name),
-  time: new Date(n.created_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}),
-  date: new Date(n.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'})
-});
-  });
-  renderNotifBell();
+  const{data,error}=await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(50);
+  if(error){ console.error('Notification load failed:', error); return; }
+  if(data) notifications=data.filter(function(n){return !isLegacyChunkNotif(n);}).map(normalizeNotif);
+  renderNotifBell(); renderNotifList();
+}
+
+function setupNotificationSync(){
+  if(_notifChannel) sb.removeChannel(_notifChannel);
+  _notifChannel = sb.channel('notif-rt')
+    .on('postgres_changes',{event:'*',schema:'public',table:'notifications'},function(p){
+      if(p.eventType==='DELETE'&&p.old){
+        notifications=notifications.filter(function(n){return String(n.id)!==String(p.old.id);});
+        renderNotifBell(); renderNotifList();
+        return;
+      }
+      if(p.new) upsertNotif(p.new,p.eventType==='INSERT');
+    })
+    .subscribe(function(status){
+      if(status==='SUBSCRIBED') console.log('Notifications realtime connected');
+      if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED') console.warn('Notifications realtime status:',status);
+    });
+  if(!_notifPollTimer){
+    _notifPollTimer=setInterval(loadNotifications,20000);
+  }
 }
 
 async function addNotif(type, message, detail){
@@ -3978,7 +4582,12 @@ function renderNotifList(){
   if(empty) empty.style.display = 'none';
   list.innerHTML = notifications.map(function(n){
     var t = NOTIF_TYPES[n.type] || {icon:'🔔',color:'var(--accent)',label:'Alert'};
-    return '<div onclick="readNotif(\''+n.id+'\')" style="padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:'+(n.read?'transparent':'var(--surface2)')+';transition:background .12s" onmouseover="this.style.background=\'var(--surface3)\'" onmouseout="this.style.background=\''+(n.read?'transparent':'var(--surface2)')+'\'">'+
+    var safeId = String(n.id).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    var safeMessage = escapeHtml(n.message);
+    var safeDetail = escapeHtml(n.detail);
+    var safeDate = escapeHtml(n.date);
+    var safeTime = escapeHtml(n.time);
+    return '<div onclick="readNotif(\''+safeId+'\')" style="padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:'+(n.read?'transparent':'var(--surface2)')+';transition:background .12s" onmouseover="this.style.background=\'var(--surface3)\'" onmouseout="this.style.background=\''+(n.read?'transparent':'var(--surface2)')+'\'">'+
       '<div style="display:flex;align-items:flex-start;gap:10px">'+
         '<div style="width:32px;height:32px;border-radius:8px;background:'+t.color+'22;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+t.icon+'</div>'+
         '<div style="flex:1;overflow:hidden">'+
@@ -3986,9 +4595,9 @@ function renderNotifList(){
             '<span style="font-size:9px;font-weight:700;color:'+t.color+';letter-spacing:.8px;text-transform:uppercase">'+t.label+'</span>'+
             (n.read ? '' : '<span style="width:6px;height:6px;border-radius:50%;background:'+t.color+';flex-shrink:0"></span>')+
           '</div>'+
-          '<div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px">'+n.message+'</div>'+
-          (n.detail ? '<div style="font-size:10px;color:var(--muted)">'+n.detail+'</div>' : '')+
-          '<div style="font-size:9px;color:var(--muted);margin-top:4px">'+n.date+' · '+n.time+'</div>'+
+          '<div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;word-break:break-word">'+safeMessage+'</div>'+
+          (safeDetail ? '<div style="font-size:10px;color:var(--muted);white-space:pre-wrap;word-break:break-word;max-height:90px;overflow:hidden">'+safeDetail+'</div>' : '')+
+          '<div style="font-size:9px;color:var(--muted);margin-top:4px">'+safeDate+' · '+safeTime+'</div>'+
         '</div>'+
       '</div>'+
     '</div>';
@@ -3996,12 +4605,14 @@ function renderNotifList(){
 }
 
 async function readNotif(id){
-  var n = notifications.find(function(x){ return x.id===id; });
+  var n = notifications.find(function(x){ return String(x.id)===String(id); });
   if(n&&!n.read){
     n.read=true;
     var readBy=Array.isArray(n.read_by)?[...n.read_by]:[];
     if(currentUser&&!readBy.includes(currentUser.name)) readBy.push(currentUser.name);
-    await sb.from('notifications').update({read_by:readBy}).eq('id',id).catch(()=>{});
+    n.read_by=readBy;
+    var res=await sb.from('notifications').update({read_by:readBy}).eq('id',id);
+    if(res.error) console.error('Notification read update failed:',res.error);
   }
   renderNotifBell(); renderNotifList();
 }
@@ -4011,7 +4622,12 @@ async function markAllRead(){
   for(var n of unread){
     n.read=true;
     var rb=Array.isArray(n.read_by)?[...n.read_by]:[];
-    if(currentUser&&!rb.includes(currentUser.name)){rb.push(currentUser.name);await sb.from('notifications').update({read_by:rb}).eq('id',n.id).catch(()=>{});}
+    if(currentUser&&!rb.includes(currentUser.name)){
+      rb.push(currentUser.name);
+      n.read_by=rb;
+      var res=await sb.from('notifications').update({read_by:rb}).eq('id',n.id);
+      if(res.error) console.error('Notification read update failed:',res.error);
+    }
   }
   renderNotifBell(); renderNotifList();
 }
@@ -4272,18 +4888,49 @@ window.initApp = function(){
 // ════════════════════════════════════════════════════
 var roleSwaps = {};
 
+function dateKeyLocal(d){
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function normalizeRoleSwaps(swaps){
+  var out = {};
+  Object.entries(swaps||{}).forEach(function(pair){
+    var key = pair[0], value = pair[1];
+    var finalKey = key;
+    var hasWeek = typeof TEAM_SCHEDULE !== 'undefined' && TEAM_SCHEDULE.some(function(e){return e.date===key;});
+    var d = new Date(key + 'T00:00:00');
+    if(!hasWeek && !isNaN(d) && d.getDay()===0){
+      var next = new Date(d);
+      next.setDate(d.getDate()+1);
+      var nextKey = dateKeyLocal(next);
+      if(typeof TEAM_SCHEDULE !== 'undefined' && TEAM_SCHEDULE.some(function(e){return e.date===nextKey;})){
+        finalKey = nextKey;
+      }
+    }
+    out[finalKey] = value;
+  });
+  return out;
+}
+
 async function saveRoleSwaps(){
   // Store all swaps as a single row in events table with is_swap=true
-  await sb.from('events').delete().eq('is_swap', true);
-  if(Object.keys(roleSwaps).length > 0){
-    await sb.from('events').insert([{
+  roleSwaps = normalizeRoleSwaps(roleSwaps);
+  if(Object.keys(roleSwaps).length === 0){
+    await sb.from('events').delete().eq('is_swap', true);
+    return;
+  }
+  var row = {
       id: 'role_swaps',
       title: 'role_swaps',
-      date: new Date().toISOString().split('T')[0],
+      date: dateKeyLocal(new Date()),
       type: 'swap',
       is_swap: true,
       swap_data: roleSwaps
-    }]);
+    };
+  var res = await sb.from('events').upsert([row],{onConflict:'id'});
+  if(res.error){
+    await sb.from('events').delete().eq('is_swap', true);
+    await sb.from('events').insert([row]);
   }
 }
 
@@ -4292,7 +4939,7 @@ function getMondayStr(dateStr){
   var dow = d.getDay();
   var monday = new Date(d);
   monday.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
-  return monday.toISOString().split('T')[0];
+  return dateKeyLocal(monday);
 }
 
 function getSwappedRole(mondayStr, role){
@@ -4307,7 +4954,7 @@ function openSwapModal(){
   var dow = today.getDay();
   var monday = new Date(today);
   monday.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1));
-  var mondayStr = monday.toISOString().split('T')[0];
+  var mondayStr = dateKeyLocal(monday);
   document.getElementById('swap-date').value = mondayStr;
   document.getElementById('swap-fac').value = '';
   document.getElementById('swap-pilot').value = '';
@@ -4354,7 +5001,7 @@ document.addEventListener('DOMContentLoaded', function(){
   if(swapDate) swapDate.addEventListener('change', updateSwapPreview);
 });
 
-function saveSwap(){
+async function saveSwap(){
   var dateVal = document.getElementById('swap-date').value;
   if(!dateVal){ showToast('Select a week'); return; }
   var mondayStr = getMondayStr(dateVal);
@@ -4363,19 +5010,19 @@ function saveSwap(){
   var reason = document.getElementById('swap-reason').value.trim();
   if(!fac && !pilot){ showToast('Select at least one override'); return; }
   roleSwaps[mondayStr] = { fac: fac||null, pilot: pilot||null, reason: reason, savedAt: new Date().toISOString() };
-  saveRoleSwaps();
+  await saveRoleSwaps();
   closeSwapModal();
   renderCalendar();
   addNotif('role', 'Role swap saved for week of ' + mondayStr, (fac?'FAC → '+fac:'') + (fac&&pilot?' · ':'') + (pilot?'PILOT → '+pilot:'') + (reason?' ('+reason+')':''));
   showToast('⇄ Role swap saved');
 }
 
-function clearSwapForDate(){
+async function clearSwapForDate(){
   var dateVal = document.getElementById('swap-date').value;
   if(!dateVal) return;
   var mondayStr = getMondayStr(dateVal);
   delete roleSwaps[mondayStr];
-  saveRoleSwaps();
+  await saveRoleSwaps();
   closeSwapModal();
   renderCalendar();
   showToast('Swap removed — back to original schedule');
@@ -4387,9 +5034,9 @@ var _origGetSched = window.getScheduleEventsForDate;
 // Override renderThisWeek to show swap indicators
 // renderThisWeek defined above
 
-function clearSwapForDate2(mondayStr){
+async function clearSwapForDate2(mondayStr){
   delete roleSwaps[mondayStr];
-  saveRoleSwaps();
+  await saveRoleSwaps();
   renderCalendar();
   showToast('Swap removed');
 }
@@ -4544,6 +5191,30 @@ function renderLinkBadge(url){
   return '<a href="'+url+'" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;background:'+ft.color+'18;color:'+ft.color+';padding:3px 8px;border-radius:4px;font-weight:700;text-decoration:none;border:1px solid '+ft.color+'30;transition:opacity .12s;margin:2px" onmouseover="this.style.opacity=\'.75\'" onmouseout="this.style.opacity=\'1\'">'+ft.icon+' '+ft.label+' <span style="opacity:.5;font-size:8px">↗</span></a>';
 }
 
+function researchKey(r){
+  return String(r&&r.id ? r.id : [r&&r.title,r&&r.date,r&&r.author].join('|'));
+}
+
+function researchByKey(key){
+  key = String(key);
+  return researchData.find(function(r){ return researchKey(r)===key; });
+}
+
+function researchIndexByKey(key){
+  key = String(key);
+  return researchData.findIndex(function(r){ return researchKey(r)===key; });
+}
+
+function researchTime(r){
+  var candidates = [r&&r.created_at, r&&r.timestamp, r&&r.date];
+  for(var i=0;i<candidates.length;i++){
+    if(!candidates[i]) continue;
+    var t = Date.parse(candidates[i]);
+    if(!isNaN(t)) return t;
+  }
+  return 0;
+}
+
 function renderResearch(){
   var list = document.getElementById('research-list');
   var countEl = document.getElementById('rh-count');
@@ -4564,9 +5235,9 @@ function renderResearch(){
     return true;
   });
 
-  if(sort === 'newest') filtered.sort(function(a,b){ return b.date.localeCompare(a.date); });
-  else if(sort === 'oldest') filtered.sort(function(a,b){ return a.date.localeCompare(b.date); });
-  else if(sort === 'ticker') filtered.sort(function(a,b){ return (a.tickers||'').localeCompare(b.tickers||''); });
+  if(sort === 'newest') filtered.sort(function(a,b){ return researchTime(b)-researchTime(a); });
+  else if(sort === 'oldest') filtered.sort(function(a,b){ return researchTime(a)-researchTime(b); });
+  else if(sort === 'ticker') filtered.sort(function(a,b){ return (a.tickers||'').localeCompare(b.tickers||'') || researchTime(b)-researchTime(a); });
 
   if(countEl) countEl.textContent = filtered.length + ' of ' + researchData.length + ' entries';
 
@@ -4576,6 +5247,7 @@ function renderResearch(){
   }
 
   list.innerHTML = filtered.map(function(r, i){
+    var key = researchKey(r).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     var icon = RESEARCH_TYPE_ICONS[r.type] || '📎';
     var typeLabel = RESEARCH_TYPE_LABELS[r.type] || r.type;
     var typeColor = RESEARCH_TYPE_COLORS[r.type] || 'var(--muted)';
@@ -4595,7 +5267,7 @@ function renderResearch(){
     var PERSON_COLORS = {Ben:'#22c55e',Jeff:'#f0a500',Monette:'#8b5cf6',Rome:'#ef4444'};
     var authorColor = PERSON_COLORS[r.author] || 'var(--accent)';
 
-    return '<div onclick="openResearchDetail('+i+')" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .12s;border-left:3px solid '+typeColor+'" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.borderLeftColor=\''+typeColor+'\'">'
+    return '<div onclick="openResearchDetail(\''+key+'\')" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .12s;border-left:3px solid '+typeColor+'" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.borderLeftColor=\''+typeColor+'\'">'
       + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">'
         + '<div style="flex:1;overflow:hidden">'
           + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
@@ -4611,7 +5283,7 @@ function renderResearch(){
             + (r.links ? r.links.split(',').map(function(u){ return renderLinkBadge(u.trim()); }).join('') : '')
           + '</div>'
         + '</div>'
-        + '<button onclick="event.stopPropagation();deleteResearch('+i+')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;flex-shrink:0;padding:2px 4px;opacity:.5" onmouseover="this.style.opacity=1;this.style.color=\'var(--red)\'" onmouseout="this.style.opacity=.5;this.style.color=\'var(--muted)\'">&#215;</button>'
+        + '<button onclick="event.stopPropagation();deleteResearch(\''+key+'\')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;flex-shrink:0;padding:2px 4px;opacity:.5" onmouseover="this.style.opacity=1;this.style.color=\'var(--red)\'" onmouseout="this.style.opacity=.5;this.style.color=\'var(--muted)\'">&#215;</button>'
       + '</div>'
     + '</div>';
   }).join('');
@@ -4664,9 +5336,9 @@ async function saveResearch(){
     timestamp: new Date().toISOString()
   };
 
-  const{error}=await sb.from('research').insert([entry]);
+  const{data,error}=await sb.from('research').insert([entry]).select('*').single();
   if(error){showToast('Error saving: '+error.message);return;}
-  researchData.unshift(entry);
+  researchData.unshift(data||entry);
   closeResearchModal();
   renderResearch();
   renderHomeResearch();
@@ -4678,18 +5350,20 @@ async function saveResearch(){
 
 async function deleteResearch(idx){
   if(!confirm('Delete this research entry?')) return;
-  var entry = researchData[idx];
+  var dataIdx = researchIndexByKey(idx);
+  var entry = dataIdx>=0 ? researchData[dataIdx] : researchData[idx];
   if(entry && entry.id){
     await sb.from('research').delete().eq('id', entry.id);
   }
-  researchData.splice(idx, 1);
+  if(dataIdx>=0) researchData.splice(dataIdx, 1);
+  else researchData.splice(idx, 1);
   renderResearch();
   renderHomeResearch();
   showToast('Research deleted');
 }
 
 function openResearchDetail(idx){
-  var r = researchData[idx];
+  var r = researchByKey(idx) || researchData[idx];
   if(!r) return;
 
   var c = (r.content||'').trimStart();
@@ -4823,9 +5497,9 @@ async function saveQuickPaste(){
     date: today.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
     timestamp: today.toISOString()
   };
-  const{error}=await sb.from('research').insert([entry]);
+  const{data,error}=await sb.from('research').insert([entry]).select('*').single();
   if(error){showToast('Error saving: '+error.message);return;}
-  researchData.unshift(entry);
+  researchData.unshift(data||entry);
   closeQuickPaste();
   renderResearch();
   renderHomeResearch();

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://megatrend-dashboard/schemas/movers.schema.json",
+  "title": "Movers run (internal)",
+  "description": "Internal shape the dashboard produces when it scrapes movers. Not a user import — included so the storage layer can self-validate and so future LLM pipelines have a contract.",
+  "type": "object",
+  "required": ["run_date", "ran_at", "rows"],
+  "properties": {
+    "run_date":  { "type": "string", "format": "date" },
+    "ran_at":    { "type": "string", "format": "date-time" },
+    "forced":    { "type": "boolean", "default": false },
+    "rows": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/mover" }
+    }
+  },
+  "$defs": {
+    "mover": {
+      "type": "object",
+      "required": ["id", "run_date", "ticker", "direction", "move_pct"],
+      "properties": {
+        "id":                { "type": "string" },
+        "run_date":          { "type": "string", "format": "date" },
+        "ticker":            { "type": "string", "pattern": "^[A-Z.\\-]{1,8}$" },
+        "name":              { "type": "string" },
+        "direction":         { "type": "string", "enum": ["up", "down"] },
+        "move_pct":          { "type": "number" },
+        "market_cap":        { "type": ["number", "null"] },
+        "volume":            { "type": ["number", "null"] },
+        "avg_volume_10d":    { "type": ["number", "null"] },
+        "volume_multiple":   { "type": ["number", "null"] },
+        "traded_value":      { "type": ["number", "null"] },
+        "sector":            { "type": ["string", "null"] },
+        "industry":          { "type": ["string", "null"] },
+        "catalyst":          { "type": ["string", "null"] },
+        "catalyst_source":   { "type": ["string", "null"] },
+        "trend_id":          { "type": ["string", "null"] },
+        "cluster_score":     { "type": ["number", "null"] },
+        "new_trend_flag":    { "type": "boolean" },
+        "new_headwind_flag": { "type": "boolean" }
+      }
+    }
+  }
+}

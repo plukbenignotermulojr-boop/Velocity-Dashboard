@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <base href="/external/market-screener/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MegaTrend Intelligence</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./styles.css">
+
+  <!-- PDF export (pinned; used by News + Movers tabs) -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+
+<header class="header" id="app-header">
+  <div class="logo">
+    <div class="logo-mark">M</div>
+    <div>
+      <div class="logo-name">MegaTrend Intelligence</div>
+      <div class="logo-tag">Research dashboard — v0.2</div>
+    </div>
+  </div>
+  <nav class="nav" role="tablist">
+    <button class="nav-btn active" data-tab="screener" role="tab">Screener</button>
+    <button class="nav-btn" data-tab="news" role="tab">News</button>
+    <button class="nav-btn" data-tab="movers" role="tab">Movers</button>
+    <button class="nav-btn" data-tab="macro" role="tab">Macro</button>
+  </nav>
+  <div class="hdr-right">
+    <span class="sdot" id="hdr-dot"></span>
+    <span class="stxt" id="hdr-status">localStorage</span>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="storage-note">
+    <span class="sdot2"></span>
+    Storage: localStorage (build phase). Supabase wiring deferred — see <code>supabase-ddl.sql</code>.
+  </div>
+
+  <!-- ── Screener ───────────────────────────────────────────────────── -->
+  <section class="tab-panel active" id="tab-screener" role="tabpanel">
+
+    <div class="section-header">
+      <div>
+        <div class="section-title">Trend registry</div>
+        <div class="section-sub">Your curated megatrend list.</div>
+      </div>
+      <div class="hdr-actions">
+        <button class="btn" id="screener-export-btn" title="Export your full trend registry as a PDF, formatted like the dashboard cards">⤒ Export registry (PDF)</button>
+        <button class="btn" id="screener-copy-registry-btn" title="Copy your registry to the clipboard so you can paste it under 'Run candidate scan' in your Claude Project">📋 Copy registry</button>
+        <button class="btn" id="screener-scan-btn">⊙ Scan candidates</button>
+        <button class="btn btn-primary" id="screener-add-btn">+ Add trend</button>
+      </div>
+    </div>
+
+    <div class="import-panel" id="screener-import-panel">
+      <div class="import-top">
+        <div>
+          <div class="import-title">Import trends JSON</div>
+          <div class="import-sub">Paste the output of the <code>trends.md</code> Claude Project prompt. Re-imports upsert by id.</div>
+        </div>
+      </div>
+      <textarea class="import-area" id="screener-import-area" placeholder='{"generated_at":"...","trends":[...]}'></textarea>
+      <div class="error-box" id="screener-import-error"></div>
+      <div class="import-footer">
+        <span class="import-hint">Dashboard validates against <code>schemas/trends.schema.json</code>.</span>
+        <button class="btn" id="screener-import-btn">Import</button>
+      </div>
+    </div>
+
+    <div class="custom-trend-panel" id="screener-custom-panel" style="display:none"></div>
+    <div class="candidate-panel" id="screener-candidate-panel" style="display:none"></div>
+
+    <div class="metrics" id="screener-metrics"></div>
+    <div class="trends-grid" id="screener-grid"></div>
+
+  </section>
+
+  <!-- ── News ───────────────────────────────────────────────────────── -->
+  <section class="tab-panel" id="tab-news" role="tabpanel">
+
+    <div class="section-header">
+      <div>
+        <div class="section-title">News</div>
+        <div class="section-sub">Classified news by trend. Export today's set as a linked PDF.</div>
+      </div>
+      <div class="hdr-actions">
+        <button class="btn" id="news-export-btn">⤒ Export today's news (PDF)</button>
+      </div>
+    </div>
+
+    <div class="import-panel" id="news-import-panel">
+      <div class="import-top">
+        <div>
+          <div class="import-title">Import news JSON</div>
+          <div class="import-sub">Paste the output of the <code>news.md</code> prompt. Dedupes by hash.</div>
+        </div>
+      </div>
+      <textarea class="import-area" id="news-import-area" placeholder='{"generated_at":"...","items":[...]}'></textarea>
+      <div class="error-box" id="news-import-error"></div>
+      <div class="import-footer">
+        <span class="import-hint">Validates against <code>schemas/news.schema.json</code>. Auto-prunes items older than 30 days.</span>
+        <button class="btn" id="news-import-btn">Import</button>
+      </div>
+    </div>
+
+    <div class="filter-row" id="news-filters">
+      <button class="filter active" data-type="all">All</button>
+      <button class="filter" data-type="catalyst">Catalyst</button>
+      <button class="filter" data-type="headwind">Headwind</button>
+      <button class="filter" data-type="validation">Validation</button>
+      <button class="filter" data-type="disruption">Disruption</button>
+    </div>
+
+    <div class="news-list" id="news-list"></div>
+
+  </section>
+
+  <!-- ── Movers ─────────────────────────────────────────────────────── -->
+  <section class="tab-panel" id="tab-movers" role="tabpanel">
+
+    <div class="section-header">
+      <div>
+        <div class="section-title">Movers</div>
+        <div class="section-sub">Top US gainers and losers with catalysts. Cached per day.</div>
+      </div>
+      <div class="hdr-actions">
+        <button class="btn" id="movers-export-btn">⤒ Export movers (PDF)</button>
+      </div>
+    </div>
+
+    <div class="movers-bar">
+      <button class="btn btn-primary" id="movers-run-btn">▶ Run movers screener</button>
+      <a class="link-inline" id="movers-force-btn">Force refresh</a>
+      <span class="cache-label" id="movers-cache-label"></span>
+      <span style="flex:1"></span>
+      <button class="btn btn-ghost" id="movers-check-btn" title="Check a specific ticker against the movers filter thresholds">🔎 Check ticker</button>
+      <button class="btn btn-ghost" id="movers-diagnose-btn" title="Run each catalyst source against AAPL and report which ones work">⚙ Diagnose</button>
+      <button class="btn btn-ghost" id="movers-settings-btn" title="Finnhub key (optional, unlocks one extra catalyst source)">⚙ Settings</button>
+    </div>
+
+    <div class="import-panel" id="movers-settings-panel" style="display:none">
+      <div class="import-title">Finnhub API key (optional)</div>
+      <div class="import-sub">Stored locally; only used for the catalyst waterfall. Free tier is 60 req/min.</div>
+      <div class="import-footer" style="margin-top:12px">
+        <input class="field-input" id="movers-finnhub-input" placeholder="finnhub_key_..." type="password" style="flex:1">
+        <button class="btn" id="movers-finnhub-save">Save</button>
+        <button class="btn btn-ghost" id="movers-finnhub-clear">Clear</button>
+      </div>
+    </div>
+
+    <div class="movers-view-tabs" id="movers-view-tabs" role="tablist">
+      <button class="view-tab active" data-view="gainers" role="tab">▲ Gainers <span class="view-tab-count" id="view-count-gainers">0</span></button>
+      <button class="view-tab" data-view="losers" role="tab">▼ Losers <span class="view-tab-count" id="view-count-losers">0</span></button>
+    </div>
+
+    <div class="movers-progress" id="movers-progress" hidden>
+      <div class="movers-progress-top">
+        <div class="movers-progress-label" id="movers-progress-label">Working...</div>
+        <div class="movers-progress-count" id="movers-progress-count"></div>
+      </div>
+      <div class="movers-progress-bar"><div class="movers-progress-fill" id="movers-progress-fill"></div></div>
+      <div class="movers-progress-sub" id="movers-progress-sub"></div>
+    </div>
+
+    <div class="metrics" id="movers-metrics"></div>
+    <div class="movers-grid" id="movers-grid"></div>
+
+  </section>
+
+  <!-- ── Macro ──────────────────────────────────────────────────────── -->
+  <section class="tab-panel" id="tab-macro" role="tabpanel">
+
+    <div class="section-header">
+      <div>
+        <div class="section-title">Macro</div>
+        <div class="section-sub">FRED + Treasuries (live) · FOMC + calendar (pasted).</div>
+      </div>
+      <div class="hdr-actions">
+        <button class="btn" id="macro-refresh-btn">↻ Refresh FRED + yields</button>
+      </div>
+    </div>
+
+    <div class="macro-row" id="macro-fred"></div>
+    <div class="yield-chart">
+      <div class="macro-card-label">Treasury yields</div>
+      <svg class="yield-svg" id="macro-yield-svg" viewBox="0 0 600 160" preserveAspectRatio="none"></svg>
+      <div id="macro-yield-meta" class="macro-card-delta" style="text-align:right"></div>
+    </div>
+
+    <div class="import-panel">
+      <div class="import-top">
+        <div>
+          <div class="import-title">Import macro JSON (FOMC + calendar)</div>
+          <div class="import-sub">Output of <code>macro.md</code>. FRED values + yields are fetched live — not part of this payload.</div>
+        </div>
+      </div>
+      <textarea class="import-area" id="macro-import-area" placeholder='{"generated_at":"...","fomc":[...],"calendar":[...]}'></textarea>
+      <div class="error-box" id="macro-import-error"></div>
+      <div class="import-footer">
+        <span class="import-hint">Validates against <code>schemas/macro.schema.json</code>.</span>
+        <button class="btn" id="macro-import-btn">Import</button>
+      </div>
+    </div>
+
+    <div class="section-header" style="margin-top:20px">
+      <div><div class="section-title" style="font-size:16px">FOMC probabilities</div></div>
+    </div>
+    <div id="macro-fomc"></div>
+
+    <div class="section-header" style="margin-top:20px">
+      <div><div class="section-title" style="font-size:16px">Event calendar</div></div>
+    </div>
+    <div class="calendar-list" id="macro-calendar"></div>
+
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  <div>MegaTrend Dashboard · localStorage backend · <a id="footer-prune">prune old data</a> · <a id="footer-counts">storage counts</a></div>
+  <div>v0.2 · Build phase · No auth (deferred to parent platform)</div>
+</footer>
+
+<div id="toast-region"></div>
+
+<script src="./storage-client.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
