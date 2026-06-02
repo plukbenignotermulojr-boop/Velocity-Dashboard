@@ -82,6 +82,19 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 #content{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px;background:var(--bg);}
 #content::-webkit-scrollbar{width:4px;}
 #content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+@media(max-width:760px){
+  #sidebar{width:var(--sidebar-w-collapsed);}
+  #sidebar .sidebar-logo,#sidebar .nav-label,#sidebar .nav-text,#sidebar .user-info,#sidebar .nav-badge{opacity:0;width:0;display:none;}
+  #sidebar .sidebar-top{justify-content:center;padding:12px 8px;}
+  #sidebar .nav-item{justify-content:center;padding:10px 8px;gap:0;}
+  #sidebar .nav-icon{width:100%;}
+  #sidebar .sidebar-footer{padding:10px 8px;}
+  #topbar{padding:0 10px;gap:8px;}
+  #page-title{font-size:15px;letter-spacing:1.5px;}
+  .topbar-right{gap:5px;}
+  #tb-date,.tb-badge:nth-of-type(n+2){display:none;}
+  #content{padding:14px 10px;}
+}
 
 /* ── PAGES ── */
 .page{display:none;}
@@ -221,6 +234,54 @@ select.finp{cursor:pointer;}
 .fd-tab.active{background:var(--accent);color:#000;}
 .fd-panel{display:none;}
 .fd-panel.active{display:block;}
+.pitch-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.pitch-date-control{display:flex;align-items:center;gap:8px;}
+.pitch-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.pitch-layout{display:grid;grid-template-columns:3fr 2fr;gap:14px;}
+.pitch-mobile-list{display:none;}
+.pitch-mobile-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:9px;}
+.pitch-mobile-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.pitch-mobile-title{display:flex;align-items:center;gap:7px;min-width:0;}
+.pitch-mobile-ticker{background:transparent;border:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800;width:72px;outline:none;text-transform:uppercase;}
+.pitch-mobile-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;}
+.pitch-mobile-field .mlbl{margin-bottom:3px;font-size:8px;}
+.pitch-mobile-field select,.pitch-mobile-field input[type="text"]{width:100%;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 8px;outline:none;min-height:32px;}
+.pitch-mobile-scores{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:7px;}
+.pitch-mobile-score{background:var(--surface3);border:1px solid var(--border);border-radius:5px;padding:5px 7px;min-height:32px;display:flex;align-items:center;justify-content:space-between;gap:6px;}
+.pitch-mobile-score-label{font-size:7px;color:var(--text2);letter-spacing:.7px;text-transform:uppercase;font-weight:800;margin-bottom:0;}
+.pitch-mobile-score input{width:100%;background:transparent;border:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:800;outline:none;text-align:center;}
+.pitch-vote-state{font-size:13px;font-weight:900;text-align:right;line-height:16px;}
+.pitch-mobile-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+.pitch-mobile-avg{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:900;}
+.pitch-mobile-remove{background:none;border:none;color:var(--red);font-size:18px;line-height:1;cursor:pointer;padding:4px 7px;}
+@media(max-width:760px){
+  .fd-tabs{overflow-x:auto;flex-wrap:nowrap;margin:0 -10px 12px;padding:4px 10px;border-radius:0;scrollbar-width:none;}
+  .fd-tabs::-webkit-scrollbar{display:none;}
+  .fd-tab{flex:0 0 auto;padding:8px 12px;font-size:10px;}
+  #fdp-pitch{padding-bottom:24px;}
+  .pitch-toolbar{align-items:stretch;gap:10px;}
+  .pitch-date-control,.pitch-actions{width:100%;}
+  .pitch-date-control{justify-content:space-between;}
+  #pitch-date{width:150px!important;height:34px;}
+  .pitch-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+  .pitch-actions .btn-sm{height:32px;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0 8px;min-width:0;}
+  .pitch-layout{display:flex;flex-direction:column;gap:12px;}
+  #fdp-pitch .tw{display:none;}
+  .pitch-mobile-list{display:block;}
+  #fdp-pitch .card{padding:12px;}
+  #fdp-pitch .ch{align-items:flex-start;gap:6px;}
+  #fdp-pitch .ct{font-size:11px;}
+  #pitch-chart-viewer .cv-hdr{flex-wrap:wrap;gap:6px;padding:8px;}
+  #pitch-chart-viewer #pcv-wrap,#pitch-chart-viewer #pcv-wrap>div{height:360px!important;}
+}
+@media(max-width:430px){
+  .pitch-mobile-scores{grid-template-columns:1fr 1fr;}
+  .pitch-actions{grid-template-columns:1fr 1fr;gap:6px;}
+  .pitch-actions .btn-sm{height:30px;font-size:9px;padding:0 6px;}
+}
+@media(max-width:340px){
+  .pitch-mobile-grid{grid-template-columns:1fr;}
+}
 
 /* ── R BARS ── */
 .rbar{width:80px;height:14px;background:var(--surface3);border-radius:2px;position:relative;overflow:hidden;display:inline-block;vertical-align:middle;}
@@ -763,15 +824,15 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
 
   <!-- PITCH -->
   <div class="fd-panel active" id="fdp-pitch">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-      <div style="display:flex;align-items:center;gap:8px">
+    <div class="pitch-toolbar">
+      <div class="pitch-date-control">
         <span style="font-size:10px;color:var(--text2)">DATE</span>
         <input type="date" id="pitch-date" class="finp" style="width:130px" onchange="loadPitchForDate(this.value)">
       </div>
-      <div style="display:flex;gap:6px">
+      <div class="pitch-actions">
         <button class="btn-sm btn-sec" onclick="addPitchRow()">+ Add</button>
         <button class="btn-sm btn-sec" onclick="clearPitchRows()" style="color:var(--red);border-color:var(--red);opacity:.8" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.8">⌫ Clear</button>
-        <button class="btn-sm btn-accent" onclick="savePitchToSupabase()">↑ Save Picks</button>
+        <button class="btn-sm btn-accent" onclick="savePitchToSupabase()">↑ Save</button>
         <button class="btn-sm btn-sec" onclick="loadPitchHistory()">📅 History</button>
       </div>
     </div>
@@ -789,13 +850,14 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
       </div>
       <div id="pcv-wrap" style="height:520px"></div>
     </div>
-    <div style="display:grid;grid-template-columns:3fr 2fr;gap:14px">
+    <div class="pitch-layout">
       <div class="card">
         <div class="ch"><div class="ct">Picks Input</div><div style="font-size:10px;color:var(--text2)">Score 1–5</div></div>
         <div class="tw"><table><thead><tr>
           <th>Ticker</th><th>Setup</th><th>Fundamentals</th><th>Notes</th><th>Picker</th><th style="text-align:center">Fund?</th>
           <th class="r">BEN</th><th class="r">JEFF</th><th class="r">MON</th><th class="r">ROME</th><th class="r">AVG</th><th></th>
         </tr></thead><tbody id="pitch-body"></tbody></table></div>
+        <div id="pitch-mobile-list" class="pitch-mobile-list"></div>
       </div>
       <div class="card">
         <div class="ch"><div class="ct">Rankings (≥3.0 = PASS)</div></div>
@@ -2123,6 +2185,8 @@ function makeNoteLink(notes){
 
 function renderPitch(){
   const tb=document.getElementById('pitch-body');
+  const mobileList=document.getElementById('pitch-mobile-list');
+  if(!pitchData.length&&mobileList) mobileList.innerHTML='<div class="empty">No picks - tap Add</div>';
   if(!pitchData.length){tb.innerHTML='<tr><td colspan="11" class="empty">No picks — click + Add</td></tr>';return;}
   tb.innerHTML=pitchData.map((row,i)=>{
     const sc=[row.ben,row.jeff,row.monette,row.rome].filter(v=>v!=null);
@@ -2163,6 +2227,56 @@ function renderPitch(){
     const btn=e.target.closest('[data-pc]');
     if(btn) openPitchChart(btn.dataset.pc,'D');
   };
+  if(mobileList) renderPitchMobileCards(mobileList);
+}
+
+function renderPitchMobileCards(list){
+  const mobileRows=pitchData.map((row,i)=>({row,i})).reverse();
+  list.innerHTML=mobileRows.map(({row,i})=>{
+    const sc=[row.ben,row.jeff,row.monette,row.rome].filter(v=>v!=null);
+    const avg=sc.length?sc.reduce((a,b)=>a+b,0)/sc.length:null;
+    const ac=avg===null?'var(--text2)':avg>=3?'var(--green)':avg>=2?'var(--accent)':'var(--red)';
+    const notesVal=row.notes||'';
+    const noteField=isUrl(notesVal)
+      ? `<div style="display:flex;align-items:center;gap:8px"><a href="${escapeHtml(notesVal)}" target="_blank" style="color:var(--accent2);font-size:12px;font-weight:800;text-decoration:none">Open Link</a><button class="btn-sm btn-sec" onclick="clearPitchNote(${i})" style="font-size:9px">Clear</button></div>`
+      : `<input type="text" value="${escapeHtml(notesVal)}" placeholder="notes or link..." oninput="pitchData[${i}].notes=this.value;if(isUrl(this.value))renderPitch()">`;
+    const pickerOptions=['Ben','Jeff','Monette','Rome'].map(p=>`<option ${row.picker===p?'selected':''}>${p}</option>`).join('');
+    const setupOptions=SETUP_OPTIONS.map(o=>`<option ${row.setup===o?'selected':''}>${o}</option>`).join('');
+    const fundOptions=FUND_OPTIONS.map(o=>`<option ${row.fundamentals===o?'selected':''}>${o}</option>`).join('');
+    const scores=['ben','jeff','monette','rome'].map(p=>{
+      const isMe=currentUser&&currentUser.name.toLowerCase().startsWith(p);
+      const label=p==='monette'?'MON':p.toUpperCase();
+      const val=row[p];
+      if(isMe){
+        return `<div class="pitch-mobile-score"><div class="pitch-mobile-score-label">${label}</div><input type="number" min="1" max="5" value="${val||''}" oninput="pitchData[${i}].${p}=this.value?parseFloat(this.value):null;refreshRankings()"></div>`;
+      }
+      return `<div class="pitch-mobile-score"><div class="pitch-mobile-score-label">${label}</div><div class="pitch-vote-state" style="color:${val!=null?'var(--green)':'var(--red)'}">${val!=null?'✓':'-'}</div></div>`;
+    }).join('');
+    const ticker=escapeHtml(row.ticker||'');
+    const setup=escapeHtml(row.setup||'');
+    const picker=escapeHtml(row.picker||'');
+    return `<div class="pitch-mobile-card">
+      <div class="pitch-mobile-head">
+        <div class="pitch-mobile-title">
+          <input class="pitch-mobile-ticker" value="${ticker}" placeholder="TICKER" oninput="pitchData[${i}].ticker=this.value.trim().toUpperCase()">
+          ${ticker?`<button class="pr-adv-btn" onclick="openPitchChart('${ticker}','D')">Chart</button>`:''}
+        </div>
+        <button class="pitch-mobile-remove" onclick="pitchData.splice(${i},1);renderPitch();refreshRankings()" aria-label="Remove pick">x</button>
+      </div>
+      <div class="pitch-mobile-grid">
+        <div class="pitch-mobile-field"><div class="mlbl">Setup</div><select onchange="pitchData[${i}].setup=this.value">${setupOptions}</select></div>
+        <div class="pitch-mobile-field"><div class="mlbl">Fundamentals</div><select onchange="pitchData[${i}].fundamentals=this.value">${fundOptions}</select></div>
+        <div class="pitch-mobile-field"><div class="mlbl">Picker</div><select onchange="pitchData[${i}].picker=this.value">${pickerOptions}</select></div>
+        <div class="pitch-mobile-field"><div class="mlbl">Fund?</div><label style="height:32px;display:flex;align-items:center;justify-content:center;background:var(--surface3);border:1px solid var(--border);border-radius:4px;padding:0 9px"><input type="checkbox" ${row.forFund?'checked':''} onchange="pitchData[${i}].forFund=this.checked;refreshRankings()" style="accent-color:var(--accent)"></label></div>
+      </div>
+      <div class="pitch-mobile-field"><div class="mlbl">Notes</div>${noteField}</div>
+      <div class="pitch-mobile-scores">${scores}</div>
+      <div class="pitch-mobile-footer">
+        <div><div class="mlbl">Average</div><div class="pitch-mobile-avg" style="color:${ac}">${avg?avg.toFixed(2):'-'}</div></div>
+        <button class="btn-sm btn-accent" onclick="sendToPlan('${ticker}','${setup}','${picker}')">Plan</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function refreshRankings(){
@@ -2175,6 +2289,7 @@ function refreshRankings(){
   out.innerHTML=ranked.map((r,i)=>{
     const chip=r.avg>=3?'badge-g':r.avg>=2?'badge-a':'badge-r';
     const label=r.avg>=3?'PASS':r.avg>=2?'WATCH':'SKIP';
+    const fundTag=r.forFund?'<span style="font-size:8px;background:rgba(240,165,0,.2);color:var(--accent);padding:1px 6px;border-radius:3px;font-weight:700;letter-spacing:.3px;margin-left:4px">FUND</span>':'';
     return`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:6px">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--border2);width:22px">${i+1}</div>
       <div style="flex:1">
@@ -2182,9 +2297,9 @@ function refreshRankings(){
           <span style="font-weight:700;font-size:13px">${r.ticker}</span>
           <span class="sb">${r.setup||'—'}</span>
           <span class="badge ${chip}">${label}</span>
-          ${r.forFund?'<span style="font-size:8px;background:rgba(240,165,0,.2);color:var(--accent);padding:1px 6px;border-radius:3px;font-weight:700;letter-spacing:.3px">FUND</span>':''}
         </div>
         <div style="font-size:10px;color:var(--text2);margin-top:2px"><span class="pk ${pkc(r.picker)}">${r.picker||'—'}</span> avg <span style="color:${r.avg>=3?'var(--green)':r.avg>=2?'var(--accent)':'var(--red)'}">${r.avg.toFixed(2)}</span></div>
+        ${r.forFund?`<div style="margin-top:3px">${fundTag}</div>`:''}
       </div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${r.avg>=3?'var(--green)':r.avg>=2?'var(--accent)':'var(--red)'}">${r.avg.toFixed(1)}</div>
       <button onclick="openPitchChart('${r.ticker}','D')" style="background:var(--surface3);border:1px solid var(--border);color:var(--text2);border-radius:3px;padding:4px 7px;cursor:pointer;font-size:10px">📈</button>
