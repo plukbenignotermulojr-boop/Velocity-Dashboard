@@ -93,7 +93,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   #page-title{font-size:15px;letter-spacing:1.5px;}
   .topbar-right{gap:5px;}
   #tb-date,.tb-badge:nth-of-type(n+2){display:none;}
-  #content{padding:14px 10px;}
+  #content{padding:14px 10px calc(96px + env(safe-area-inset-bottom,0px));}
 }
 
 /* ── PAGES ── */
@@ -2289,7 +2289,7 @@ function refreshRankings(){
   out.innerHTML=ranked.map((r,i)=>{
     const chip=r.avg>=3?'badge-g':r.avg>=2?'badge-a':'badge-r';
     const label=r.avg>=3?'PASS':r.avg>=2?'WATCH':'SKIP';
-    const fundTag=r.forFund?'<span style="font-size:8px;background:rgba(240,165,0,.2);color:var(--accent);padding:1px 6px;border-radius:3px;font-weight:700;letter-spacing:.3px;margin-left:4px">FUND</span>':'';
+    const fundTag=r.forFund?'<span style="font-size:8px;background:rgba(240,165,0,.2);color:var(--accent);padding:1px 5px;border-radius:3px;font-weight:700;letter-spacing:.3px;margin-left:4px;white-space:nowrap">FUND</span>':'';
     return`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:6px">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--border2);width:22px">${i+1}</div>
       <div style="flex:1">
@@ -2298,8 +2298,7 @@ function refreshRankings(){
           <span class="sb">${r.setup||'—'}</span>
           <span class="badge ${chip}">${label}</span>
         </div>
-        <div style="font-size:10px;color:var(--text2);margin-top:2px"><span class="pk ${pkc(r.picker)}">${r.picker||'—'}</span> avg <span style="color:${r.avg>=3?'var(--green)':r.avg>=2?'var(--accent)':'var(--red)'}">${r.avg.toFixed(2)}</span></div>
-        ${r.forFund?`<div style="margin-top:3px">${fundTag}</div>`:''}
+        <div style="font-size:10px;color:var(--text2);margin-top:2px;display:flex;align-items:center;gap:4px;flex-wrap:wrap"><span class="pk ${pkc(r.picker)}">${r.picker||'—'}</span>${fundTag}<span>avg</span> <span style="color:${r.avg>=3?'var(--green)':r.avg>=2?'var(--accent)':'var(--red)'}">${r.avg.toFixed(2)}</span></div>
       </div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${r.avg>=3?'var(--green)':r.avg>=2?'var(--accent)':'var(--red)'}">${r.avg.toFixed(1)}</div>
       <button onclick="openPitchChart('${r.ticker}','D')" style="background:var(--surface3);border:1px solid var(--border);color:var(--text2);border-radius:3px;padding:4px 7px;cursor:pointer;font-size:10px">📈</button>
