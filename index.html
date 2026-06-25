@@ -4618,6 +4618,15 @@ function upsertNotif(row, shouldToast){
   }
 }
 
+function notifDisplayDetail(n){
+  return String(n&&n.detail||'').replace(/\n?\[\[research:[^\]]+\]\]/,'');
+}
+
+function notifResearchKey(n){
+  var m = String(n&&n.detail||'').match(/\[\[research:([^\]]+)\]\]/);
+  return m ? m[1] : '';
+}
+
 async function pushSharedNotif(type, message, detail){
   var payload = {
     id: 'notif_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
@@ -4698,7 +4707,7 @@ function renderNotifList(){
     var t = NOTIF_TYPES[n.type] || {icon:'🔔',color:'var(--accent)',label:'Alert'};
     var safeId = String(n.id).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     var safeMessage = escapeHtml(n.message);
-    var safeDetail = escapeHtml(n.detail);
+    var safeDetail = escapeHtml(notifDisplayDetail(n));
     var safeDate = escapeHtml(n.date);
     var safeTime = escapeHtml(n.time);
     return '<div onclick="readNotif(\''+safeId+'\')" style="padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:'+(n.read?'transparent':'var(--surface2)')+';transition:background .12s" onmouseover="this.style.background=\'var(--surface3)\'" onmouseout="this.style.background=\''+(n.read?'transparent':'var(--surface2)')+'\'">'+
@@ -4738,6 +4747,14 @@ function navigateFromNotif(n){
   var type = String(n.type||'');
   if(type==='research'){
     showPage('research',null);
+    var key = notifResearchKey(n);
+    if(key){
+      setTimeout(function(){
+        var item = researchByKey(key);
+        if(item) openResearchDetail(key);
+        else renderResearch();
+      }, 80);
+    }
   } else if(type==='picks'){
     showPage('funddesk',null);
     showFdTab('pitch',null);
@@ -4837,8 +4854,10 @@ function checkWeeklyRoleReminder(){
 }
 
 // 3. RESEARCH UPLOADED — called externally when Research Hub is built
-function notifyResearchUploaded(user, title){
-  addNotif('research', user + ' uploaded new research', title || '');
+function notifyResearchUploaded(user, title, research){
+  var detail = title || '';
+  if(research) detail += '\n[[research:' + researchKey(research) + ']]';
+  addNotif('research', user + ' uploaded new research', detail);
 }
 
 // 4. POSITION HITS TARGET — called from renderMonitor
@@ -5475,13 +5494,14 @@ async function saveResearch(){
 
   const{data,error}=await sb.from('research').insert([entry]).select('*').single();
   if(error){showToast('Error saving: '+error.message);return;}
-  researchData.unshift(data||entry);
+  var savedEntry = data || entry;
+  researchData.unshift(savedEntry);
   closeResearchModal();
   renderResearch();
   renderHomeResearch();
   showToast('Research published');
   if(typeof notifyResearchUploaded === 'function'){
-    notifyResearchUploaded(entry.author, entry.title);
+    notifyResearchUploaded(savedEntry.author, savedEntry.title, savedEntry);
   }
 }
 
@@ -5636,13 +5656,14 @@ async function saveQuickPaste(){
   };
   const{data,error}=await sb.from('research').insert([entry]).select('*').single();
   if(error){showToast('Error saving: '+error.message);return;}
-  researchData.unshift(data||entry);
+  var savedEntry = data || entry;
+  researchData.unshift(savedEntry);
   closeQuickPaste();
   renderResearch();
   renderHomeResearch();
   showToast('Outlook saved to Research Hub');
   if(typeof notifyResearchUploaded === 'function'){
-    notifyResearchUploaded(entry.author, entry.title);
+    notifyResearchUploaded(savedEntry.author, savedEntry.title, savedEntry);
   }
 }
 
