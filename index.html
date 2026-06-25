@@ -4729,6 +4729,29 @@ async function readNotif(id){
     if(res.error) console.error('Notification read update failed:',res.error);
   }
   renderNotifBell(); renderNotifList();
+  navigateFromNotif(n);
+}
+
+function navigateFromNotif(n){
+  if(!n) return;
+  closeNotifPanel();
+  var type = String(n.type||'');
+  if(type==='research'){
+    showPage('research',null);
+  } else if(type==='picks'){
+    showPage('funddesk',null);
+    showFdTab('pitch',null);
+  } else if(type==='position'||type==='var'){
+    showPage('funddesk',null);
+    showFdTab('monitor',null);
+  } else if(type==='trade'){
+    showPage('funddesk',null);
+    showFdTab('records',null);
+  } else if(type==='kpi'){
+    showPage('kpi',null);
+  } else if(type==='role'||type==='mr'){
+    showPage('scheduler',null);
+  }
 }
 
 async function markAllRead(){
