@@ -1821,7 +1821,7 @@ const USERS = [
   {name:'Ben',     fullName:'Ben Termulo',    role:'Trader', color:'#22c55e', emoji:'💹', bg:'rgba(34,197,94,.2)',    pw:'ben2026'},
   {name:'Jeff',    fullName:'Jeff Chuan',     role:'Trader', color:'#f0a500', emoji:'📊', bg:'rgba(240,165,0,.2)',    pw:'jeff2026'},
   {name:'Monette', fullName:'Monette Patrimonio', role:'Trader', color:'#8b5cf6', emoji:'🔍', bg:'rgba(139,92,246,.2)',   pw:'mon2026'},
-  {name:'Peter',    fullName:'Peter Mendiola',  role:'Trader', color:'#ef4444', emoji:'⚡', bg:'rgba(239,68,68,.2)',    pw:'pete2026'},
+  {name:'Peter',    fullName:'Peter Sanchez',  role:'Trader', color:'#ef4444', emoji:'⚡', bg:'rgba(239,68,68,.2)',    pw:'pete2026'},
 ];
 let currentUser = null;
 
@@ -3576,7 +3576,7 @@ async function saveKPIGrades(){
   await sb.from('kpi_grades').insert([{grades:KPI_G}]);
 }
 function loadKPITraders(){
-  return window._kpiTradersCache||['Ben Termulo','Jeff Chuan','Peter Mendiola','Monette Patrimonio'];
+  return window._kpiTradersCache||['Ben Termulo','Jeff Chuan','Peter Sanchez','Monette Patrimonio'];
 }
 function loadKPIMonthly(){
   return window._kpiMonthlyCache||{};
@@ -5217,7 +5217,7 @@ async function seedKPIData(){
   const{data}=await sb.from('kpi_monthly').select('id').limit(1);
   if(data&&data.length>0) return; // already has data
   var emptyR=function(){return{officeAbsent:0,officeLate:0,onlineAbsent:0,onlineLate:0,noRecap:0,sharingMissed:0,ideasShared:0,varMonth:0,varRecovered:0};};
-  var traders=['Ben Termulo','Jeff Chuan','Peter Mendiola','Monette Patrimonio'];
+  var traders=['Ben Termulo','Jeff Chuan','Peter Sanchez','Monette Patrimonio'];
   var rows=[];
   // January — Monette: 1 sharing missed
   traders.forEach(function(t){rows.push({id:'2026-0_'+t.replace(/\s+/g,'_'),month_key:'2026-0',trader:t,data:t==='Monette Patrimonio'?Object.assign(emptyR(),{sharingMissed:1}):emptyR()});});
@@ -5749,6 +5749,8 @@ function autoDetectTickers(){
 }
 
 </script>
+
+
 
 
 
