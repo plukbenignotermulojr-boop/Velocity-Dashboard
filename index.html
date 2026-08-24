@@ -146,7 +146,7 @@ tr:hover td{background:rgba(255,255,255,.015);}
 .p-ben{background:rgba(34,197,94,.12);color:var(--green);}
 .p-jeff{background:rgba(240,165,0,.12);color:var(--accent);}
 .p-monette{background:rgba(139,92,246,.12);color:var(--purple);}
-.p-rome{background:rgba(239,68,68,.12);color:var(--red);}
+.p-rome,.p-peter{background:rgba(239,68,68,.12);color:var(--red);}
 .sb{font-size:10px;background:rgba(59,130,246,.12);color:var(--accent2);padding:2px 6px;border-radius:3px;font-weight:700;}
 
 /* ── INPUTS ── */
@@ -651,7 +651,7 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
     <div class="nav-section">
       <div class="nav-label">WORKSPACE</div>
       <div class="nav-item active" onclick="showPage('home',this)" title="Home">
-        <span class="nav-icon">🏠</span><span class="nav-text">Home</span>
+        <span class="nav-icon">💪</span><span class="nav-text">Home</span>
       </div>
     </div>
     <div class="nav-section">
@@ -855,7 +855,7 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
         <div class="ch"><div class="ct">Picks Input</div><div style="font-size:10px;color:var(--text2)">Score 1–5</div></div>
         <div class="tw"><table><thead><tr>
           <th>Ticker</th><th>Setup</th><th>Fundamentals</th><th>Notes</th><th>Picker</th><th style="text-align:center">Fund?</th>
-          <th class="r">BEN</th><th class="r">JEFF</th><th class="r">MON</th><th class="r">ROME</th><th class="r">AVG</th><th></th>
+          <th class="r">BEN</th><th class="r">JEFF</th><th class="r">MON</th><th class="r">PETER</th><th class="r">AVG</th><th></th>
         </tr></thead><tbody id="pitch-body"></tbody></table></div>
         <div id="pitch-mobile-list" class="pitch-mobile-list"></div>
       </div>
@@ -898,7 +898,7 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
         <div><div class="mlbl">VAR $</div><input class="finp" id="pp-var" type="number" style="width:100%" oninput="calcPlan()"></div>
         <div><div class="mlbl">Picker</div>
           <select class="finp" id="pp-pk" style="width:100%">
-            <option>Ben</option><option>Jeff</option><option>Monette</option><option>Rome</option>
+            <option>Ben</option><option>Jeff</option><option>Monette</option><option>Peter</option>
           </select>
         </div>
       </div>
@@ -1335,7 +1335,7 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
               <option value="Ben">Ben</option>
               <option value="Jeff">Jeff</option>
               <option value="Monette">Monette</option>
-              <option value="Rome">Rome</option>
+              <option value="Peter">Peter</option>
             </select>
           </div>
         </div>
@@ -1407,7 +1407,7 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
       <option value="Ben">Ben</option>
       <option value="Jeff">Jeff</option>
       <option value="Monette">Monette</option>
-      <option value="Rome">Rome</option>
+      <option value="Peter">Peter</option>
     </select>
     <select class="finp" id="rh-sort" style="font-size:10px;padding:4px 8px" onchange="renderResearch()">
       <option value="newest">Newest First</option>
@@ -1531,14 +1531,14 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
           <div class="mlbl" style="color:#f0a500">Override Facilitator</div>
           <select id="swap-fac" class="finp" style="width:100%">
             <option value="">— no change —</option>
-            <option>Ben</option><option>Jeff</option><option>Monette</option><option>Rome</option>
+            <option>Ben</option><option>Jeff</option><option>Monette</option><option>Peter</option>
           </select>
         </div>
         <div>
           <div class="mlbl" style="color:#00d4aa">Override Pilot</div>
           <select id="swap-pilot" class="finp" style="width:100%">
             <option value="">— no change —</option>
-            <option>Ben</option><option>Jeff</option><option>Monette</option><option>Rome</option>
+            <option>Ben</option><option>Jeff</option><option>Monette</option><option>Peter</option>
           </select>
         </div>
       </div>
@@ -1675,7 +1675,7 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
       </div>
       <div><div class="mlbl">Added by</div>
         <select class="finp" id="lk-by" style="width:100%">
-          <option>Ben</option><option>Jeff</option><option>Monette</option><option>Rome</option>
+          <option>Ben</option><option>Jeff</option><option>Monette</option><option>Peter</option>
         </select>
       </div>
     </div>
@@ -1712,99 +1712,99 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
 // ── TEAM SCHEDULE DATA (global) ──
 var TEAM_SCHEDULE = [
   {date:"2026-04-13",type:"facilitator",title:"Facilitator: Jeff",person:"Jeff",role:"facilitator"},
-  {date:"2026-04-13",type:"pilot",title:"Pilot: Rome",person:"Rome",role:"pilot"},
-  {date:"2026-04-20",type:"facilitator",title:"Facilitator: Rome",person:"Rome",role:"facilitator"},
+  {date:"2026-04-13",type:"pilot",title:"Pilot: Peter",person:"Peter",role:"pilot"},
+  {date:"2026-04-20",type:"facilitator",title:"Facilitator: Peter",person:"Peter",role:"facilitator"},
   {date:"2026-04-20",type:"pilot",title:"Pilot: Monette",person:"Monette",role:"pilot"},
   {date:"2026-04-27",type:"facilitator",title:"Facilitator: Monette",person:"Monette",role:"facilitator"},
   {date:"2026-04-27",type:"pilot",title:"Pilot: Ben",person:"Ben",role:"pilot"},
   {date:"2026-05-04",type:"facilitator",title:"Facilitator: Ben",person:"Ben",role:"facilitator"},
   {date:"2026-05-04",type:"pilot",title:"Pilot: Jeff",person:"Jeff",role:"pilot"},
   {date:"2026-05-11",type:"facilitator",title:"Facilitator: Jeff",person:"Jeff",role:"facilitator"},
-  {date:"2026-05-11",type:"pilot",title:"Pilot: Rome",person:"Rome",role:"pilot"},
-  {date:"2026-05-18",type:"facilitator",title:"Facilitator: Rome",person:"Rome",role:"facilitator"},
+  {date:"2026-05-11",type:"pilot",title:"Pilot: Peter",person:"Peter",role:"pilot"},
+  {date:"2026-05-18",type:"facilitator",title:"Facilitator: Peter",person:"Peter",role:"facilitator"},
   {date:"2026-05-18",type:"pilot",title:"Pilot: Monette",person:"Monette",role:"pilot"},
   {date:"2026-05-25",type:"facilitator",title:"Facilitator: Monette",person:"Monette",role:"facilitator"},
   {date:"2026-05-25",type:"pilot",title:"Pilot: Ben",person:"Ben",role:"pilot"},
   {date:"2026-06-01",type:"facilitator",title:"Facilitator: Ben",person:"Ben",role:"facilitator"},
   {date:"2026-06-01",type:"pilot",title:"Pilot: Jeff",person:"Jeff",role:"pilot"},
   {date:"2026-06-08",type:"facilitator",title:"Facilitator: Jeff",person:"Jeff",role:"facilitator"},
-  {date:"2026-06-08",type:"pilot",title:"Pilot: Rome",person:"Rome",role:"pilot"},
-  {date:"2026-06-15",type:"facilitator",title:"Facilitator: Rome",person:"Rome",role:"facilitator"},
+  {date:"2026-06-08",type:"pilot",title:"Pilot: Peter",person:"Peter",role:"pilot"},
+  {date:"2026-06-15",type:"facilitator",title:"Facilitator: Peter",person:"Peter",role:"facilitator"},
   {date:"2026-06-15",type:"pilot",title:"Pilot: Monette",person:"Monette",role:"pilot"},
   {date:"2026-06-22",type:"facilitator",title:"Facilitator: Monette",person:"Monette",role:"facilitator"},
   {date:"2026-06-22",type:"pilot",title:"Pilot: Ben",person:"Ben",role:"pilot"},
   {date:"2026-06-29",type:"facilitator",title:"Facilitator: Ben",person:"Ben",role:"facilitator"},
   {date:"2026-06-29",type:"pilot",title:"Pilot: Jeff",person:"Jeff",role:"pilot"},
   {date:"2026-07-06",type:"facilitator",title:"Facilitator: Jeff",person:"Jeff",role:"facilitator"},
-  {date:"2026-07-06",type:"pilot",title:"Pilot: Rome",person:"Rome",role:"pilot"},
-  {date:"2026-07-13",type:"facilitator",title:"Facilitator: Rome",person:"Rome",role:"facilitator"},
+  {date:"2026-07-06",type:"pilot",title:"Pilot: Peter",person:"Peter",role:"pilot"},
+  {date:"2026-07-13",type:"facilitator",title:"Facilitator: Peter",person:"Peter",role:"facilitator"},
   {date:"2026-07-13",type:"pilot",title:"Pilot: Monette",person:"Monette",role:"pilot"},
   {date:"2026-07-20",type:"facilitator",title:"Facilitator: Monette",person:"Monette",role:"facilitator"},
   {date:"2026-07-20",type:"pilot",title:"Pilot: Ben",person:"Ben",role:"pilot"},
   {date:"2026-07-27",type:"facilitator",title:"Facilitator: Ben",person:"Ben",role:"facilitator"},
   {date:"2026-07-27",type:"pilot",title:"Pilot: Jeff",person:"Jeff",role:"pilot"},
   {date:"2026-08-03",type:"facilitator",title:"Facilitator: Jeff",person:"Jeff",role:"facilitator"},
-  {date:"2026-08-03",type:"pilot",title:"Pilot: Rome",person:"Rome",role:"pilot"},
-  {date:"2026-08-10",type:"facilitator",title:"Facilitator: Rome",person:"Rome",role:"facilitator"},
+  {date:"2026-08-03",type:"pilot",title:"Pilot: Peter",person:"Peter",role:"pilot"},
+  {date:"2026-08-10",type:"facilitator",title:"Facilitator: Peter",person:"Peter",role:"facilitator"},
   {date:"2026-08-10",type:"pilot",title:"Pilot: Monette",person:"Monette",role:"pilot"},
   {date:"2026-08-17",type:"facilitator",title:"Facilitator: Monette",person:"Monette",role:"facilitator"},
   {date:"2026-08-17",type:"pilot",title:"Pilot: Ben",person:"Ben",role:"pilot"},
   {date:"2026-08-24",type:"facilitator",title:"Facilitator: Ben",person:"Ben",role:"facilitator"},
   {date:"2026-08-24",type:"pilot",title:"Pilot: Jeff",person:"Jeff",role:"pilot"},
   {date:"2026-08-31",type:"facilitator",title:"Facilitator: Jeff",person:"Jeff",role:"facilitator"},
-  {date:"2026-08-31",type:"pilot",title:"Pilot: Rome",person:"Rome",role:"pilot"},
-  {date:"2026-09-07",type:"facilitator",title:"Facilitator: Rome",person:"Rome",role:"facilitator"},
+  {date:"2026-08-31",type:"pilot",title:"Pilot: Peter",person:"Peter",role:"pilot"},
+  {date:"2026-09-07",type:"facilitator",title:"Facilitator: Peter",person:"Peter",role:"facilitator"},
   {date:"2026-09-07",type:"pilot",title:"Pilot: Monette",person:"Monette",role:"pilot"},
   {date:"2026-09-14",type:"facilitator",title:"Facilitator: Monette",person:"Monette",role:"facilitator"},
   {date:"2026-09-14",type:"pilot",title:"Pilot: Ben",person:"Ben",role:"pilot"},
   {date:"2026-09-21",type:"facilitator",title:"Facilitator: Ben",person:"Ben",role:"facilitator"},
   {date:"2026-09-21",type:"pilot",title:"Pilot: Jeff",person:"Jeff",role:"pilot"},
   {date:"2026-09-28",type:"facilitator",title:"Facilitator: Jeff",person:"Jeff",role:"facilitator"},
-  {date:"2026-09-28",type:"pilot",title:"Pilot: Rome",person:"Rome",role:"pilot"},
-  {date:"2026-10-05",type:"facilitator",title:"Facilitator: Rome",person:"Rome",role:"facilitator"},
+  {date:"2026-09-28",type:"pilot",title:"Pilot: Peter",person:"Peter",role:"pilot"},
+  {date:"2026-10-05",type:"facilitator",title:"Facilitator: Peter",person:"Peter",role:"facilitator"},
   {date:"2026-10-05",type:"pilot",title:"Pilot: Monette",person:"Monette",role:"pilot"},
   {date:"2026-10-12",type:"facilitator",title:"Facilitator: Monette",person:"Monette",role:"facilitator"},
   {date:"2026-10-12",type:"pilot",title:"Pilot: Ben",person:"Ben",role:"pilot"},
   {date:"2026-10-19",type:"facilitator",title:"Facilitator: Ben",person:"Ben",role:"facilitator"},
   {date:"2026-10-19",type:"pilot",title:"Pilot: Jeff",person:"Jeff",role:"pilot"},
   {date:"2026-10-26",type:"facilitator",title:"Facilitator: Jeff",person:"Jeff",role:"facilitator"},
-  {date:"2026-10-26",type:"pilot",title:"Pilot: Rome",person:"Rome",role:"pilot"},
-  {date:"2026-11-02",type:"facilitator",title:"Facilitator: Rome",person:"Rome",role:"facilitator"},
+  {date:"2026-10-26",type:"pilot",title:"Pilot: Peter",person:"Peter",role:"pilot"},
+  {date:"2026-11-02",type:"facilitator",title:"Facilitator: Peter",person:"Peter",role:"facilitator"},
   {date:"2026-11-02",type:"pilot",title:"Pilot: Monette",person:"Monette",role:"pilot"},
   {date:"2026-11-09",type:"facilitator",title:"Facilitator: Monette",person:"Monette",role:"facilitator"},
   {date:"2026-11-09",type:"pilot",title:"Pilot: Ben",person:"Ben",role:"pilot"},
   {date:"2026-11-16",type:"facilitator",title:"Facilitator: Ben",person:"Ben",role:"facilitator"},
   {date:"2026-11-16",type:"pilot",title:"Pilot: Jeff",person:"Jeff",role:"pilot"},
   {date:"2026-11-23",type:"facilitator",title:"Facilitator: Jeff",person:"Jeff",role:"facilitator"},
-  {date:"2026-11-23",type:"pilot",title:"Pilot: Rome",person:"Rome",role:"pilot"},
-  {date:"2026-11-30",type:"facilitator",title:"Facilitator: Rome",person:"Rome",role:"facilitator"},
+  {date:"2026-11-23",type:"pilot",title:"Pilot: Peter",person:"Peter",role:"pilot"},
+  {date:"2026-11-30",type:"facilitator",title:"Facilitator: Peter",person:"Peter",role:"facilitator"},
   {date:"2026-11-30",type:"pilot",title:"Pilot: Monette",person:"Monette",role:"pilot"},
   {date:"2026-12-07",type:"facilitator",title:"Facilitator: Monette",person:"Monette",role:"facilitator"},
   {date:"2026-12-07",type:"pilot",title:"Pilot: Ben",person:"Ben",role:"pilot"},
   {date:"2026-12-14",type:"facilitator",title:"Facilitator: Ben",person:"Ben",role:"facilitator"},
   {date:"2026-12-14",type:"pilot",title:"Pilot: Jeff",person:"Jeff",role:"pilot"},
   {date:"2026-12-21",type:"facilitator",title:"Facilitator: Jeff",person:"Jeff",role:"facilitator"},
-  {date:"2026-12-21",type:"pilot",title:"Pilot: Rome",person:"Rome",role:"pilot"},
+  {date:"2026-12-21",type:"pilot",title:"Pilot: Peter",person:"Peter",role:"pilot"},
 ];
 
 var FUND_MR = [
   {month:1,person:"Jeff",monthName:"Jan"},
   {month:2,person:"Monette",monthName:"Feb"},
-  {month:3,person:"Rome",monthName:"Mar"},
+  {month:3,person:"Peter",monthName:"Mar"},
   {month:4,person:"Ben",monthName:"Apr"},
   {month:5,person:"Jeff",monthName:"May"},
   {month:6,person:"Monette",monthName:"Jun"},
-  {month:7,person:"Rome",monthName:"Jul"},
+  {month:7,person:"Peter",monthName:"Jul"},
   {month:8,person:"Ben",monthName:"Aug"},
   {month:9,person:"Jeff",monthName:"Sep"},
   {month:10,person:"Monette",monthName:"Oct"},
-  {month:11,person:"Rome",monthName:"Nov"},
+  {month:11,person:"Peter",monthName:"Nov"},
   {month:12,person:"Ben",monthName:"Dec"},
 ];
 
 
 var PERSON_COLORS = {
-  Ben: '#22c55e', Jeff: '#f0a500', Monette: '#8b5cf6', Rome: '#ef4444'
+  Ben: '#22c55e', Jeff: '#f0a500', Monette: '#8b5cf6', Peter: '#ef4444'
 };
 
 // ════════════════════════════════════════════════════════════
@@ -1821,7 +1821,7 @@ const USERS = [
   {name:'Ben',     fullName:'Ben Termulo',    role:'Trader', color:'#22c55e', emoji:'💹', bg:'rgba(34,197,94,.2)',    pw:'ben2026'},
   {name:'Jeff',    fullName:'Jeff Chuan',     role:'Trader', color:'#f0a500', emoji:'📊', bg:'rgba(240,165,0,.2)',    pw:'jeff2026'},
   {name:'Monette', fullName:'Monette Patrimonio', role:'Trader', color:'#8b5cf6', emoji:'🔍', bg:'rgba(139,92,246,.2)',   pw:'mon2026'},
-  {name:'Rome',    fullName:'Rome Mendiola',  role:'Trader', color:'#ef4444', emoji:'⚡', bg:'rgba(239,68,68,.2)',    pw:'rome2026'},
+  {name:'Peter',    fullName:'Peter Mendiola',  role:'Trader', color:'#ef4444', emoji:'⚡', bg:'rgba(239,68,68,.2)',    pw:'pete2026'},
 ];
 let currentUser = null;
 
@@ -1976,7 +1976,8 @@ const n=v=>v===''||v==null?null:parseFloat(v)||null;
 const f$=v=>v==null||isNaN(v)?'—':'$'+Number(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fN=(v,d=2)=>v==null||isNaN(v)?'—':Number(v).toFixed(d);
 const fP=v=>v==null||isNaN(v)?'—':(v*100).toFixed(2)+'%';
-function pkc(p){return{ben:'p-ben',jeff:'p-jeff',monette:'p-monette',rome:'p-rome'}[(p||'').toLowerCase()]||'';}
+function pkc(p){return{ben:'p-ben',jeff:'p-jeff',monette:'p-monette',rome:'p-rome',peter:'p-peter'}[(p||'').toLowerCase()]||'';}
+function displayPersonName(name){return name==='Rome'?'Peter':(name||'—');}
 function calcSh(piv,cut,va){if(!piv||!cut)return null;const r=Math.abs(piv-cut);return r>0?Math.floor(va/r):null;}
 function calcTgt(piv,cut){const r=Math.abs(piv-cut);return[piv+r,piv+2*r,piv+3*r,piv+4*r];}
 function isUrl(s){return s&&(s.trim().startsWith('http://')||s.trim().startsWith('https://'));}
@@ -2183,6 +2184,10 @@ function makeNoteLink(notes){
   return '<a href="'+notes+'" target="_blank" style="font-size:11px;text-decoration:none;margin-left:3px;color:var(--accent2);opacity:.8" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.8">🔗</a>';
 }
 
+function isPickerUser(p){
+  var n=(currentUser&&currentUser.name?currentUser.name:'').toLowerCase();
+  return n.startsWith(p) || (p==='rome'&&n.startsWith('peter'));
+}
 function renderPitch(){
   const tb=document.getElementById('pitch-body');
   const mobileList=document.getElementById('pitch-mobile-list');
@@ -2205,15 +2210,15 @@ function renderPitch(){
       <td><select style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:10px;border-radius:3px;padding:2px 3px;max-width:110px" onchange="pitchData[${i}].setup=this.value">${SETUP_OPTIONS.map(o=>`<option ${row.setup===o?'selected':''}>${o}</option>`).join('')}</select></td>
       <td><select style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:10px;border-radius:3px;padding:2px 3px;max-width:110px" onchange="pitchData[${i}].fundamentals=this.value">${FUND_OPTIONS.map(o=>`<option ${row.fundamentals===o?'selected':''}>${o}</option>`).join('')}</select></td>
       ${notesCell}
-      <td><select style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:10px;border-radius:3px;padding:2px 3px" onchange="pitchData[${i}].picker=this.value">${['Ben','Jeff','Monette','Rome'].map(p=>`<option ${row.picker===p?'selected':''}>${p}</option>`).join('')}</select></td>
+      <td><select style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:10px;border-radius:3px;padding:2px 3px" onchange="pitchData[${i}].picker=this.value">${['Ben','Jeff','Monette','Peter'].map(p=>`<option ${(row.picker===p||(row.picker==='Rome'&&p==='Peter'))?'selected':''}>${p}</option>`).join('')}</select></td>
       <td style="text-align:center"><label style="cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px"><input type="checkbox" ${row.forFund?'checked':''} onchange="pitchData[${i}].forFund=this.checked;refreshRankings()" style="cursor:pointer;accent-color:var(--accent)"><span style="font-size:8px;color:var(--accent);font-weight:700;letter-spacing:.3px">${row.forFund?'FUND':''}</span></label></td>
       ${['ben','jeff','monette','rome'].map(p=>{
-        const isMe=currentUser&&currentUser.name.toLowerCase().startsWith(p);
+        const isMe=isPickerUser(p);
         const val=row[p];
         if(isMe){
           return `<td class="r"><input type="number" min="1" max="5" style="background:transparent;border:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;width:28px;text-align:right" value="${val||''}" oninput="pitchData[${i}].${p}=this.value?parseFloat(this.value):null;refreshRankings()"></td>`;
         } else {
-          const nm=p.charAt(0).toUpperCase()+p.slice(1);
+          const nm=p==='rome'?'Peter':p.charAt(0).toUpperCase()+p.slice(1);
           return val!=null
             ? `<td class="r" title="${nm} voted"><span style="color:var(--green);font-size:13px;font-weight:900">✓</span></td>`
             : `<td class="r" title="${nm} hasn't voted"><span style="color:var(--red);font-size:13px;font-weight:900;opacity:.6">✗</span></td>`;
@@ -2240,12 +2245,12 @@ function renderPitchMobileCards(list){
     const noteField=isUrl(notesVal)
       ? `<div style="display:flex;align-items:center;gap:8px"><a href="${escapeHtml(notesVal)}" target="_blank" style="color:var(--accent2);font-size:12px;font-weight:800;text-decoration:none">Open Link</a><button class="btn-sm btn-sec" onclick="clearPitchNote(${i})" style="font-size:9px">Clear</button></div>`
       : `<input type="text" value="${escapeHtml(notesVal)}" placeholder="notes or link..." oninput="pitchData[${i}].notes=this.value;if(isUrl(this.value))renderPitch()">`;
-    const pickerOptions=['Ben','Jeff','Monette','Rome'].map(p=>`<option ${row.picker===p?'selected':''}>${p}</option>`).join('');
+    const pickerOptions=['Ben','Jeff','Monette','Peter'].map(p=>`<option ${(row.picker===p||(row.picker==='Rome'&&p==='Peter'))?'selected':''}>${p}</option>`).join('');
     const setupOptions=SETUP_OPTIONS.map(o=>`<option ${row.setup===o?'selected':''}>${o}</option>`).join('');
     const fundOptions=FUND_OPTIONS.map(o=>`<option ${row.fundamentals===o?'selected':''}>${o}</option>`).join('');
     const scores=['ben','jeff','monette','rome'].map(p=>{
-      const isMe=currentUser&&currentUser.name.toLowerCase().startsWith(p);
-      const label=p==='monette'?'MON':p.toUpperCase();
+      const isMe=isPickerUser(p);
+      const label=p==='monette'?'MON':p==='rome'?'PETE':p.toUpperCase();
       const val=row[p];
       if(isMe){
         return `<div class="pitch-mobile-score"><div class="pitch-mobile-score-label">${label}</div><input type="number" min="1" max="5" value="${val||''}" oninput="pitchData[${i}].${p}=this.value?parseFloat(this.value):null;refreshRankings()"></div>`;
@@ -2254,7 +2259,7 @@ function renderPitchMobileCards(list){
     }).join('');
     const ticker=escapeHtml(row.ticker||'');
     const setup=escapeHtml(row.setup||'');
-    const picker=escapeHtml(row.picker||'');
+    const picker=escapeHtml(displayPersonName(row.picker));
     return `<div class="pitch-mobile-card">
       <div class="pitch-mobile-head">
         <div class="pitch-mobile-title">
@@ -2298,11 +2303,11 @@ function refreshRankings(){
           <span class="sb">${r.setup||'—'}</span>
           <span class="badge ${chip}">${label}</span>
         </div>
-        <div style="font-size:10px;color:var(--text2);margin-top:2px;display:flex;align-items:center;gap:4px;flex-wrap:wrap"><span class="pk ${pkc(r.picker)}">${r.picker||'—'}</span>${fundTag}<span>avg</span> <span style="color:${r.avg>=3?'var(--green)':r.avg>=2?'var(--accent)':'var(--red)'}">${r.avg.toFixed(2)}</span></div>
+        <div style="font-size:10px;color:var(--text2);margin-top:2px;display:flex;align-items:center;gap:4px;flex-wrap:wrap"><span class="pk ${pkc(r.picker)}">${displayPersonName(r.picker)}</span>${fundTag}<span>avg</span> <span style="color:${r.avg>=3?'var(--green)':r.avg>=2?'var(--accent)':'var(--red)'}">${r.avg.toFixed(2)}</span></div>
       </div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${r.avg>=3?'var(--green)':r.avg>=2?'var(--accent)':'var(--red)'}">${r.avg.toFixed(1)}</div>
       <button onclick="openPitchChart('${r.ticker}','D')" style="background:var(--surface3);border:1px solid var(--border);color:var(--text2);border-radius:3px;padding:4px 7px;cursor:pointer;font-size:10px">📈</button>
-      <button onclick="sendToPlan('${r.ticker}','${r.setup||''}','${r.picker||''}')" style="background:var(--accent);color:#000;border:none;border-radius:3px;padding:4px 9px;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;cursor:pointer">→ PLAN</button>
+      <button onclick="sendToPlan('${r.ticker}','${r.setup||''}','${displayPersonName(r.picker)}')" style="background:var(--accent);color:#000;border:none;border-radius:3px;padding:4px 9px;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;cursor:pointer">→ PLAN</button>
     </div>`;
   }).join('');
 }
@@ -2424,7 +2429,7 @@ function renderPlan(){
     return`<tr>
       <td style="font-weight:700;white-space:nowrap"><button data-plc="${row.ticker}" style="background:none;border:none;cursor:pointer;font-size:10px;padding:0 3px;opacity:.5;vertical-align:middle" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">📈</button>${row.ticker}</td>
       <td><span class="sb">${row.setup||'—'}</span></td>
-      <td><span class="pk ${pkc(row.picker)}">${row.picker||'—'}</span></td>
+      <td><span class="pk ${pkc(row.picker)}">${displayPersonName(row.picker)}</span></td>
       <td class="r" style="color:var(--accent2)">${fN(row.pivot)}</td>
       <td class="r" style="color:var(--red)">${fN(row.cut)}</td>
       <td class="r">${row.pivot&&row.cut?fN(+(row.pivot-row.cut).toFixed(2)):'—'}</td>
@@ -2455,7 +2460,7 @@ function openExecModal(idx){
   document.getElementById('em-ticker').textContent=row.ticker||'—';
   document.getElementById('em-setup').textContent=row.setup||'—';
   document.getElementById('em-pivot').textContent='$'+fN(row.pivot);
-  document.getElementById('em-picker').innerHTML=`<span class="pk ${pkc(row.picker)}">${row.picker||'—'}</span>`;
+  document.getElementById('em-picker').innerHTML=`<span class="pk ${pkc(row.picker)}">${displayPersonName(row.picker)}</span>`;
   document.getElementById('em-e1').value=row.pivot||'';document.getElementById('em-s1').value=row.shares||'';
   document.getElementById('em-e2').value='';document.getElementById('em-s2').value='';
   document.getElementById('em-split').checked=false;document.getElementById('em-fill2').style.display='none';
@@ -3240,7 +3245,7 @@ function renderPicksReview(picks){
     byTicker[t].dates.add(p.date);
   });
   const pickers=['ben','jeff','monette','rome'];
-  const pickerLabels={ben:'Ben',jeff:'Jeff',monette:'Monette',rome:'Rome'};
+  const pickerLabels={ben:'Ben',jeff:'Jeff',monette:'Monette',rome:'Peter'};
   const pickerColors={ben:'#22c55e',jeff:'#f0a500',monette:'#8b5cf6',rome:'#ef4444'};
   const tradedTickers=new Set(tradesData.map(t=>(t.ticker||'').toUpperCase()));
   const tickers=Object.values(byTicker).map(tk=>{
@@ -3539,7 +3544,7 @@ async function renderPresence(){
     document.getElementById('presence-panel').style.display='none';
     return;
   }
-  const PERSON_COLORS_P={Ben:'#22c55e',Jeff:'#f0a500',Monette:'#8b5cf6',Rome:'#ef4444'};
+  const PERSON_COLORS_P={Ben:'#22c55e',Jeff:'#f0a500',Monette:'#8b5cf6',Peter:'#ef4444'};
   const now=Date.now();
   const online=data.filter(p=>{
     if(currentUser&&p.user_name===currentUser.name) return false; // don't show yourself
@@ -3571,7 +3576,7 @@ async function saveKPIGrades(){
   await sb.from('kpi_grades').insert([{grades:KPI_G}]);
 }
 function loadKPITraders(){
-  return window._kpiTradersCache||['Ben Termulo','Jeff Chuan','Rome Mendiola','Monette Patrimonio'];
+  return window._kpiTradersCache||['Ben Termulo','Jeff Chuan','Peter Mendiola','Monette Patrimonio'];
 }
 function loadKPIMonthly(){
   return window._kpiMonthlyCache||{};
@@ -5212,7 +5217,7 @@ async function seedKPIData(){
   const{data}=await sb.from('kpi_monthly').select('id').limit(1);
   if(data&&data.length>0) return; // already has data
   var emptyR=function(){return{officeAbsent:0,officeLate:0,onlineAbsent:0,onlineLate:0,noRecap:0,sharingMissed:0,ideasShared:0,varMonth:0,varRecovered:0};};
-  var traders=['Ben Termulo','Jeff Chuan','Rome Mendiola','Monette Patrimonio'];
+  var traders=['Ben Termulo','Jeff Chuan','Peter Mendiola','Monette Patrimonio'];
   var rows=[];
   // January — Monette: 1 sharing missed
   traders.forEach(function(t){rows.push({id:'2026-0_'+t.replace(/\s+/g,'_'),month_key:'2026-0',trader:t,data:t==='Monette Patrimonio'?Object.assign(emptyR(),{sharingMissed:1}):emptyR()});});
@@ -5420,7 +5425,7 @@ function renderResearch(){
       ? '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface3);border-radius:6px;margin-bottom:8px"><span style="font-size:28px">🌐</span><div><div style="font-size:12px;font-weight:700;color:var(--text)">' + r.title + '</div><div style="font-size:10px;color:var(--text2);margin-top:2px">Click to open full HTML viewer</div></div><span style="margin-left:auto;font-size:18px">↗</span></div>'
       : '<div style="font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:8px">' + (r.content||'').substring(0,180).replace(/</g,'&lt;') + (r.content&&r.content.length>180?'...':'') + '</div>';
     var tickers = r.tickers ? r.tickers.split(',').map(function(t){ return t.trim().toUpperCase(); }).filter(function(t){ return t; }) : [];
-    var PERSON_COLORS = {Ben:'#22c55e',Jeff:'#f0a500',Monette:'#8b5cf6',Rome:'#ef4444'};
+    var PERSON_COLORS = {Ben:'#22c55e',Jeff:'#f0a500',Monette:'#8b5cf6',Peter:'#ef4444'};
     var authorColor = PERSON_COLORS[r.author] || 'var(--accent)';
 
     return '<div onclick="openResearchDetail(\''+key+'\')" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .12s;border-left:3px solid '+typeColor+'" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.borderLeftColor=\''+typeColor+'\'">'
@@ -5565,7 +5570,7 @@ function openResearchDetail(idx){
   if(m){ m.style.display='flex'; m.style.alignItems='center'; m.style.justifyContent='center'; }
   document.getElementById('rd-title').textContent = r.title;
 
-  var PERSON_COLORS = {Ben:'#22c55e',Jeff:'#f0a500',Monette:'#8b5cf6',Rome:'#ef4444'};
+  var PERSON_COLORS = {Ben:'#22c55e',Jeff:'#f0a500',Monette:'#8b5cf6',Peter:'#ef4444'};
   var ac = PERSON_COLORS[r.author] || 'var(--accent)';
   var icon = RESEARCH_TYPE_ICONS[r.type] || '📎';
   var typeLabel = RESEARCH_TYPE_LABELS[r.type] || r.type;
@@ -5744,3 +5749,6 @@ function autoDetectTickers(){
 }
 
 </script>
+
+
+
