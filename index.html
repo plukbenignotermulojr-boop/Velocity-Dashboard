@@ -1525,6 +1525,7 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
         <div class="mlbl">Week (select any day in the week)</div>
         <input type="date" id="swap-date" class="finp" style="width:100%">
       </div>
+      <div id="swap-combined-note" style="display:none;font-size:11px;color:var(--text3)">FAC and PILOT are handled by one person. Changing either role updates both.</div>
       <div id="swap-current" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;min-height:36px"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div>
@@ -1769,23 +1770,25 @@ var TEAM_SCHEDULE = [
   {date:"2026-10-19",type:"pilot",title:"Pilot: Jeff",person:"Jeff",role:"pilot"},
   {date:"2026-10-26",type:"facilitator",title:"Facilitator: Jeff",person:"Jeff",role:"facilitator"},
   {date:"2026-10-26",type:"pilot",title:"Pilot: Peter",person:"Peter",role:"pilot"},
-  {date:"2026-11-02",type:"facilitator",title:"Facilitator: Peter",person:"Peter",role:"facilitator"},
-  {date:"2026-11-02",type:"pilot",title:"Pilot: Monette",person:"Monette",role:"pilot"},
-  {date:"2026-11-09",type:"facilitator",title:"Facilitator: Monette",person:"Monette",role:"facilitator"},
-  {date:"2026-11-09",type:"pilot",title:"Pilot: Ben",person:"Ben",role:"pilot"},
-  {date:"2026-11-16",type:"facilitator",title:"Facilitator: Ben",person:"Ben",role:"facilitator"},
-  {date:"2026-11-16",type:"pilot",title:"Pilot: Jeff",person:"Jeff",role:"pilot"},
-  {date:"2026-11-23",type:"facilitator",title:"Facilitator: Jeff",person:"Jeff",role:"facilitator"},
-  {date:"2026-11-23",type:"pilot",title:"Pilot: Peter",person:"Peter",role:"pilot"},
-  {date:"2026-11-30",type:"facilitator",title:"Facilitator: Peter",person:"Peter",role:"facilitator"},
-  {date:"2026-11-30",type:"pilot",title:"Pilot: Monette",person:"Monette",role:"pilot"},
-  {date:"2026-12-07",type:"facilitator",title:"Facilitator: Monette",person:"Monette",role:"facilitator"},
-  {date:"2026-12-07",type:"pilot",title:"Pilot: Ben",person:"Ben",role:"pilot"},
-  {date:"2026-12-14",type:"facilitator",title:"Facilitator: Ben",person:"Ben",role:"facilitator"},
-  {date:"2026-12-14",type:"pilot",title:"Pilot: Jeff",person:"Jeff",role:"pilot"},
-  {date:"2026-12-21",type:"facilitator",title:"Facilitator: Jeff",person:"Jeff",role:"facilitator"},
-  {date:"2026-12-21",type:"pilot",title:"Pilot: Peter",person:"Peter",role:"pilot"},
 ];
+
+// Both weekly roles rotate together from the first Monday of November 2026.
+var COMBINED_ROLES_START = '2026-11-02';
+var COMBINED_ROLE_ORDER = ['Ben', 'Jeff', 'Peter', 'Monette'];
+var combinedScheduleNextWeek = Date.UTC(2026, 10, 2);
+
+function ensureTeamScheduleThrough(year){
+  var end = Date.UTC(year + 1, 0, 1);
+  var first = Date.UTC(2026, 10, 2);
+  for(; combinedScheduleNextWeek < end; combinedScheduleNextWeek += 7 * 86400000){
+    var date = new Date(combinedScheduleNextWeek).toISOString().slice(0, 10);
+    var person = COMBINED_ROLE_ORDER[((combinedScheduleNextWeek - first) / (7 * 86400000)) % 4];
+    ['facilitator', 'pilot'].forEach(function(role){
+      TEAM_SCHEDULE.push({date:date, type:role, title:(role==='facilitator'?'Facilitator: ':'Pilot: ')+person, person:person, role:role});
+    });
+  }
+}
+ensureTeamScheduleThrough(Math.max(2026, new Date().getFullYear() + 1));
 
 var FUND_MR = [
   {month:1,person:"Jeff",monthName:"Jan"},
@@ -4306,6 +4309,7 @@ function renderUpcomingSchedule(){
 // renderCalendar override below
 
 function renderCalendar(){
+  ensureTeamScheduleThrough(calYear + 1);
   var label = document.getElementById('cal-month-label');
   if(label) label.textContent = new Date(calYear,calMonth,1).toLocaleDateString('en-US',{month:'long',year:'numeric'}).toUpperCase();
   var grid = document.getElementById('cal-grid');
@@ -5068,6 +5072,10 @@ function normalizeRoleSwaps(swaps){
         finalKey = nextKey;
       }
     }
+    if(finalKey >= COMBINED_ROLES_START && value){
+      var person = value.fac || value.pilot || null;
+      value = Object.assign({}, value, {fac:person, pilot:person});
+    }
     out[finalKey] = value;
   });
   return out;
@@ -5135,6 +5143,9 @@ function updateSwapPreview(){
   var dateVal = document.getElementById('swap-date').value;
   if(!dateVal) return;
   var mondayStr = getMondayStr(dateVal);
+  ensureTeamScheduleThrough(Number(mondayStr.slice(0,4)) + 1);
+  var combined = mondayStr >= COMBINED_ROLES_START;
+  document.getElementById('swap-combined-note').style.display = combined ? 'block' : 'none';
   var prev = document.getElementById('swap-current');
   // Find scheduled roles
   if(typeof TEAM_SCHEDULE === 'undefined'){ prev.innerHTML = ''; return; }
@@ -5149,7 +5160,10 @@ function updateSwapPreview(){
   html += '</div>';
   if(existing?.reason) html += '<div style="margin-top:4px;font-size:10px;color:var(--muted)">Reason: ' + existing.reason + '</div>';
   prev.innerHTML = html;
-  // Pre-fill existing swap values
+  // Reset values when changing weeks, then pre-fill any existing swap.
+  document.getElementById('swap-fac').value = '';
+  document.getElementById('swap-pilot').value = '';
+  document.getElementById('swap-reason').value = '';
   if(existing){
     if(existing.fac)   document.getElementById('swap-fac').value   = existing.fac;
     if(existing.pilot) document.getElementById('swap-pilot').value = existing.pilot;
@@ -5160,6 +5174,14 @@ function updateSwapPreview(){
 document.addEventListener('DOMContentLoaded', function(){
   var swapDate = document.getElementById('swap-date');
   if(swapDate) swapDate.addEventListener('change', updateSwapPreview);
+  ['swap-fac','swap-pilot'].forEach(function(id){
+    document.getElementById(id).addEventListener('change', function(){
+      var date = document.getElementById('swap-date').value;
+      if(date && getMondayStr(date) >= COMBINED_ROLES_START){
+        document.getElementById(id==='swap-fac'?'swap-pilot':'swap-fac').value = this.value;
+      }
+    });
+  });
 });
 
 async function saveSwap(){
@@ -5169,6 +5191,10 @@ async function saveSwap(){
   var fac   = document.getElementById('swap-fac').value;
   var pilot = document.getElementById('swap-pilot').value;
   var reason = document.getElementById('swap-reason').value.trim();
+  if(mondayStr >= COMBINED_ROLES_START){
+    if(fac && pilot && fac !== pilot){ showToast('FAC and PILOT must be the same person'); return; }
+    fac = pilot = fac || pilot;
+  }
   if(!fac && !pilot){ showToast('Select at least one override'); return; }
   roleSwaps[mondayStr] = { fac: fac||null, pilot: pilot||null, reason: reason, savedAt: new Date().toISOString() };
   await saveRoleSwaps();
