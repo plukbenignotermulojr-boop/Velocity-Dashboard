@@ -4218,6 +4218,12 @@ function renderThisWeek(){
   var pilotSwapped = swap && swap.pilot;
 
   var html = '';
+  if(mondayStr >= COMBINED_ROLES_START && facName === pilotName){
+    html = '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">'
+      + '<span style="color:var(--text2);font-size:12px">FAC / PILOT</span><span>'
+      + (facSwapped || pilotSwapped ? '<span style="font-size:9px;color:#f0a500;margin-right:5px;font-weight:700">SWAPPED</span>' : '')
+      + '<span style="font-weight:700;color:#f0a500;font-size:12px">' + facName + '</span></span></div>';
+  } else {
   html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">'
     + '<span style="color:var(--text2);font-size:12px">Facilitator</span>'
     + '<span>'
@@ -4231,6 +4237,8 @@ function renderThisWeek(){
     + (pilotSwapped ? '<span style="font-size:9px;background:rgba(0,212,170,.1);color:var(--accent);border-radius:3px;padding:1px 5px;margin-right:5px;font-weight:700">SWAPPED</span>' : '')
     + '<span style="font-weight:700;color:#00d4aa;font-size:12px">' + pilotName + '</span>'
     + '</span></div>';
+
+  }
 
   if(swap){
     html += '<div style="font-size:9px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">&#8644; Override active'
@@ -4293,12 +4301,13 @@ function renderUpcomingSchedule(){
     const swap = (typeof roleSwaps !== 'undefined') ? roleSwaps[date] : null;
     const facName = swap&&swap.fac ? swap.fac : roles.fac;
     const pilotName = swap&&swap.pilot ? swap.pilot : roles.pilot;
+    const combined = date >= COMBINED_ROLES_START && facName === pilotName;
     const d = new Date(date+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
     html += `<div style="padding:6px 0;border-bottom:1px solid var(--border)">
       <div style="font-size:10px;color:var(--text2);margin-bottom:3px">Week of ${d}</div>
       <div style="display:flex;gap:10px">
-        ${facName?`<span style="font-size:10px"><span style="color:#f0a500;font-weight:700">FAC</span> ${facName}${swap&&swap.fac?' *':''}</span>`:''}
-        ${pilotName?`<span style="font-size:10px"><span style="color:#00d4aa;font-weight:700">PILOT</span> ${pilotName}${swap&&swap.pilot?' *':''}</span>`:''}
+        ${facName?`<span style="font-size:10px"><span style="color:#f0a500;font-weight:700">${combined?'FAC / PILOT':'FAC'}</span> ${facName}${swap&&swap.fac?' *':''}</span>`:''}
+        ${pilotName&&!combined?`<span style="font-size:10px"><span style="color:#00d4aa;font-weight:700">PILOT</span> ${pilotName}${swap&&swap.pilot?' *':''}</span>`:''}
       </div>
     </div>`;
   });
@@ -4358,9 +4367,11 @@ function renderCalendar(){
     var numColor=isToday?"var(--accent)":"var(--text2)";
     var numWeight=isToday?"700":"400";
     var html="<div style='font-size:10px;color:"+numColor+";margin-bottom:3px;font-weight:"+numWeight+"'>"+d+"</div>";
+    var combinedRoles = dateStr >= COMBINED_ROLES_START && teamEvs.length === 2 && teamEvs[0].person === teamEvs[1].person;
     teamEvs.forEach(function(e){
+      if(combinedRoles && e.role === 'pilot') return;
       var color=e.role==="facilitator"?"#f0a500":"#00d4aa";
-      var lbl=e.role==="facilitator"?"FAC":"PILOT";
+      var lbl=combinedRoles?"FAC / PILOT":(e.role==="facilitator"?"FAC":"PILOT");
       var swapMark=e.isSwapped?" *":"";
       var swapTitle=e.isSwapped?" title='Swapped from "+e.originalPerson+"'":"";
       html+="<div"+swapTitle+" style='font-size:8px;border-radius:2px;padding:1px 4px;margin-bottom:2px;background:"+color+"22;color:"+color+";font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>"+lbl+": "+e.person+swapMark+"</div>";
