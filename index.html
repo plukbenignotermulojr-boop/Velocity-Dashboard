@@ -619,6 +619,33 @@ body.light td[style*="color:var(--green)"] { color: #15803d !important; }
 body.light td[style*="color:var(--accent)"] { color: #c07a00 !important; }
 body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
 
+
+/* Calendar: readable assignments and a distinct color for each teammate. */
+#page-scheduler .calendar-layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px;align-items:start;}
+#page-scheduler .calendar-board{padding:14px;min-width:0;overflow-x:auto;}
+#cal-month-label{font-family:'DM Sans',sans-serif!important;font-size:23px!important;letter-spacing:-.5px!important;min-width:220px!important;}
+#cal-grid{gap:7px!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;}
+#cal-grid .cal-weekday{font-size:10px!important;letter-spacing:1.5px!important;padding:7px 0 10px!important;}
+#cal-grid .cal-day{min-height:112px!important;padding:10px!important;border-radius:9px!important;transition:border-color .15s,transform .15s;}
+#cal-grid .cal-day:hover{transform:translateY(-2px);}
+#cal-grid .cal-day.weekend{background:var(--surface)!important;}
+#cal-grid .cal-day.today{box-shadow:0 0 0 1px var(--accent);}
+.cal-date{font-family:'JetBrains Mono',monospace;font-size:12px;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.cal-date .today-label{font-family:'DM Sans',sans-serif;font-size:8px;letter-spacing:.8px;text-transform:uppercase;color:var(--accent);}
+.cal-assignment{background:var(--person-tint);border-left:3px solid var(--person);border-radius:3px 7px 7px 3px;padding:8px 9px;margin-bottom:5px;min-width:0;}
+.cal-role{display:block;font-size:8px;letter-spacing:1px;font-weight:700;color:var(--text3);margin-bottom:5px;}
+.cal-person{display:block;font-size:clamp(15px,1.4vw,21px);font-weight:700;letter-spacing:-.4px;line-height:1.15;color:var(--person);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cal-assignment.legacy{padding:5px 7px;}.cal-assignment.legacy .cal-person{font-size:13px;}.cal-assignment.legacy .cal-role{margin-bottom:2px;}
+.cal-legend{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:11px;color:var(--text3);}
+.cal-legend span{display:inline-flex;align-items:center;gap:5px;}.cal-legend i{width:7px;height:7px;border-radius:50%;background:var(--person);}
+.cal-upcoming{padding:11px 0;border-bottom:1px solid var(--border);}.cal-upcoming-date{font-size:10px;color:var(--text3);margin-bottom:6px;}
+.cal-upcoming-role{display:block;font-size:8px;letter-spacing:1px;color:var(--text3);margin-bottom:4px;}.cal-upcoming-person{font-size:17px;font-weight:700;color:var(--person);}
+#upcoming-events{max-height:330px!important;}
+body.light .cal-assignment{background:var(--person-tint);}.cal-assignment .cal-person{color:var(--person);}
+@media(max-width:1100px){#page-scheduler .calendar-layout{grid-template-columns:minmax(0,1fr);}#page-scheduler .calendar-panels{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));}#cal-grid{min-width:840px;}.cal-person{font-size:18px;}}
+@media(max-width:900px){#page-scheduler .calendar-panels{grid-template-columns:1fr;}}
+@media(max-width:700px){#cal-month-label{font-size:19px!important;min-width:180px!important;}#page-scheduler .calendar-panels{grid-template-columns:1fr;}#page-scheduler .calendar-board{padding:8px;}}
+
 </style>
 </head>
 <body>
@@ -1254,23 +1281,24 @@ body.light td[style*="color:var(--accent2)"] { color: #1d4ed8 !important; }
       <button class="btn-sm btn-sec" onclick="calNav(1)">▶</button>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <div style="display:flex;gap:4px;align-items:center;font-size:9px;color:var(--text2)">
-        <span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#f0a500;flex-shrink:0"></span>Facilitator
-        <span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#00d4aa;flex-shrink:0;margin-left:8px"></span>Pilot
-        <span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#3b82f6;flex-shrink:0;margin-left:8px"></span>Custom Event
+      <div class="cal-legend" aria-label="Team colors">
+        <span><i style="--person:#22c55e"></i>Ben</span>
+        <span><i style="--person:#f0a500"></i>Jeff</span>
+        <span><i style="--person:#ef4444"></i>Peter</span>
+        <span><i style="--person:#8b5cf6"></i>Monette</span>
       </div>
       <button class="btn-sm btn-accent" onclick="openEventModal()">+ Add Event</button>
     </div>
   </div>
 
-  <div style="display:grid;grid-template-columns:1fr 280px;gap:14px;align-items:start">
+  <div class="calendar-layout">
     <!-- CALENDAR -->
-    <div class="card" style="padding:10px">
+    <div class="card calendar-board">
       <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px"></div>
     </div>
 
     <!-- SIDE PANELS -->
-    <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="calendar-panels" style="display:flex;flex-direction:column;gap:12px">
 
       <!-- This week's roles -->
       <div class="card">
@@ -4222,7 +4250,7 @@ function renderThisWeek(){
     html = '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">'
       + '<span style="color:var(--text2);font-size:12px">FAC / PILOT</span><span>'
       + (facSwapped || pilotSwapped ? '<span style="font-size:9px;color:#f0a500;margin-right:5px;font-weight:700">SWAPPED</span>' : '')
-      + '<span style="font-weight:700;color:#f0a500;font-size:12px">' + facName + '</span></span></div>';
+      + '<span style="font-weight:700;color:' + (PERSON_COLORS[facName]||'#f0a500') + ';font-size:22px;letter-spacing:-.5px">' + facName + '</span></span></div>';
   } else {
   html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">'
     + '<span style="color:var(--text2);font-size:12px">Facilitator</span>'
@@ -4303,6 +4331,13 @@ function renderUpcomingSchedule(){
     const pilotName = swap&&swap.pilot ? swap.pilot : roles.pilot;
     const combined = date >= COMBINED_ROLES_START && facName === pilotName;
     const d = new Date(date+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    if(combined){
+      html += `<div class="cal-upcoming" style="--person:${PERSON_COLORS[facName]||'#f0a500'}">
+        <div class="cal-upcoming-date">Week of ${d}</div>
+        <span class="cal-upcoming-role">FAC / PILOT</span>
+        <span class="cal-upcoming-person">${facName}${swap&&swap.fac?' *':''}</span>
+      </div>`;
+    } else {
     html += `<div style="padding:6px 0;border-bottom:1px solid var(--border)">
       <div style="font-size:10px;color:var(--text2);margin-bottom:3px">Week of ${d}</div>
       <div style="display:flex;gap:10px">
@@ -4310,6 +4345,7 @@ function renderUpcomingSchedule(){
         ${pilotName&&!combined?`<span style="font-size:10px"><span style="color:#00d4aa;font-weight:700">PILOT</span> ${pilotName}${swap&&swap.pilot?' *':''}</span>`:''}
       </div>
     </div>`;
+    }
   });
   el.innerHTML = html || '<div style="color:var(--muted)">No upcoming events</div>';
 }
@@ -4327,6 +4363,7 @@ function renderCalendar(){
   ['SUN','MON','TUE','WED','THU','FRI','SAT'].forEach(function(d){
     var h=document.createElement('div');
     h.style.cssText='text-align:center;font-size:9px;color:var(--text2);letter-spacing:.5px;padding:4px 0;font-weight:700;';
+    h.className='cal-weekday';
     h.textContent=d; grid.appendChild(h);
   });
   var firstDay=new Date(calYear,calMonth,1).getDay();
@@ -4357,6 +4394,7 @@ function renderCalendar(){
       return dateStr>=e.date && dateStr<=eEnd;
     }):[];
     var cell=document.createElement('div');
+    cell.className='cal-day' + ([0,6].includes(new Date(dateStr+'T00:00:00').getDay())?' weekend':'');
     var bg=isToday?"rgba(0,212,170,.06)":"var(--surface2)";
     var border=isToday?"var(--accent)":"var(--border)";
     cell.style.cssText="min-height:64px;background:"+bg+";border:1px solid "+border+";border-radius:4px;padding:4px;cursor:pointer;overflow:hidden;";
@@ -4366,20 +4404,20 @@ function renderCalendar(){
     (function(ds){cell.addEventListener("click",function(){var inp=document.getElementById("ev-date");if(inp)inp.value=ds;openEventModal();});})(dateStr);
     var numColor=isToday?"var(--accent)":"var(--text2)";
     var numWeight=isToday?"700":"400";
-    var html="<div style='font-size:10px;color:"+numColor+";margin-bottom:3px;font-weight:"+numWeight+"'>"+d+"</div>";
+    var html="<div class='cal-date' style='color:"+numColor+";font-weight:"+numWeight+"'>"+d+(isToday?"<span class='today-label'>Today</span>":"")+"</div>";
     var combinedRoles = dateStr >= COMBINED_ROLES_START && teamEvs.length === 2 && teamEvs[0].person === teamEvs[1].person;
     teamEvs.forEach(function(e){
       if(combinedRoles && e.role === 'pilot') return;
-      var color=e.role==="facilitator"?"#f0a500":"#00d4aa";
+      var color=PERSON_COLORS[e.person]||"#f0a500";
       var lbl=combinedRoles?"FAC / PILOT":(e.role==="facilitator"?"FAC":"PILOT");
       var swapMark=e.isSwapped?" *":"";
       var swapTitle=e.isSwapped?" title='Swapped from "+e.originalPerson+"'":"";
-      html+="<div"+swapTitle+" style='font-size:8px;border-radius:2px;padding:1px 4px;margin-bottom:2px;background:"+color+"22;color:"+color+";font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>"+lbl+": "+e.person+swapMark+"</div>";
+      html+="<div"+swapTitle+" class='cal-assignment"+(combinedRoles?"":" legacy")+"' style='--person:"+color+";--person-tint:"+color+"14'><span class='cal-role'>"+lbl+"</span><span class='cal-person'>"+e.person+swapMark+"</span></div>";
     });
     customEvs.forEach(function(e){
       var tl=e.startTime?' '+e.startTime+(e.endTime?'-'+e.endTime:''):'';
       var safeId=e.id.replace(/'/g,'');
-      html+='<div class="cev-pill" style="font-size:8px;border-radius:2px;padding:1px 3px;margin-bottom:2px;background:rgba(59,130,246,.2);color:#60a5fa;display:flex;align-items:center;gap:2px;overflow:hidden;">'
+      html+='<div class="cev-pill" style="font-size:11px;border-radius:4px;padding:4px 5px;margin-bottom:4px;background:rgba(59,130,246,.2);color:#60a5fa;display:flex;align-items:center;gap:2px;overflow:hidden;">'
            +'<span class="cev-detail" data-evid="'+safeId+'" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;">'+e.title+tl+'</span>'
            +'<span class="cev-del" data-evid="'+safeId+'" style="flex-shrink:0;cursor:pointer;color:#f87171;font-weight:700;font-size:11px;" title="Delete">&times;</span>'
            +'</div>';
