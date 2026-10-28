@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GAINS — Team Workspace</title>
+<link rel="icon" type="image/png" href="/external/branding/gains-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -646,21 +647,53 @@ body.light .cal-assignment{background:var(--person-tint);}.cal-assignment .cal-p
 @media(max-width:900px){#page-scheduler .calendar-panels{grid-template-columns:1fr;}}
 @media(max-width:700px){#cal-month-label{font-size:19px!important;min-width:180px!important;}#page-scheduler .calendar-panels{grid-template-columns:1fr;}#page-scheduler .calendar-board{padding:8px;}}
 
+
+/* GAINS team identity */
+#login-page{background:radial-gradient(ellipse at 15% 15%,#04232c 0,transparent 46%),radial-gradient(ellipse at 90% 90%,#092416 0,transparent 40%),#05090e;padding:32px;overflow-y:auto;color:#e2e8f0;}
+.login-shell{display:grid;grid-template-columns:1.15fr 1fr;width:min(1040px,100%);margin:auto;border:1px solid #1d2c37;border-radius:24px;overflow:hidden;background:#0d141d;box-shadow:0 32px 100px #0008;flex-shrink:0;}
+.login-brand{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 36px;background:#000;border-right:1px solid #1b2b32;overflow:hidden;}
+.login-brand:before{content:'';position:absolute;inset:0;pointer-events:none;border-top:2px solid transparent;border-image:linear-gradient(90deg,#00d9ff,#69ff31) 1;}
+.brand-eyebrow{align-self:flex-start;display:flex;align-items:center;gap:9px;font-size:9px;font-weight:700;letter-spacing:2px;color:#92acb6;}.brand-eyebrow span{height:6px;width:6px;border-radius:50%;background:#51f36c;box-shadow:0 0 12px #51f36c88;}
+.login-team-logo{display:block;width:min(390px,100%);height:auto;aspect-ratio:1;object-fit:contain;margin:2px 0 0;}
+.brand-message{align-self:flex-start;margin:0 0 24px;}.brand-message h1{font-family:'DM Sans',sans-serif;font-size:38px;font-weight:700;line-height:1.12;letter-spacing:-1.4px;color:#f4f8fb;}.brand-message h1 span{background:linear-gradient(90deg,#00d5ff,#83ff56);background-clip:text;-webkit-background-clip:text;color:transparent;}.brand-message p{font-size:12px;line-height:1.5;color:#8c9ba6;margin-top:12px;}
+.brand-disciplines{display:flex;align-items:center;gap:14px;align-self:flex-start;color:#667e89;font-size:9px;letter-spacing:1.6px;font-weight:600;}.brand-disciplines i{width:3px;height:3px;background:#2d5862;border-radius:50%;}
+.login-box{align-self:center;background:transparent;border:0;border-radius:0;padding:44px 40px;width:auto;min-width:0;text-align:left;}
+.login-eyebrow{font-size:9px;letter-spacing:1.8px;font-weight:700;color:#6e8798;margin-bottom:13px;}.login-heading{font-size:32px;letter-spacing:-1.2px;font-weight:700;line-height:1.2;margin:0 0 10px;color:#f1f5f9;}.login-heading span{color:#52ef8c;}.login-sub{font-size:13px;line-height:1.5;color:#8d9cad;margin-bottom:26px;}
+#login-page .login-btn-group{gap:10px;margin-top:0;}#login-page .user-card{position:relative;padding:17px 12px;background:#111e29;border:1px solid #243341;border-radius:12px;transition:border-color .18s,background .18s,transform .18s;}
+#login-page .user-card:hover{border-color:#00cbe3;background:#142a35;transform:translateY(-2px);}#login-page .user-card.selected{background:linear-gradient(135deg,#07303a,#122a22);border-color:#35ebbc;box-shadow:0 0 0 1px #35ebbc22;}#login-page .user-card.selected:after{content:'✓';position:absolute;right:9px;top:7px;color:#5bffc5;font-size:12px;}
+#login-page .user-card-avatar{width:39px;height:39px;font-size:17px;margin-bottom:9px;}#login-page .user-card-name{font-size:14px;color:#eef5fa;}#login-page .user-card-role{font-size:10px;color:#8194a6;margin-top:3px;}
+#login-page .login-pw{margin-top:20px;background:#08121b;border:1px solid #2c404d;color:#e2e8f0;padding:12px 14px;border-radius:9px;font-size:13px;}#login-page .login-pw:focus{border-color:#26dac2;outline:2px solid #26dac222;}
+#login-page #login-btn{background:linear-gradient(105deg,#00cce9,#64ef83);color:#031316;border:0;border-radius:9px;padding:13px!important;font-size:13px!important;font-weight:800;}
+#login-page #guest-btn{color:#92a6b5!important;border-color:#263744!important;border-radius:9px!important;padding:11px!important;}#login-page #guest-btn:hover{color:#c9f9f1!important;border-color:#35d6b5!important;}
+#sidebar .sidebar-top{position:relative;min-height:146px;padding:8px 20px;background:#000;justify-content:center;}#sidebar .sidebar-logo{display:flex;align-items:center;justify-content:center;line-height:0;letter-spacing:0;}#sidebar .sidebar-logo img{display:block;width:126px;height:126px;object-fit:contain;}#sidebar .sidebar-toggle{position:absolute;right:10px;top:11px;z-index:1;color:#78909e;}
+#sidebar.collapsed .sidebar-top{min-height:52px;padding:8px;}#sidebar.collapsed .sidebar-logo{display:none;}body.light #sidebar .sidebar-top{background:#000;}
+@media(max-width:760px){#login-page{padding:16px;align-items:flex-start;}.login-shell{max-width:440px;grid-template-columns:1fr;border-radius:18px;}.login-brand{padding:20px 24px 16px;border-right:0;border-bottom:1px solid #1b2b32;}.login-team-logo{width:180px;margin:10px 0 0;}.brand-eyebrow{font-size:8px;letter-spacing:1.5px;}.brand-message,.brand-disciplines{display:none;}.login-box{padding:28px 24px;}.login-heading{font-size:28px;}.login-sub{margin-bottom:22px;}#sidebar .sidebar-top{min-height:52px;padding:8px;}#sidebar .sidebar-logo{display:none;}}
+@media(prefers-reduced-motion:reduce){#login-page .user-card{transition:none;}#login-page .user-card:hover{transform:none;}}
+
 </style>
 </head>
 <body>
 
 <!-- ══ LOGIN ══ -->
 <div id="login-page">
-  <div class="login-box">
-    <div class="login-logo">⚡ GAINS</div>
-    <div class="login-sub">Team Workspace · Select your profile</div>
+  <div class="login-shell">
+    <section class="login-brand" aria-label="GAINS team">
+      <div class="brand-eyebrow"><span></span> THE GAINS WORKSPACE</div>
+      <img class="login-team-logo" src="/external/branding/gains-logo.png" alt="GAINS team logo" width="1254" height="1254" fetchpriority="high">
+      <div class="brand-message"><h1>Think sharper.<br><span>Move together.</span></h1><p>One team. A stronger edge.</p></div>
+      <div class="brand-disciplines"><span>RESEARCH</span><i></i><span>PLAN</span><i></i><span>EXECUTE</span></div>
+    </section>
+    <div class="login-box">
+      <div class="login-eyebrow">YOUR TEAM. YOUR WORKSPACE.</div>
+      <h2 class="login-heading">Welcome back<span>.</span></h2>
+      <div class="login-sub">Choose your profile to get started.</div>
     <div class="login-btn-group" id="user-cards"></div>
-    <input type="password" id="login-pw" class="finp login-pw" placeholder="Enter password..." style="display:none">
+    <input type="password" id="login-pw" aria-label="Password" autocomplete="current-password" class="finp login-pw" placeholder="Enter password..." style="display:none">
     <div class="login-err" id="login-err"></div>
     <button class="btn-sm btn-accent" id="login-btn" style="width:100%;margin-top:12px;padding:10px;font-size:13px;display:none" onclick="doLogin()">Enter Workspace</button>
     <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
       <button id="guest-btn" onclick="enterGuest()" style="width:100%;background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:8px 0;cursor:pointer;font-size:11px;font-weight:600;font-family:inherit;letter-spacing:.3px;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">👁 Enter as Guest &nbsp;<span style="font-size:9px;opacity:.5">view only</span></button>
+    </div>
     </div>
   </div>
 </div>
@@ -671,7 +704,7 @@ body.light .cal-assignment{background:var(--person-tint);}.cal-assignment .cal-p
 <!-- SIDEBAR -->
 <div id="sidebar">
   <div class="sidebar-top">
-    <div class="sidebar-logo">⚡ GAINS</div>
+    <div class="sidebar-logo"><img src="/external/branding/gains-logo.png" alt="GAINS team workspace" width="126" height="126"></div>
     <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">☰</button>
   </div>
   <div style="overflow-y:auto;flex:1">
@@ -1859,7 +1892,7 @@ let currentUser = null;
 function initLogin(){
   const cards = document.getElementById('user-cards');
   cards.innerHTML = USERS.map((u,i) => `
-    <div class="user-card" onclick="selectUser(${i})" id="uc-${i}">
+    <div class="user-card" role="button" tabindex="0" aria-label="Sign in as ${u.name}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectUser(${i});}" onclick="selectUser(${i})" id="uc-${i}">
       <div class="user-card-avatar" style="background:${u.bg};color:${u.color}">${u.emoji}</div>
       <div class="user-card-name">${u.name}</div>
       <div class="user-card-role">Trader</div>
