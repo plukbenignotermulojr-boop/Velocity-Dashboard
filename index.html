@@ -761,6 +761,22 @@ body.light #app #page-research #research-list>div{background:#fff!important;bord
 body.light #app #page-research #research-list>div:hover{outline:1px solid #64836c;outline-offset:0;}
 body.light #app #page-research #research-list>div>[style*="background:var(--surface3)"],body.light #app #page-research #research-list>div>[style*="background:var(--surface2)"]{background:#eaf0e9!important;}
 body.light #app button:focus-visible,body.light #app input:focus-visible,body.light #app select:focus-visible{outline:2px solid #467d5c;outline-offset:2px;}
+
+/* PARA team and role reference */
+#page-aiprojects{max-width:1480px;margin:0 auto;}
+.para-intro{display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center;padding:32px 36px;border:1px solid var(--border2);border-radius:16px;background:radial-gradient(ellipse at 100% 0%,#8fb3900c,transparent 65%),var(--surface);margin-bottom:28px;}
+.para-eyebrow{font-size:10px;letter-spacing:1.8px;font-weight:700;color:var(--text2);margin-bottom:18px;}.para-intro h1{font-size:42px;line-height:1.05;letter-spacing:-1.5px;font-weight:700;color:var(--text);}.para-intro h1 span{color:#b5cdbd;}.para-intro-copy>p{font-size:13px;line-height:1.7;color:var(--text2);max-width:420px;margin-top:16px;}.para-motto{font-size:9px;letter-spacing:2px;color:var(--text3);margin-top:24px;}
+.para-intro-map{display:grid;grid-template-columns:1fr 1fr;gap:10px;}.para-intro-map a{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-decoration:none;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--role-color);border-radius:8px;padding:14px 16px;transition:background .15s;}.para-intro-map a:hover{background:var(--surface3);}.para-intro-map a>span{font-size:10px;letter-spacing:1px;font-weight:800;color:var(--role-color);}.para-intro-map strong{font-size:16px;}.para-intro-map small{font-size:10px;line-height:1.4;color:var(--text2);}
+.para-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 18px;}.para-section-heading h2{font-size:18px;letter-spacing:-.3px;}.para-section-heading p{font-size:12px;color:var(--text2);margin-top:6px;}.para-source{font-size:11px;color:var(--text3);text-underline-offset:4px;line-height:1.6;}.para-source:hover{color:var(--text);}
+.para-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;}.para-role{background:var(--surface);border:1px solid var(--border2);border-top:3px solid var(--role-color);border-radius:12px;padding:24px;scroll-margin-top:20px;}.para-role-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px;}.para-code{font-size:23px;letter-spacing:-.5px;font-weight:800;color:var(--role-color);}.para-owner{display:flex;gap:9px;align-items:center;}.para-avatar{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border:1px solid var(--role-color);background:var(--surface2);color:var(--role-color);border-radius:50%;font-weight:700;font-size:13px;}.para-owner small{display:block;font-size:8px;letter-spacing:1px;color:var(--text2);margin-bottom:4px;}.para-owner strong{font-size:12px;font-weight:700;}
+.para-role h3{font-size:20px;letter-spacing:-.4px;line-height:1.3;margin-bottom:8px;}.para-purpose{font-size:12px;line-height:1.6;color:var(--text3);min-height:38px;}.para-owns{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}.para-label{font-size:9px;font-weight:700;letter-spacing:1.3px;color:var(--text2);}.para-owns p{font-size:12px;line-height:1.7;color:var(--text);margin-top:7px;min-height:42px;}.para-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:17px;}.para-tags span{font-size:10px;padding:5px 8px;border-radius:5px;background:var(--surface2);border:1px solid var(--border);color:var(--text3);}
+.para-details{margin-top:22px;border-top:1px solid var(--border);}.para-details summary{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;font-weight:700;padding-top:16px;list-style:none;}.para-details summary::-webkit-details-marker{display:none;}.para-details summary>span{font-size:20px;font-weight:400;color:var(--text2);}.para-details[open] summary>span{transform:rotate(45deg);}.para-detail-body h4{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin:22px 0 10px;}.para-detail-body ul,.para-detail-body ol{padding-left:20px;font-size:12px;line-height:1.7;color:var(--text);}.para-detail-body li{padding-left:4px;margin-bottom:9px;}.para-detail-body .para-source{display:inline-block;margin-top:12px;}
+.para-together{padding:22px 24px;margin-top:22px;border:1px solid var(--border);border-radius:12px;background:var(--surface);}.para-together p{margin-top:10px;color:var(--text2);line-height:1.8;font-size:12px;}.para-together strong{color:var(--text3);}
+body.light .para-intro{background:linear-gradient(115deg,#f7faf8,#edf3ec);border-color:#91a790;}body.light .para-intro h1 span{color:#4e7258;}body.light .para-role{border-color:#8fa497;border-top-color:color-mix(in srgb,var(--role-color) 70%,#243731);}body.light .para-intro-map a{border-color:#9aad9f;border-left-color:color-mix(in srgb,var(--role-color) 70%,#243731);background:#fff;}body.light .para-code,body.light .para-intro-map a>span,body.light .para-avatar{color:color-mix(in srgb,var(--role-color) 60%,#243731);}body.light .para-tags span{background:#f2f6f2;border-color:#c3d0c4;color:#4b6254;}
+#page-aiprojects a:focus-visible,#page-aiprojects summary:focus-visible{outline:2px solid #7fa58c;outline-offset:5px;}
+@media(max-width:1100px){.para-intro{gap:24px;padding:28px;}.para-intro h1{font-size:36px;}.para-role{padding:20px;}}
+@media(max-width:760px){.para-intro{grid-template-columns:1fr;padding:22px;gap:24px;}.para-grid{grid-template-columns:1fr;}.para-intro h1{font-size:34px;}.para-section-heading{align-items:flex-start;flex-direction:column;}.para-intro-map a{padding:12px;}.para-intro-map strong{font-size:14px;}.para-role h3{font-size:18px;}}
+
 </style>
 </head>
 <body>
@@ -804,6 +820,7 @@ body.light #app button:focus-visible,body.light #app input:focus-visible,body.li
       <div class="nav-item active" onclick="showPage('home',this)" title="Home">
         <span class="nav-icon">💪</span><span class="nav-text">Home</span>
       </div>
+      <div class="nav-item" role="button" tabindex="0" onclick="showPage('aiprojects',this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('aiprojects',this);}" title="AI Projects · Team & Roles"><span class="nav-icon">🧠</span><span class="nav-text">AI Projects</span></div>
     </div>
     <div class="nav-section">
       <div class="nav-label">MODULES</div>
@@ -909,6 +926,7 @@ body.light #app button:focus-visible,body.light #app input:focus-visible,body.li
     <div class="hero-title">GOOD <span id="greet-time">MORNING</span>, <span id="greet-name">TEAM</span></div>
     <div class="hero-sub" id="greet-date"></div>
     <div class="quick-actions">
+      <button class="quick-btn" onclick="showPage('aiprojects',null)">🧠 AI Projects</button>
       <div class="quick-btn" onclick="showPage('funddesk',null);showFdTab('pitch')">📋 Pitch Board</div>
       <div class="quick-btn" onclick="showPage('funddesk',null);showFdTab('monitor')">📡 Monitor</div>
       <div class="quick-btn" onclick="showPage('screener',null)">📡 Market Screener</div>
@@ -960,6 +978,56 @@ body.light #app button:focus-visible,body.light #app input:focus-visible,body.li
     </div>
     <div id="research-preview" style="padding:8px 0"></div>
   </div>
+</div>
+
+
+<!-- AI PROJECTS: PARA team roles and documented objectives -->
+<div class="page" id="page-aiprojects">
+  <section class="para-intro"><div class="para-intro-copy"><div class="para-eyebrow">AI PROJECTS / TEAM &amp; ROLES</div><h1>Four roles.<br><span>One team.</span></h1><p>Our shared foundation for turning AI into useful tools, actionable intelligence, and measurable impact.</p><div class="para-motto">AI PARA SA LAHAT</div></div>
+    <div class="para-intro-map" aria-label="PARA role ownership"><a href="#para-pats" style="--role-color:#699ec0" onclick="document.getElementById('para-pats').scrollIntoView({block:'start'});return false;"><span>PATS</span><strong>Jeff</strong><small>Platforms &amp; Tools</small></a><a href="#para-ate" style="--role-color:#bd8585" onclick="document.getElementById('para-ate').scrollIntoView({block:'start'});return false;"><span>ATE</span><strong>Peter (Pete)</strong><small>Agentic Trading &amp; Execution</small></a><a href="#para-rai" style="--role-color:#a393c0" onclick="document.getElementById('para-rai').scrollIntoView({block:'start'});return false;"><span>RAI</span><strong>Monette</strong><small>Research &amp; Intelligence</small></a><a href="#para-asap" style="--role-color:#8fb390" onclick="document.getElementById('para-asap').scrollIntoView({block:'start'});return false;"><span>ASAP</span><strong>Ben</strong><small>AI Solutions &amp; Partnerships</small></a></div>
+  </section>
+  <div class="para-section-heading"><div><h2>Team responsibilities</h2><p>One accountable lead for each function. Shared delivery across PARA.</p></div><a class="para-source" href="/external/team/para-overview.png" target="_blank" rel="noopener">View team overview ↗</a></div>
+  <div class="para-grid"><article class="para-role" id="para-pats" style="--role-color:#699ec0">
+  <div class="para-role-top"><span class="para-code">PATS</span><div class="para-owner"><span class="para-avatar" aria-hidden="true">J</span><span><small>ROLE LEAD</small><strong>Jeff</strong></span></div></div>
+  <h3>Platforms &amp; Tools</h3><p class="para-purpose">Builds and maintains the shared AI foundation.</p>
+  <div class="para-owns"><span class="para-label">RESPONSIBILITIES</span><p>Tools, data, APIs, MCP servers, security, automation, and platform reliability.</p></div>
+  <div class="para-tags" aria-label="Focus areas"><span>Data &amp; APIs</span><span>MCP</span><span>Security</span><span>Automation</span><span>Monitoring</span></div>
+  <details class="para-details"><summary>Objectives &amp; success measures <span aria-hidden="true">+</span></summary>
+    <div class="para-detail-body"><h4>Objectives</h4><ul><li>Build a reliable shared AI platform.</li><li>Continuously evaluate and improve the AI tool stack.</li></ul><h4>Targets from the role brief</h4><ol><li>Maintain ≥95% uptime for production internal AI workflows.</li><li>Complete shared standards for repositories, APIs/MCP, credentials, logging, and monitoring by Q2.</li><li>Maintain a documented inventory of all production tools and integrations.</li><li>Test at least 2 new tools or models per quarter and publish an Adopt / Test / Drop review.</li><li>Deliver at least 3 reusable platform components or integrations used by multiple PARA projects.</li></ol>
+    <a class="para-source" href="/external/team/pats-jeff.png" target="_blank" rel="noopener">View original PATS brief ↗</a></div>
+  </details>
+</article>
+<article class="para-role" id="para-ate" style="--role-color:#bd8585">
+  <div class="para-role-top"><span class="para-code">ATE</span><div class="para-owner"><span class="para-avatar" aria-hidden="true">P</span><span><small>ROLE LEAD</small><strong>Peter (Pete)</strong></span></div></div>
+  <h3>Agentic Trading &amp; Execution</h3><p class="para-purpose">Progresses AI from recommendations toward controlled execution.</p>
+  <div class="para-owns"><span class="para-label">RESPONSIBILITIES</span><p>Strategies, staging to IBKR, execution within limits, the outcome ledger, and agent risk controls.</p></div>
+  <div class="para-tags" aria-label="Focus areas"><span>Agent Logic</span><span>IBKR Staging</span><span>Risk Controls</span><span>Outcome Ledger</span><span>Execution</span></div>
+  <details class="para-details"><summary>Objectives &amp; success measures <span aria-hidden="true">+</span></summary>
+    <div class="para-detail-body"><h4>Objectives</h4><ul><li>Progress the trading agent safely up the autonomy ladder.</li><li>Prove measurable trading value from agentic strategies.</li></ul><h4>Targets from the role brief</h4><ol><li>Develop and validate the stages: Recommend → Shadow → Stage → Limited Execute, subject to approval gates.</li><li>Document backtest or shadow results and risk limits for every promoted strategy.</li><li>Log 100% of agent actions with rationale, order details, and outcome.</li><li>Maintain an outcome ledger covering P&amp;L, hit rate, edge, drawdown, and execution quality.</li><li>Review, promote, or stop strategies at least quarterly; at least 2 reach sustained shadow or staged-order testing in 2027.</li></ol>
+    <a class="para-source" href="/external/team/ate-peter.png" target="_blank" rel="noopener">View original ATE brief ↗</a></div>
+  </details>
+</article>
+<article class="para-role" id="para-rai" style="--role-color:#a393c0">
+  <div class="para-role-top"><span class="para-code">RAI</span><div class="para-owner"><span class="para-avatar" aria-hidden="true">M</span><span><small>ROLE LEAD</small><strong>Monette</strong></span></div></div>
+  <h3>Research &amp; Intelligence</h3><p class="para-purpose">Turns market information into actionable intelligence.</p>
+  <div class="para-owns"><span class="para-label">RESPONSIBILITIES</span><p>Automated research, watchlists, catalyst tracking, market briefs, and research agents.</p></div>
+  <div class="para-tags" aria-label="Focus areas"><span>Watchlists</span><span>Catalysts</span><span>Earnings</span><span>Market Briefs</span><span>Research Agents</span></div>
+  <details class="para-details"><summary>Objectives &amp; success measures <span aria-hidden="true">+</span></summary>
+    <div class="para-detail-body"><h4>Objectives</h4><ul><li>Automate recurring market research and watchlist generation.</li><li>Improve the usefulness and reliability of AI-generated intelligence.</li></ul><h4>Targets from the role brief</h4><ol><li>Launch at least 2 production research workflows, such as watchlists, catalysts, earnings, or market briefs.</li><li>Run outputs on agreed daily or weekly schedules with ≥95% successful runs.</li><li>Reduce manual research time on targeted workflows by at least 30%.</li><li>Maintain source-linked outputs for all material research claims.</li><li>Achieve ≥70% useful or actionable ratings from intended users by year-end, with quarterly reviews.</li></ol>
+    <a class="para-source" href="/external/team/rai-monette.png" target="_blank" rel="noopener">View original RAI brief ↗</a></div>
+  </details>
+</article>
+<article class="para-role" id="para-asap" style="--role-color:#8fb390">
+  <div class="para-role-top"><span class="para-code">ASAP</span><div class="para-owner"><span class="para-avatar" aria-hidden="true">B</span><span><small>ROLE LEAD</small><strong>Ben</strong></span></div></div>
+  <h3>AI Solutions &amp; Partnerships</h3><p class="para-purpose">Finds, scopes, and drives AI opportunities across the organization.</p>
+  <div class="para-owns"><span class="para-label">RESPONSIBILITIES</span><p>Cross-desk AI opportunities, project scoping, business-to-AI translation, and adoption across teams.</p></div>
+  <div class="para-tags" aria-label="Focus areas"><span>Discovery</span><span>Scoping</span><span>Pilots</span><span>Adoption</span><span>Impact Tracking</span></div>
+  <details class="para-details"><summary>Objectives &amp; success measures <span aria-hidden="true">+</span></summary>
+    <div class="para-detail-body"><h4>Objectives</h4><ul><li>Find high-value AI opportunities across desks.</li><li>Drive adoption and measurable business impact.</li></ul><h4>Targets from the role brief</h4><ol><li>Conduct discovery with all relevant desks or functions during 2027.</li><li>Maintain a ranked AI opportunity pipeline with value, complexity, and owner.</li><li>Move at least 4 cross-team use cases into pilot, with at least 2 reaching regular use.</li><li>Define a success metric before every pilot begins.</li><li>Document measurable impact and conduct quarterly cross-desk AI reviews or demonstrations.</li></ol>
+    <a class="para-source" href="/external/team/asap-ben.png" target="_blank" rel="noopener">View original ASAP brief ↗</a></div>
+  </details>
+</article></div>
+  <section class="para-together"><span class="para-label">HOW WE WORK TOGETHER</span><p><strong>PATS</strong> provides the foundation. <strong>ATE</strong> develops controlled agent execution. <strong>RAI</strong> generates useful intelligence. <strong>ASAP</strong> connects opportunities to adoption and business impact.</p></section>
 </div>
 
 <!-- ══ FUND DESK ══ -->
@@ -2059,7 +2127,8 @@ function startApp(){
   av.style.background = u.bg;
   av.style.color = u.color;
   document.getElementById('sb-name').textContent = u.fullName;
-  document.getElementById('sb-role').textContent = isGuestMode ? 'Guest · sign out' : 'Trader · sign out';
+  const paraRole = {Ben:'ASAP',Jeff:'PATS',Peter:'ATE',Monette:'RAI'}[u.name];
+  document.getElementById('sb-role').textContent = isGuestMode ? 'Guest · sign out' : (paraRole ? paraRole + ' · Trader · sign out' : 'Trader · sign out');
   // Greeting
   const hr = new Date().getHours();
   document.getElementById('greet-time').textContent = hr<12?'MORNING':hr<17?'AFTERNOON':'EVENING';
@@ -2090,7 +2159,7 @@ function editVar(){const v=prompt('Default VAR $:',DVAR);if(v){DVAR=parseInt(v);
 // ════════════════════════════════════════════════════════════
 // NAVIGATION
 // ════════════════════════════════════════════════════════════
-const PAGE_TITLES = {home:'HOME',funddesk:'FUND DESK',screener:'MARKET SCREENER',research:'RESEARCH HUB',kpi:'KPI DASHBOARD',scheduler:'CALENDAR',links:'LINKS REPOSITORY'};
+const PAGE_TITLES = {aiprojects:'AI PROJECTS',home:'HOME',funddesk:'FUND DESK',screener:'MARKET SCREENER',research:'RESEARCH HUB',kpi:'KPI DASHBOARD',scheduler:'CALENDAR',links:'LINKS REPOSITORY'};
 
 function showPage(id, navEl){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
