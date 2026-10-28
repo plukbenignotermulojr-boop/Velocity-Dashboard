@@ -667,7 +667,9 @@ body.light .cal-assignment{background:var(--person-tint);}.cal-assignment .cal-p
 #login-page #guest-btn{color:#92a6b5!important;border-color:#263744!important;border-radius:9px!important;padding:11px!important;}#login-page #guest-btn:hover{color:#c9f9f1!important;border-color:#35d6b5!important;}
 #sidebar .sidebar-top{position:relative;min-height:146px;padding:8px 20px;background:#0e141b;justify-content:center;isolation:isolate;}#sidebar .sidebar-logo{display:flex;align-items:center;justify-content:center;line-height:0;letter-spacing:0;}#sidebar .sidebar-logo img{display:block;width:126px;height:126px;object-fit:contain;mix-blend-mode:screen;}#sidebar .sidebar-toggle{position:absolute;right:10px;top:11px;z-index:1;color:#78909e;}
 #sidebar.collapsed .sidebar-top{min-height:52px;padding:8px;}#sidebar.collapsed .sidebar-logo{display:none;}body.light #sidebar .sidebar-top{background:#f8f9fa;}
-body.light #sidebar .sidebar-logo img{filter:invert(1) hue-rotate(180deg);mix-blend-mode:multiply;}
+#sidebar .sidebar-logo .logo-light{display:none;}
+body.light #sidebar .sidebar-logo .logo-dark{display:none;}
+body.light #sidebar .sidebar-logo .logo-light{display:block;filter:none;mix-blend-mode:multiply;}
 @media(max-width:760px){#login-page{padding:16px;align-items:flex-start;}.login-shell{max-width:440px;grid-template-columns:1fr;border-radius:18px;}.login-brand{padding:20px 24px 16px;border-right:0;border-bottom:1px solid #1b2b32;}.login-team-logo{width:180px;margin:10px 0 0;}.brand-eyebrow{font-size:8px;letter-spacing:1.5px;}.brand-message,.brand-disciplines{display:none;}.login-box{padding:28px 24px;}.login-heading{font-size:28px;}.login-sub{margin-bottom:22px;}#sidebar .sidebar-top{min-height:52px;padding:8px;}#sidebar .sidebar-logo{display:none;}}
 @media(prefers-reduced-motion:reduce){#login-page .user-card{transition:none;}#login-page .user-card:hover{transform:none;}}
 
@@ -752,7 +754,7 @@ body.light #app #ticker-tape{background:#fafbfc;border-color:#d1d9df;}
 <!-- SIDEBAR -->
 <div id="sidebar">
   <div class="sidebar-top">
-    <div class="sidebar-logo"><img src="/external/branding/gains-logo.png" alt="GAINS team workspace" width="126" height="126"></div>
+    <div class="sidebar-logo"><img class="logo-dark" src="/external/branding/gains-logo.png" alt="GAINS team workspace" width="126" height="126"><img class="logo-light" src="/external/branding/gains-logo-light.png" alt="GAINS team workspace" width="126" height="126"></div>
     <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">☰</button>
   </div>
   <div style="overflow-y:auto;flex:1">
