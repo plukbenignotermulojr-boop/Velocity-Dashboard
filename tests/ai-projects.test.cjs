@@ -64,6 +64,9 @@ async function main() {
     const { page, errors } = await pageFor();
     assert.equal(await page.locator('.ai-person-card').count(), 4);
     assert.equal(await page.locator('#ai-pane-roles img').count(), 0);
+    assert.ok(await page.locator('.ai-person-code').first().evaluate(e => parseFloat(getComputedStyle(e).fontSize)) >= 27);
+    assert.ok(await page.locator('.ai-person-function').first().evaluate(e => parseFloat(getComputedStyle(e).fontSize)) >= 17);
+    assert.ok(await page.locator('.ai-person-card').first().evaluate(e => e.getBoundingClientRect().width > e.getBoundingClientRect().height * 3));
     assert.equal(await page.locator('#ai-pane-roles [data-ai-image]').count(), 10);
     assert.equal(await page.locator('#ai-pane-roles a[target="_blank"]').count(), 0);
     for (const file of ['asap-ben.png', 'pats-jeff.png', 'ate-peter.png', 'rai-monette.png']) {
@@ -195,7 +198,7 @@ async function main() {
     await shot(page, 'gains-ai-status-mobile.png');
     await page.locator('#ai-tab-roles').click();
     assert.ok(await page.locator('#ai-pane-roles').evaluate(e => e.scrollWidth <= e.clientWidth + 1));
-    assert.ok(await page.locator('.ai-people-stack').evaluate(e => e.scrollWidth > e.clientWidth), 'Names remain a horizontal scrollable row on mobile');
+    assert.ok(await page.locator('.ai-people-stack').evaluate(e => e.scrollWidth <= e.clientWidth + 1), 'Wide role rows fit mobile without horizontal scrolling');
     await shot(page, 'gains-ai-roles-mobile.png');
     assert.deepEqual([...errors, ...teammateErrors, ...guestErrors], []);
     console.log('PASS: image overlays/zoom/Escape, both sections, shared saves, milestone/manual progress, failure recovery, stale-update protection, completed/reopened projects, filters, guest access, dark/light/mobile layouts.');
