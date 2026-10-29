@@ -778,6 +778,7 @@ body.light .para-intro{background:linear-gradient(115deg,#f7faf8,#edf3ec);border
 @media(max-width:760px){.para-intro{grid-template-columns:1fr;padding:22px;gap:24px;}.para-grid{grid-template-columns:1fr;}.para-intro h1{font-size:34px;}.para-section-heading{align-items:flex-start;flex-direction:column;}.para-intro-map a{padding:12px;}.para-intro-map strong{font-size:14px;}.para-role h3{font-size:18px;}}
 
 </style>
+<link rel="stylesheet" href="/external/ai-projects.css">
 </head>
 <body>
 
@@ -983,51 +984,73 @@ body.light .para-intro{background:linear-gradient(115deg,#f7faf8,#edf3ec);border
 
 <!-- AI PROJECTS: PARA team roles and documented objectives -->
 <div class="page" id="page-aiprojects">
+  <div class="ai-section-tabs" role="tablist" aria-label="AI Projects sections">
+    <button id="ai-tab-roles" class="active" role="tab" aria-selected="true" aria-controls="ai-pane-roles" data-ai-tab="roles">01 <span>Roles &amp; Workflow</span></button>
+    <button id="ai-tab-status" role="tab" aria-selected="false" aria-controls="ai-pane-status" data-ai-tab="status" tabindex="-1">02 <span>Project Status</span></button>
+  </div>
+  <section id="ai-pane-roles" role="tabpanel" aria-labelledby="ai-tab-roles">
   <section class="para-intro"><div class="para-intro-copy"><div class="para-eyebrow">AI PROJECTS / TEAM &amp; ROLES</div><h1>Four roles.<br><span>One team.</span></h1><p>Our shared foundation for turning AI into useful tools, actionable intelligence, and measurable impact.</p><div class="para-motto">AI PARA SA LAHAT</div></div>
     <div class="para-intro-map" aria-label="PARA role ownership"><a href="#para-pats" style="--role-color:#699ec0" onclick="document.getElementById('para-pats').scrollIntoView({block:'start'});return false;"><span>PATS</span><strong>Jeff</strong><small>Platforms &amp; Tools</small></a><a href="#para-ate" style="--role-color:#bd8585" onclick="document.getElementById('para-ate').scrollIntoView({block:'start'});return false;"><span>ATE</span><strong>Peter (Pete)</strong><small>Agentic Trading &amp; Execution</small></a><a href="#para-rai" style="--role-color:#a393c0" onclick="document.getElementById('para-rai').scrollIntoView({block:'start'});return false;"><span>RAI</span><strong>Monette</strong><small>Research &amp; Intelligence</small></a><a href="#para-asap" style="--role-color:#8fb390" onclick="document.getElementById('para-asap').scrollIntoView({block:'start'});return false;"><span>ASAP</span><strong>Ben</strong><small>AI Solutions &amp; Partnerships</small></a></div>
   </section>
-  <div class="para-section-heading"><div><h2>Team responsibilities</h2><p>One accountable lead for each function. Shared delivery across PARA.</p></div><a class="para-source" href="/external/team/para-overview.png" target="_blank" rel="noopener">View team overview ↗</a></div>
+  <div class="ai-reference-grid">
+    <button class="ai-reference ai-overview-reference" data-ai-image="/external/team/para-overview.png" data-ai-image-title="PARA · Team overview"><div><span class="ai-eyebrow">THE BIG PICTURE</span><h2>One team. Four functions.</h2><p>Explore the shared PARA structure.</p></div><img src="/external/team/para-overview.png" alt="PARA team overview infographic" loading="lazy"><span class="ai-preview-label">Preview team overview ⤢</span></button>
+    <button class="ai-reference ai-workflow-reference" data-ai-image="/external/team/project-workflow.png" data-ai-image-title="AI project workflow · Sample for team discussion"><div><span class="ai-eyebrow">SAMPLE · FOR TEAM DISCUSSION</span><h2>From an idea to impact.</h2><p>Pitch → AI review → Team decision → Build &amp; pilot → Measure</p></div><img src="/external/team/project-workflow.png" alt="Sample CTS AI project workflow" loading="lazy"><span class="ai-preview-label">Explore the workflow ⤢</span></button>
+  </div>
+  <div class="para-section-heading"><div><h2>Team responsibilities</h2><p>One accountable lead for each function. Shared delivery across PARA.</p></div><button class="para-source ai-text-button" data-ai-image="/external/team/para-overview.png" data-ai-image-title="View team overview">Preview team overview ⤢</button></div>
   <div class="para-grid"><article class="para-role" id="para-pats" style="--role-color:#699ec0">
   <div class="para-role-top"><span class="para-code">PATS</span><div class="para-owner"><span class="para-avatar" aria-hidden="true">J</span><span><small>ROLE LEAD</small><strong>Jeff</strong></span></div></div>
   <h3>Platforms &amp; Tools</h3><p class="para-purpose">Builds and maintains the shared AI foundation.</p>
+  <button class="ai-role-image" data-ai-image="/external/team/pats-jeff.png" data-ai-image-title="PATS · Role brief"><img src="/external/team/pats-jeff.png" alt="PATS responsibilities and objectives infographic" loading="lazy"><span>Preview role brief <b aria-hidden="true">⤢</b></span></button>
   <div class="para-owns"><span class="para-label">RESPONSIBILITIES</span><p>Tools, data, APIs, MCP servers, security, automation, and platform reliability.</p></div>
   <div class="para-tags" aria-label="Focus areas"><span>Data &amp; APIs</span><span>MCP</span><span>Security</span><span>Automation</span><span>Monitoring</span></div>
   <details class="para-details"><summary>Objectives &amp; success measures <span aria-hidden="true">+</span></summary>
     <div class="para-detail-body"><h4>Objectives</h4><ul><li>Build a reliable shared AI platform.</li><li>Continuously evaluate and improve the AI tool stack.</li></ul><h4>Targets from the role brief</h4><ol><li>Maintain ≥95% uptime for production internal AI workflows.</li><li>Complete shared standards for repositories, APIs/MCP, credentials, logging, and monitoring by Q2.</li><li>Maintain a documented inventory of all production tools and integrations.</li><li>Test at least 2 new tools or models per quarter and publish an Adopt / Test / Drop review.</li><li>Deliver at least 3 reusable platform components or integrations used by multiple PARA projects.</li></ol>
-    <a class="para-source" href="/external/team/pats-jeff.png" target="_blank" rel="noopener">View original PATS brief ↗</a></div>
+    <button class="para-source ai-text-button" data-ai-image="/external/team/pats-jeff.png" data-ai-image-title="View original PATS brief">Preview PATS brief ⤢</button></div>
   </details>
 </article>
 <article class="para-role" id="para-ate" style="--role-color:#bd8585">
   <div class="para-role-top"><span class="para-code">ATE</span><div class="para-owner"><span class="para-avatar" aria-hidden="true">P</span><span><small>ROLE LEAD</small><strong>Peter (Pete)</strong></span></div></div>
   <h3>Agentic Trading &amp; Execution</h3><p class="para-purpose">Progresses AI from recommendations toward controlled execution.</p>
+  <button class="ai-role-image" data-ai-image="/external/team/ate-peter.png" data-ai-image-title="ATE · Role brief"><img src="/external/team/ate-peter.png" alt="ATE responsibilities and objectives infographic" loading="lazy"><span>Preview role brief <b aria-hidden="true">⤢</b></span></button>
   <div class="para-owns"><span class="para-label">RESPONSIBILITIES</span><p>Strategies, staging to IBKR, execution within limits, the outcome ledger, and agent risk controls.</p></div>
   <div class="para-tags" aria-label="Focus areas"><span>Agent Logic</span><span>IBKR Staging</span><span>Risk Controls</span><span>Outcome Ledger</span><span>Execution</span></div>
   <details class="para-details"><summary>Objectives &amp; success measures <span aria-hidden="true">+</span></summary>
     <div class="para-detail-body"><h4>Objectives</h4><ul><li>Progress the trading agent safely up the autonomy ladder.</li><li>Prove measurable trading value from agentic strategies.</li></ul><h4>Targets from the role brief</h4><ol><li>Develop and validate the stages: Recommend → Shadow → Stage → Limited Execute, subject to approval gates.</li><li>Document backtest or shadow results and risk limits for every promoted strategy.</li><li>Log 100% of agent actions with rationale, order details, and outcome.</li><li>Maintain an outcome ledger covering P&amp;L, hit rate, edge, drawdown, and execution quality.</li><li>Review, promote, or stop strategies at least quarterly; at least 2 reach sustained shadow or staged-order testing in 2027.</li></ol>
-    <a class="para-source" href="/external/team/ate-peter.png" target="_blank" rel="noopener">View original ATE brief ↗</a></div>
+    <button class="para-source ai-text-button" data-ai-image="/external/team/ate-peter.png" data-ai-image-title="View original ATE brief">Preview ATE brief ⤢</button></div>
   </details>
 </article>
 <article class="para-role" id="para-rai" style="--role-color:#a393c0">
   <div class="para-role-top"><span class="para-code">RAI</span><div class="para-owner"><span class="para-avatar" aria-hidden="true">M</span><span><small>ROLE LEAD</small><strong>Monette</strong></span></div></div>
   <h3>Research &amp; Intelligence</h3><p class="para-purpose">Turns market information into actionable intelligence.</p>
+  <button class="ai-role-image" data-ai-image="/external/team/rai-monette.png" data-ai-image-title="RAI · Role brief"><img src="/external/team/rai-monette.png" alt="RAI responsibilities and objectives infographic" loading="lazy"><span>Preview role brief <b aria-hidden="true">⤢</b></span></button>
   <div class="para-owns"><span class="para-label">RESPONSIBILITIES</span><p>Automated research, watchlists, catalyst tracking, market briefs, and research agents.</p></div>
   <div class="para-tags" aria-label="Focus areas"><span>Watchlists</span><span>Catalysts</span><span>Earnings</span><span>Market Briefs</span><span>Research Agents</span></div>
   <details class="para-details"><summary>Objectives &amp; success measures <span aria-hidden="true">+</span></summary>
     <div class="para-detail-body"><h4>Objectives</h4><ul><li>Automate recurring market research and watchlist generation.</li><li>Improve the usefulness and reliability of AI-generated intelligence.</li></ul><h4>Targets from the role brief</h4><ol><li>Launch at least 2 production research workflows, such as watchlists, catalysts, earnings, or market briefs.</li><li>Run outputs on agreed daily or weekly schedules with ≥95% successful runs.</li><li>Reduce manual research time on targeted workflows by at least 30%.</li><li>Maintain source-linked outputs for all material research claims.</li><li>Achieve ≥70% useful or actionable ratings from intended users by year-end, with quarterly reviews.</li></ol>
-    <a class="para-source" href="/external/team/rai-monette.png" target="_blank" rel="noopener">View original RAI brief ↗</a></div>
+    <button class="para-source ai-text-button" data-ai-image="/external/team/rai-monette.png" data-ai-image-title="View original RAI brief">Preview RAI brief ⤢</button></div>
   </details>
 </article>
 <article class="para-role" id="para-asap" style="--role-color:#8fb390">
   <div class="para-role-top"><span class="para-code">ASAP</span><div class="para-owner"><span class="para-avatar" aria-hidden="true">B</span><span><small>ROLE LEAD</small><strong>Ben</strong></span></div></div>
   <h3>AI Solutions &amp; Partnerships</h3><p class="para-purpose">Finds, scopes, and drives AI opportunities across the organization.</p>
+  <button class="ai-role-image" data-ai-image="/external/team/asap-ben.png" data-ai-image-title="ASAP · Role brief"><img src="/external/team/asap-ben.png" alt="ASAP responsibilities and objectives infographic" loading="lazy"><span>Preview role brief <b aria-hidden="true">⤢</b></span></button>
   <div class="para-owns"><span class="para-label">RESPONSIBILITIES</span><p>Cross-desk AI opportunities, project scoping, business-to-AI translation, and adoption across teams.</p></div>
   <div class="para-tags" aria-label="Focus areas"><span>Discovery</span><span>Scoping</span><span>Pilots</span><span>Adoption</span><span>Impact Tracking</span></div>
   <details class="para-details"><summary>Objectives &amp; success measures <span aria-hidden="true">+</span></summary>
     <div class="para-detail-body"><h4>Objectives</h4><ul><li>Find high-value AI opportunities across desks.</li><li>Drive adoption and measurable business impact.</li></ul><h4>Targets from the role brief</h4><ol><li>Conduct discovery with all relevant desks or functions during 2027.</li><li>Maintain a ranked AI opportunity pipeline with value, complexity, and owner.</li><li>Move at least 4 cross-team use cases into pilot, with at least 2 reaching regular use.</li><li>Define a success metric before every pilot begins.</li><li>Document measurable impact and conduct quarterly cross-desk AI reviews or demonstrations.</li></ol>
-    <a class="para-source" href="/external/team/asap-ben.png" target="_blank" rel="noopener">View original ASAP brief ↗</a></div>
+    <button class="para-source ai-text-button" data-ai-image="/external/team/asap-ben.png" data-ai-image-title="View original ASAP brief">Preview ASAP brief ⤢</button></div>
   </details>
 </article></div>
   <section class="para-together"><span class="para-label">HOW WE WORK TOGETHER</span><p><strong>PATS</strong> provides the foundation. <strong>ATE</strong> develops controlled agent execution. <strong>RAI</strong> generates useful intelligence. <strong>ASAP</strong> connects opportunities to adoption and business impact.</p></section>
+  </section>
+  <section id="ai-pane-status" role="tabpanel" aria-labelledby="ai-tab-status" hidden>
+    <header class="ai-project-heading"><div><span class="ai-eyebrow">INDIVIDUAL &amp; TEAM PROJECTS</span><h1>Make progress visible.</h1><p>Track milestones, unblock work, and keep completed projects in view.</p></div><button class="btn-sm btn-accent" id="ai-add-project">+ Add project</button></header>
+    <div class="ai-project-stats" id="ai-project-stats"></div>
+    <div class="ai-project-toolbar"><div class="ai-view-filters" aria-label="Project view"><button class="active" data-ai-view="active" aria-pressed="true">Active</button><button data-ai-view="completed" aria-pressed="false">Completed</button><button data-ai-view="all" aria-pressed="false">All projects</button></div><button class="btn-sm btn-sec" id="ai-refresh-projects">↻ Refresh</button></div>
+    <div class="ai-project-filters"><label class="ai-search"><span class="sr-only">Search projects</span><input type="search" class="finp" id="ai-project-search" placeholder="Search projects, people, or blockers…"></label><label><span class="sr-only">Project type</span><select class="finp" id="ai-project-type-filter"><option value="">Individual &amp; team</option><option value="individual">Individual</option><option value="team">Team</option></select></label><label><span class="sr-only">Project owner</span><select class="finp" id="ai-project-owner-filter"><option value="">All owners</option><option>Ben</option><option>Jeff</option><option>Peter</option><option>Monette</option></select></label></div>
+    <div id="ai-project-notice" role="status" aria-live="polite"></div><p class="ai-project-sync" id="ai-project-sync" aria-live="polite"></p>
+    <div class="ai-project-grid" id="ai-project-list" aria-live="polite"></div>
+  </section>
 </div>
 
 <!-- ══ FUND DESK ══ -->
@@ -2173,6 +2196,7 @@ function showPage(id, navEl){
   }
   const t = PAGE_TITLES[id]||id.toUpperCase();
   document.getElementById('page-title').innerHTML = id==='funddesk'?'FUND <span style="color:var(--accent)">DESK</span>':t;
+  if(id==='aiprojects' && typeof initAiProjects==='function') initAiProjects();
   if(id==='kpi') renderKPI();
   if(id==='home'){ renderHome(); setTimeout(function(){ loadNews(currentNewsCategory); }, 300); }
   if(id==='scheduler'){ renderCalendar(); setTimeout(renderThisWeek, 100); }
@@ -6022,3 +6046,16 @@ function autoDetectTickers(){
 
 
 
+
+
+<dialog id="ai-image-dialog" class="ai-image-dialog" aria-labelledby="ai-image-title"><header><h2 id="ai-image-title">Image preview</h2><div class="ai-image-actions"><button type="button" data-ai-zoom="out" aria-label="Zoom out">−</button><button type="button" data-ai-zoom="reset" id="ai-image-zoom-label">Fit</button><button type="button" data-ai-zoom="in" aria-label="Zoom in">+</button><button type="button" id="ai-image-close" aria-label="Close image preview">✕</button></div></header><div class="ai-image-stage" id="ai-image-stage" tabindex="0"><img id="ai-image-full" alt=""></div><p id="ai-image-error" hidden>Unable to load this image. Close the preview and try again.</p><footer>Use + / − to zoom. Scroll to explore. Press Esc to close.</footer></dialog>
+<dialog id="ai-project-dialog" class="ai-project-dialog" aria-labelledby="ai-project-dialog-title"><form id="ai-project-form"><header><div><span class="ai-eyebrow">PROJECT DETAILS</span><h2 id="ai-project-dialog-title">Add project</h2></div><button type="button" id="ai-project-close" aria-label="Close project editor">✕</button></header>
+  <div class="ai-form-fields"><label class="ai-field ai-full">Project name<input class="finp" id="ai-p-title" required maxlength="120" placeholder="What are we working on?"></label><label class="ai-field ai-full">Purpose / expected outcome<textarea class="finp" id="ai-p-summary" rows="2" maxlength="2000" placeholder="The problem, intended users, and what success looks like"></textarea></label>
+  <label class="ai-field">Project type<select class="finp" id="ai-p-kind"><option value="individual">Individual</option><option value="team">Team</option></select></label><label class="ai-field">Accountable owner<select class="finp" id="ai-p-owner" required><option value="">Select owner</option><option>Ben</option><option>Jeff</option><option>Peter</option><option>Monette</option></select></label>
+  <fieldset class="ai-field ai-full" id="ai-p-members-field"><legend>Team contributors</legend><div class="ai-member-options"><label><input type="checkbox" name="ai-member" value="Ben">Ben</label><label><input type="checkbox" name="ai-member" value="Jeff">Jeff</label><label><input type="checkbox" name="ai-member" value="Peter">Peter</label><label><input type="checkbox" name="ai-member" value="Monette">Monette</label></div><small>The owner is always included.</small></fieldset>
+  <label class="ai-field">PARA function<select class="finp" id="ai-p-function"><option>Cross-role</option><option>PATS</option><option>ATE</option><option>RAI</option><option>ASAP</option></select></label><label class="ai-field">Status<select class="finp" id="ai-p-status"><option value="planned">Planned</option><option value="in_progress">In progress</option><option value="blocked">Blocked</option><option value="completed">Completed</option></select></label><label class="ai-field">Target date<input type="date" class="finp" id="ai-p-due"></label><label class="ai-field">Progress (%)<input type="number" class="finp" id="ai-p-progress" min="0" max="100" step="1" value="0"><small id="ai-progress-help">Set manually, or add milestones to calculate it.</small></label>
+  <fieldset class="ai-field ai-full"><legend>Milestones</legend><div id="ai-p-milestone-list"></div><div class="ai-milestone-add"><input class="finp" id="ai-p-milestone-new" maxlength="240" placeholder="Add the next deliverable"><button type="button" class="btn-sm btn-sec" id="ai-p-milestone-add">+ Add</button></div><small>Check completed milestones. Progress updates automatically.</small></fieldset>
+  <label class="ai-field ai-full" id="ai-p-blocker-field">Blocker / help needed<textarea class="finp" id="ai-p-blocker" rows="2" maxlength="1000" placeholder="What needs to happen to move forward?"></textarea></label><label class="ai-field ai-full">Project link<input type="url" class="finp" id="ai-p-link" maxlength="1000" placeholder="https://…"></label><label class="ai-field ai-full">Progress update / results<textarea class="finp" id="ai-p-note" rows="2" maxlength="2000" placeholder="What changed? For completed projects, record the outcome."></textarea></label></div>
+  <details class="ai-project-history"><summary>Recent project updates</summary><div id="ai-project-history"></div></details><p id="ai-project-save-error" role="alert"></p><footer><span id="ai-project-save-info">Updates are shared with the team.</span><div><button type="button" class="btn-sm btn-sec" id="ai-project-cancel">Cancel</button><button type="submit" class="btn-sm btn-accent" id="ai-project-save">Save project</button></div></footer>
+</form></dialog>
+<script src="/external/ai-projects.js"></script>
