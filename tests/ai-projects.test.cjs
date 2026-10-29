@@ -62,9 +62,21 @@ async function main() {
   async function shot(page, filename) { if (output) await page.screenshot({ path: path.join(output, filename) }); }
   try {
     const { page, errors } = await pageFor();
-    assert.equal(await page.locator('.ai-role-image').count(), 4);
-    assert.equal(await page.locator('#ai-pane-roles [data-ai-image]').count(), 11);
+    assert.equal(await page.locator('.ai-person-card').count(), 4);
+    assert.equal(await page.locator('#ai-pane-roles img').count(), 0);
+    assert.equal(await page.locator('#ai-pane-roles [data-ai-image]').count(), 10);
     assert.equal(await page.locator('#ai-pane-roles a[target="_blank"]').count(), 0);
+    for (const file of ['asap-ben.png', 'pats-jeff.png', 'ate-peter.png', 'rai-monette.png']) {
+      const card = page.locator(`.ai-person-card[data-ai-image$="${file}"]`);
+      await card.click();
+      await page.waitForFunction(name => { const image = document.getElementById('ai-image-full'); return image.src.endsWith(name) && image.classList.contains('is-ready'); }, file);
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => !document.getElementById('ai-image-dialog').open);
+      assert.equal(await card.evaluate(e => e === document.activeElement), true, 'Closing the preview returns focus to its teammate card');
+    }
+    await page.locator('.ai-role-notes > summary').click();
+    assert.equal(await page.locator('.para-detail-body ol li').count(), 20);
+    await page.locator('.ai-role-notes > summary').click();
     await page.locator('.ai-workflow-reference').click();
     await page.waitForFunction(() => document.getElementById('ai-image-full').naturalWidth > 0);
     assert.equal(await page.locator('#ai-image-dialog').evaluate(e => e.open), true);
@@ -72,8 +84,14 @@ async function main() {
     await page.locator('[data-ai-zoom=in]').click();
     assert.ok(await page.locator('#ai-image-full').evaluate(e => e.getBoundingClientRect().width) > fit);
     await page.keyboard.press('Escape');
-    assert.equal(await page.locator('#ai-image-dialog').evaluate(e => e.open), false);
+    await page.waitForFunction(() => !document.getElementById('ai-image-dialog').open);
     assert.equal(page.context().pages().length, 1);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.locator('.ai-person-card').first().click();
+    assert.equal(await page.locator('#ai-image-dialog').evaluate(e => getComputedStyle(e).animationName), 'none');
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => !document.getElementById('ai-image-dialog').open);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
     await shot(page, 'gains-ai-roles-workflow-dark.png');
     await page.evaluate(() => applyTheme('light'));
     await shot(page, 'gains-ai-roles-workflow-light.png');
@@ -177,6 +195,8 @@ async function main() {
     await shot(page, 'gains-ai-status-mobile.png');
     await page.locator('#ai-tab-roles').click();
     assert.ok(await page.locator('#ai-pane-roles').evaluate(e => e.scrollWidth <= e.clientWidth + 1));
+    assert.ok(await page.locator('.ai-people-stack').evaluate(e => e.scrollWidth > e.clientWidth), 'Names remain a horizontal scrollable row on mobile');
+    await shot(page, 'gains-ai-roles-mobile.png');
     assert.deepEqual([...errors, ...teammateErrors, ...guestErrors], []);
     console.log('PASS: image overlays/zoom/Escape, both sections, shared saves, milestone/manual progress, failure recovery, stale-update protection, completed/reopened projects, filters, guest access, dark/light/mobile layouts.');
   } finally { await browser.close(); }

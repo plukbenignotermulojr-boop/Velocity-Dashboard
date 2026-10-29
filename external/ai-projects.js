@@ -130,7 +130,7 @@
     }
     if (state.tab === 'status') { render(); loadProjects(); }
   }
-  let imageZoom = 1, imageBase = 0;
+  let imageZoom = 1, imageBase = 0, imageClosing = false;
   function resizeImage() {
     const image = $('ai-image-full'), stage = $('ai-image-stage');
     if (!image.naturalWidth) return;
@@ -145,13 +145,24 @@
     imageZoom = 1;
     $('ai-image-title').textContent = title || 'Team reference';
     $('ai-image-error').hidden = true;
+    $('ai-image-stage').setAttribute('aria-busy', 'true');
     image.hidden = false;
+    image.classList.remove('is-ready');
     image.alt = title || 'Team reference image';
-    image.onload = () => { resizeImage(); $('ai-image-stage').scrollTo(0, 0); };
-    image.onerror = () => { image.hidden = true; $('ai-image-error').hidden = false; };
+    image.onload = () => { resizeImage(); $('ai-image-stage').scrollTo(0, 0); $('ai-image-stage').setAttribute('aria-busy', 'false'); image.classList.add('is-ready'); };
+    image.onerror = () => { image.hidden = true; $('ai-image-stage').setAttribute('aria-busy', 'false'); $('ai-image-error').hidden = false; };
     image.src = src;
     if (!dialog.open) dialog.showModal();
     resizeImage();
+  }
+  function closeImage() {
+    const dialog = $('ai-image-dialog');
+    if (!dialog.open || imageClosing) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || typeof dialog.animate !== 'function') { dialog.close(); return; }
+    imageClosing = true;
+    dialog.classList.add('is-closing');
+    const animation = dialog.animate([{ opacity: 1, transform: 'translateY(0) scale(1)' }, { opacity: 0, transform: 'translateY(8px) scale(.985)' }], { duration: 160, easing: 'ease-in', fill: 'forwards' });
+    animation.finished.catch(() => {}).then(() => { dialog.close(); animation.cancel(); dialog.classList.remove('is-closing'); imageClosing = false; });
   }
   function renderMilestones() {
     $('ai-p-milestone-list').innerHTML = state.milestones.map((m, i) => `<div class="ai-milestone-row"><input type="checkbox" data-ai-milestone-check="${i}" aria-label="Complete milestone ${i + 1}" ${m.done ? 'checked' : ''}><input type="text" class="finp" maxlength="240" value="${esc(m.title)}" data-ai-milestone-title="${i}" aria-label="Milestone ${i + 1}"><button type="button" data-ai-milestone-remove="${i}" aria-label="Remove milestone ${i + 1}">✕</button></div>`).join('');
@@ -315,11 +326,12 @@
     $('ai-add-project').addEventListener('click', () => openProject());
     $('ai-refresh-projects').addEventListener('click', loadProjects);
     ['ai-project-search', 'ai-project-type-filter', 'ai-project-owner-filter'].forEach(id => $(id).addEventListener(id.includes('search') ? 'input' : 'change', render));
-    $('ai-image-close').addEventListener('click', () => $('ai-image-dialog').close());
+    $('ai-image-close').addEventListener('click', closeImage);
+    $('ai-image-dialog').addEventListener('cancel', event => { event.preventDefault(); closeImage(); });
     $('ai-image-dialog').addEventListener('click', event => {
       const zoom = event.target.closest('[data-ai-zoom]');
       if (zoom) { imageZoom = zoom.dataset.aiZoom === 'reset' ? 1 : Math.min(4, Math.max(0.5, imageZoom + (zoom.dataset.aiZoom === 'in' ? 0.5 : -0.5))); resizeImage(); }
-      if (event.target === $('ai-image-dialog')) { const r = event.target.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) event.target.close(); }
+      if (event.target === $('ai-image-dialog')) { const r = event.target.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) closeImage(); }
     });
     window.addEventListener('resize', () => { if ($('ai-image-dialog').open) resizeImage(); });
     $('ai-project-form').addEventListener('submit', saveProject);
